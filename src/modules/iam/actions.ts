@@ -10,7 +10,7 @@ import { inviteEmail, resetEmail } from "@/lib/mail-templates";
 import { getRequestMeta } from "@/lib/request-meta";
 import { isLocale, LOCALE_COOKIE } from "@/i18n/config";
 import { formToObject, fromZodError, toActionState, type ActionState } from "./action-result";
-import { ROLE_DEFINITIONS, isRoleKey } from "./permissions";
+import { isRoleKey } from "./permissions";
 import {
   acceptInviteNewUserSchema,
   changePasswordSchema,
