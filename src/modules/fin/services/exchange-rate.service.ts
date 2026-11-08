@@ -24,6 +24,15 @@ export async function listExchangeRates(ctx: ActorContext) {
   });
 }
 
+export async function listPlatformExchangeRates(ctx: ActorContext) {
+  assertPermission(ctx, "platform.exchange_rates.manage");
+  return prisma.exchangeRate.findMany({
+    where: { organizationId: null },
+    orderBy: [{ effectiveDate: "desc" }, { baseCurrency: "asc" }],
+    take: 200,
+  });
+}
+
 async function upsertRate(ctx: ActorContext, organizationId: string | null, input: ExchangeRateInput) {
   return prisma.$transaction(async (tx) => {
     // O índice único não impede duplicados com organization_id NULL: serializa por par/data.
