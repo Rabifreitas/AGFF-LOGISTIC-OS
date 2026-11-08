@@ -91,12 +91,17 @@ export async function transitionOrganization(
     where: { organizationId, role: { key: "COMPANY_ADMIN" } },
     select: { userId: true, user: { select: { email: true, name: true, locale: true } } },
   });
-  await notifyUsers(prisma, organizationId, admins.map((a) => a.userId), {
-    type: `organization.${to.toLowerCase()}`,
-    title: `organization.status.${to}`,
-    body: reason,
-    link: "/app",
-  });
+  await notifyUsers(
+    prisma,
+    organizationId,
+    admins.map((a) => a.userId),
+    {
+      type: `organization.${to.toLowerCase()}`,
+      title: `organization.status.${to}`,
+      body: reason,
+      link: "/app",
+    },
+  );
   return { organization: after, notifiedAdmins: admins.map((a) => a.user) };
 }
 
@@ -147,7 +152,15 @@ export async function setUserLock(ctx: ActorContext, userId: string, locked: boo
     after: { status: after.status, lockReason: after.lockReason },
   });
   if (locked) {
-    await recordAccess({ userId, email: after.email, event: "ACCOUNT_LOCKED", success: true, reason: "admin", ip: ctx.ip, userAgent: ctx.userAgent });
+    await recordAccess({
+      userId,
+      email: after.email,
+      event: "ACCOUNT_LOCKED",
+      success: true,
+      reason: "admin",
+      ip: ctx.ip,
+      userAgent: ctx.userAgent,
+    });
   }
   return after;
 }

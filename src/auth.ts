@@ -49,7 +49,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
     session({ session, token }) {
-      return { ...session, sessionId: token.sid as string | undefined, user: { ...session.user, id: token.uid as string } };
+      return {
+        ...session,
+        sessionId: token.sid as string | undefined,
+        user: { ...session.user, id: token.uid as string },
+      };
     },
   },
   events: {

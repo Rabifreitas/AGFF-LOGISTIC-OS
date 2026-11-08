@@ -11,9 +11,18 @@ export function NewUserInviteForm({ token, email }: { token: string; email: stri
       {(state) => (
         <>
           <input type="hidden" name="token" value={token} />
-          <p className="text-sm text-gray-700">{t("common.email")}: <strong>{email}</strong></p>
+          <p className="text-sm text-gray-700">
+            {t("common.email")}: <strong>{email}</strong>
+          </p>
           <Field name="name" label={t("register.adminName")} state={state} autoComplete="name" required />
-          <Field name="password" type="password" label={t("register.password")} state={state} autoComplete="new-password" required />
+          <Field
+            name="password"
+            type="password"
+            label={t("register.password")}
+            state={state}
+            autoComplete="new-password"
+            required
+          />
           <p className="text-xs text-gray-500">{t("register.passwordHint")}</p>
         </>
       )}

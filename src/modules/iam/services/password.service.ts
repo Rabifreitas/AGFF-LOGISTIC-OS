@@ -14,9 +14,16 @@ export async function requestPasswordReset(rawEmail: string, meta: { ip?: string
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user || user.status === "DISABLED") return null;
   const token = generateToken();
-  await prisma.passwordResetToken.updateMany({ where: { userId: user.id, usedAt: null }, data: { usedAt: new Date() } });
+  await prisma.passwordResetToken.updateMany({
+    where: { userId: user.id, usedAt: null },
+    data: { usedAt: new Date() },
+  });
   await prisma.passwordResetToken.create({
-    data: { userId: user.id, tokenHash: hashToken(token), expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MINUTES * 60_000) },
+    data: {
+      userId: user.id,
+      tokenHash: hashToken(token),
+      expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MINUTES * 60_000),
+    },
   });
   await recordAccess({ userId: user.id, email, event: "PASSWORD_RESET_REQUESTED", success: true, ...meta });
   return { token, user: { id: user.id, email: user.email, name: user.name, locale: user.locale } };
@@ -28,7 +35,11 @@ export async function findValidResetToken(token: string) {
   return record;
 }
 
-export async function resetPassword(token: string, newPassword: string, meta: { ip?: string; userAgent?: string } = {}) {
+export async function resetPassword(
+  token: string,
+  newPassword: string,
+  meta: { ip?: string; userAgent?: string } = {},
+) {
   const record = await findValidResetToken(token);
   if (!record) throw new InvalidStateError("reset.invalidToken");
   const passwordHash = await hashPassword(newPassword);
@@ -38,7 +49,11 @@ export async function resetPassword(token: string, newPassword: string, meta: { 
       where: { id: record.userId },
       data: { passwordHash, passwordChangedAt: new Date(), failedLoginAttempts: 0, lockedUntil: null },
     });
-    await recordAudit(tx, { userId: u.id, organizationId: null, ...meta }, { action: "user.password_reset", entityType: "User", entityId: u.id });
+    await recordAudit(
+      tx,
+      { userId: u.id, organizationId: null, ...meta },
+      { action: "user.password_reset", entityType: "User", entityId: u.id },
+    );
     return u;
   });
   await revokeAllUserSessions(user.id);
@@ -60,7 +75,11 @@ export async function changePassword(
     where: { id: userId },
     data: { passwordHash: await hashPassword(newPassword), passwordChangedAt: new Date() },
   });
-  await recordAudit(prisma, { userId, organizationId: null, ...meta }, { action: "user.password_changed", entityType: "User", entityId: userId });
+  await recordAudit(
+    prisma,
+    { userId, organizationId: null, ...meta },
+    { action: "user.password_changed", entityType: "User", entityId: userId },
+  );
   await revokeAllUserSessions(userId, currentSessionId);
   await recordAccess({ userId, email: user.email, event: "PASSWORD_CHANGED", success: true, ...meta });
 }

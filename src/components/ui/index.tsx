@@ -18,7 +18,11 @@ export function buttonClass(variant: Variant = "primary", className?: string) {
   );
 }
 
-export function Button({ variant = "primary", className, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
+export function Button({
+  variant = "primary",
+  className,
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
   return <button className={buttonClass(variant, className)} {...props} />;
 }
 
@@ -49,11 +53,19 @@ export function Card({ className, children }: { className?: string; children: Re
   return <div className={cn("rounded-lg border border-gray-200 bg-white p-6 shadow-sm", className)}>{children}</div>;
 }
 
-export function PageHeader({ title, description, actions }: { title: string; description?: string; actions?: ReactNode }) {
+export function PageHeader({
+  title,
+  description,
+  actions,
+}: {
+  title: string;
+  description?: string;
+  actions?: ReactNode;
+}) {
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-semibold text-navy-900">{title}</h1>
+        <h1 className="text-navy-900 text-2xl font-semibold">{title}</h1>
         {description && <p className="mt-1 text-sm text-gray-600">{description}</p>}
       </div>
       {actions}
@@ -61,10 +73,18 @@ export function PageHeader({ title, description, actions }: { title: string; des
   );
 }
 
-export function EmptyState({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
+export function EmptyState({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
   return (
     <div className="rounded-lg border border-dashed border-gray-300 bg-white px-6 py-12 text-center">
-      <p className="text-sm font-medium text-navy-900">{title}</p>
+      <p className="text-navy-900 text-sm font-medium">{title}</p>
       {description && <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
@@ -81,7 +101,9 @@ const badgeTones = {
 } as const;
 
 export function Badge({ tone = "gray", children }: { tone?: keyof typeof badgeTones; children: ReactNode }) {
-  return <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", badgeTones[tone])}>{children}</span>;
+  return (
+    <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium", badgeTones[tone])}>{children}</span>
+  );
 }
 
 export function statusTone(status: string): keyof typeof badgeTones {
@@ -116,8 +138,15 @@ export function Td({ children, className }: { children?: ReactNode; className?: 
 
 export function Logo({ light = false }: { light?: boolean }) {
   return (
-    <span className={cn("inline-flex items-center gap-2 font-semibold tracking-tight", light ? "text-white" : "text-navy-900")}>
-      <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-gold-500 text-sm font-bold text-navy-950">A</span>
+    <span
+      className={cn(
+        "inline-flex items-center gap-2 font-semibold tracking-tight",
+        light ? "text-white" : "text-navy-900",
+      )}
+    >
+      <span className="bg-gold-500 text-navy-950 inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-bold">
+        A
+      </span>
       <span>
         AGFF <span className="text-gold-500">Logistics OS</span>
       </span>

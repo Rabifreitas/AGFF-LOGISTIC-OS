@@ -29,12 +29,12 @@ export default async function TeamPage() {
       <PageHeader title={t("team.title")} description={t("team.desc")} />
       {canInvite && (
         <Card className="mb-8">
-          <h2 className="mb-4 font-semibold text-navy-900">{t("team.invite")}</h2>
+          <h2 className="text-navy-900 mb-4 font-semibold">{t("team.invite")}</h2>
           <InviteForm roles={assignable} />
         </Card>
       )}
 
-      <h2 className="mb-3 font-semibold text-navy-900">{t("team.members")}</h2>
+      <h2 className="text-navy-900 mb-3 font-semibold">{t("team.members")}</h2>
       <Table head={[t("common.name"), t("team.role"), t("common.status"), t("team.lastLogin"), t("common.actions")]}>
         {members.map((m) => {
           const self = m.userId === ctx.userId;
@@ -42,7 +42,7 @@ export default async function TeamPage() {
           return (
             <tr key={m.id}>
               <Td>
-                <p className="font-medium text-navy-900">
+                <p className="text-navy-900 font-medium">
                   {m.user.name} {self && <span className="text-gray-400">{t("team.you")}</span>}
                 </p>
                 <p className="text-xs text-gray-500">{m.user.email}</p>
@@ -51,14 +51,19 @@ export default async function TeamPage() {
                 {canUpdate && editable ? (
                   <form action={changeRoleAction} className="flex gap-2">
                     <input type="hidden" name="membershipId" value={m.id} />
-                    <select name="roleKey" defaultValue={m.role.key} className="rounded border border-gray-300 px-2 py-1 text-xs" aria-label={t("team.role")}>
+                    <select
+                      name="roleKey"
+                      defaultValue={m.role.key}
+                      className="rounded border border-gray-300 px-2 py-1 text-xs"
+                      aria-label={t("team.role")}
+                    >
                       {assignable.map((r) => (
                         <option key={r} value={r}>
                           {t(`roles.${r}`)}
                         </option>
                       ))}
                     </select>
-                    <button className="text-xs text-navy-700 hover:underline">{t("team.changeRole")}</button>
+                    <button className="text-navy-700 text-xs hover:underline">{t("team.changeRole")}</button>
                   </form>
                 ) : (
                   t(`roles.${m.role.key}`)
@@ -73,7 +78,13 @@ export default async function TeamPage() {
                   <form action={setMemberStatusAction}>
                     <input type="hidden" name="membershipId" value={m.id} />
                     <input type="hidden" name="status" value={m.status === "ACTIVE" ? "SUSPENDED" : "ACTIVE"} />
-                    <button className={m.status === "ACTIVE" ? "text-xs text-red-700 hover:underline" : "text-xs text-green-700 hover:underline"}>
+                    <button
+                      className={
+                        m.status === "ACTIVE"
+                          ? "text-xs text-red-700 hover:underline"
+                          : "text-xs text-green-700 hover:underline"
+                      }
+                    >
                       {m.status === "ACTIVE" ? t("team.suspend") : t("team.reactivate")}
                     </button>
                   </form>
@@ -84,7 +95,7 @@ export default async function TeamPage() {
         })}
       </Table>
 
-      <h2 className="mb-3 mt-8 font-semibold text-navy-900">{t("team.invites")}</h2>
+      <h2 className="text-navy-900 mt-8 mb-3 font-semibold">{t("team.invites")}</h2>
       {invites.length === 0 ? (
         <EmptyState title={t("team.noInvites")} />
       ) : (
@@ -109,12 +120,15 @@ export default async function TeamPage() {
 
       {roles.length > 0 && (
         <>
-          <h2 className="mb-3 mt-8 font-semibold text-navy-900">{t("team.rolesTitle")}</h2>
+          <h2 className="text-navy-900 mt-8 mb-3 font-semibold">{t("team.rolesTitle")}</h2>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {roles.map((r) => (
               <details key={r.id} className="rounded-lg border border-gray-200 bg-white p-4">
-                <summary className="cursor-pointer text-sm font-medium text-navy-900">
-                  {t(`roles.${r.key}`)} <span className="text-xs text-gray-500">· {t("team.permissionsCount", { n: r.permissions.length })}</span>
+                <summary className="text-navy-900 cursor-pointer text-sm font-medium">
+                  {t(`roles.${r.key}`)}{" "}
+                  <span className="text-xs text-gray-500">
+                    · {t("team.permissionsCount", { n: r.permissions.length })}
+                  </span>
                 </summary>
                 <ul className="mt-2 space-y-0.5 text-xs text-gray-600">
                   {r.permissions.map((p) => (

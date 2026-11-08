@@ -6,7 +6,11 @@ import { sendMail } from "@/lib/mail";
 import { organizationStatusEmail } from "@/lib/mail-templates";
 import { fromZodError, formToObject, toActionState, type ActionState } from "@/modules/iam/action-result";
 import { getActorContext } from "@/modules/iam/session-context";
-import { exchangeRateSchema, setOrganizationExchangeRate, setPlatformExchangeRate } from "@/modules/fin/services/exchange-rate.service";
+import {
+  exchangeRateSchema,
+  setOrganizationExchangeRate,
+  setPlatformExchangeRate,
+} from "@/modules/fin/services/exchange-rate.service";
 import type { OrganizationTransition } from "@/modules/org/status";
 import { setUserLock, transitionOrganization } from "./services/platform.service";
 
@@ -27,7 +31,14 @@ export async function transitionOrganizationAction(_: ActionState, formData: For
     const { organization, notifiedAdmins } = await transitionOrganization(await actor(), id, transition, reason);
     for (const admin of notifiedAdmins) {
       await sendMail(
-        organizationStatusEmail({ to: admin.email, name: admin.name, organization: organization.name, status: organization.status, reason, locale: admin.locale }),
+        organizationStatusEmail({
+          to: admin.email,
+          name: admin.name,
+          organization: organization.name,
+          status: organization.status,
+          reason,
+          locale: admin.locale,
+        }),
       );
     }
     revalidatePath("/admin", "layout");
@@ -38,7 +49,12 @@ export async function transitionOrganizationAction(_: ActionState, formData: For
 }
 
 export async function setUserLockAction(formData: FormData) {
-  await setUserLock(await actor(), String(formData.get("userId")), formData.get("locked") === "true", String(formData.get("reason") ?? ""));
+  await setUserLock(
+    await actor(),
+    String(formData.get("userId")),
+    formData.get("locked") === "true",
+    String(formData.get("reason") ?? ""),
+  );
   revalidatePath("/admin/users");
 }
 

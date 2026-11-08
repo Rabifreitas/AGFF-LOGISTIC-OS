@@ -10,7 +10,7 @@ export default async function ResetPasswordPage({ params }: { params: Promise<{ 
   const valid = await findValidResetToken(token);
   return (
     <Card className="w-full max-w-md">
-      <h1 className="mb-6 text-xl font-semibold text-navy-900">{t("title")}</h1>
+      <h1 className="text-navy-900 mb-6 text-xl font-semibold">{t("title")}</h1>
       {valid ? (
         <ResetForm token={token} />
       ) : (

@@ -12,7 +12,9 @@ beforeEach(resetDatabase);
 describe("registo → aprovação → convite → login", () => {
   it("percorre o fluxo completo de onboarding", async () => {
     // 1. Empresa regista-se (fica pendente)
-    const { organization, user: admin } = await registerOrganization(registrationInput({ companyName: "Transportes Kwanza" }));
+    const { organization, user: admin } = await registerOrganization(
+      registrationInput({ companyName: "Transportes Kwanza" }),
+    );
     expect(organization.status).toBe("PENDING_APPROVAL");
 
     // Enquanto pendente, o admin entra mas não tem permissões
@@ -23,7 +25,9 @@ describe("registo → aprovação → convite → login", () => {
 
     // Super Admin foi notificado
     const sa = await superAdminContext();
-    expect(await prisma.notification.count({ where: { userId: sa.userId, type: "organization.pending_approval" } })).toBe(1);
+    expect(
+      await prisma.notification.count({ where: { userId: sa.userId, type: "organization.pending_approval" } }),
+    ).toBe(1);
 
     // 2. Admin da plataforma aprova
     const { organization: approved } = await transitionOrganization(sa, organization.id, "approve");
@@ -33,7 +37,10 @@ describe("registo → aprovação → convite → login", () => {
     // 3. Company Administrator convida um Logistics Manager
     const companyCtx = await loadActorContext(admin.id, organization.id);
     expect(companyCtx?.permissions.has("iam.members.invite")).toBe(true);
-    const { token, invite } = await createInvite(companyCtx!, { email: "gestor@kwanza.test", roleKey: "LOGISTICS_MANAGER" });
+    const { token, invite } = await createInvite(companyCtx!, {
+      email: "gestor@kwanza.test",
+      roleKey: "LOGISTICS_MANAGER",
+    });
     expect(invite.organizationId).toBe(organization.id);
     expect(invite.tokenHash).not.toBe(token);
 
@@ -53,16 +60,26 @@ describe("registo → aprovação → convite → login", () => {
     expect(await prisma.accessLog.count({ where: { userId: manager.id, event: "LOGIN_SUCCESS" } })).toBe(1);
 
     // Auditoria cobre todo o fluxo
-    const actions = (await prisma.auditLog.findMany({ where: { organizationId: organization.id } })).map((a) => a.action);
+    const actions = (await prisma.auditLog.findMany({ where: { organizationId: organization.id } })).map(
+      (a) => a.action,
+    );
     expect(actions).toEqual(
-      expect.arrayContaining(["organization.registered", "organization.approve", "invite.created", "invite.accepted", "membership.created"]),
+      expect.arrayContaining([
+        "organization.registered",
+        "organization.approve",
+        "invite.created",
+        "invite.accepted",
+        "membership.created",
+      ]),
     );
   });
 
   it("rejeita NIF ou email duplicados", async () => {
     await registerOrganization(registrationInput({ nif: "5000999999", adminEmail: "dup@x.test" }));
     await expect(registerOrganization(registrationInput({ nif: "5000999999" }))).rejects.toThrow("register.nifTaken");
-    await expect(registerOrganization(registrationInput({ adminEmail: "dup@x.test" }))).rejects.toThrow("register.emailTaken");
+    await expect(registerOrganization(registrationInput({ adminEmail: "dup@x.test" }))).rejects.toThrow(
+      "register.emailTaken",
+    );
   });
 
   it("bloqueia a conta após 5 tentativas falhadas", async () => {

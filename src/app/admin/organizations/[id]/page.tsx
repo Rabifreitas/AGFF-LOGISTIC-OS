@@ -19,7 +19,9 @@ export default async function AdminOrganizationPage({ params }: { params: Promis
     if (isAppError(e) && e.code === "NOT_FOUND") notFound();
     throw e;
   });
-  const audit = hasPermission(ctx, "platform.audit.read") ? await listPlatformAudit(ctx, { organizationId: id, take: 50 }) : [];
+  const audit = hasPermission(ctx, "platform.audit.read")
+    ? await listPlatformAudit(ctx, { organizationId: id, take: 50 })
+    : [];
   const fields: [string, string | null][] = [
     ["org.legalName", org.legalName],
     ["org.nif", org.nif],
@@ -32,7 +34,11 @@ export default async function AdminOrganizationPage({ params }: { params: Promis
   ];
   return (
     <>
-      <PageHeader title={org.name} description={t(`orgType.${org.type}`)} actions={<Badge tone={statusTone(org.status)}>{t(`status.${org.status}`)}</Badge>} />
+      <PageHeader
+        title={org.name}
+        description={t(`orgType.${org.type}`)}
+        actions={<Badge tone={statusTone(org.status)}>{t(`status.${org.status}`)}</Badge>}
+      />
       <Card className="mb-6">
         <dl className="grid gap-3 text-sm md:grid-cols-4">
           {fields.map(([k, v]) => (
@@ -46,7 +52,7 @@ export default async function AdminOrganizationPage({ params }: { params: Promis
           <TransitionForm organizationId={org.id} transitions={availableTransitions(org.status)} />
         </div>
       </Card>
-      <h2 className="mb-3 font-semibold text-navy-900">{t("admin.members")}</h2>
+      <h2 className="text-navy-900 mb-3 font-semibold">{t("admin.members")}</h2>
       <Table head={[t("common.name"), t("team.role"), t("common.status")]}>
         {org.memberships.map((m) => (
           <tr key={m.id}>
@@ -63,7 +69,7 @@ export default async function AdminOrganizationPage({ params }: { params: Promis
       </Table>
       {audit.length > 0 && (
         <>
-          <h2 className="mb-3 mt-8 font-semibold text-navy-900">{t("audit.title")}</h2>
+          <h2 className="text-navy-900 mt-8 mb-3 font-semibold">{t("audit.title")}</h2>
           <AuditTable rows={audit} />
         </>
       )}

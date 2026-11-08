@@ -26,7 +26,9 @@ export async function ExchangeRateTable({ rates }: { rates: Rate[] }) {
           <Td className="font-mono">{r.rate.toString()}</Td>
           <Td>{formatDate(r.effectiveDate, locale)}</Td>
           <Td>{r.source ?? "—"}</Td>
-          <Td>{r.organizationId ? <Badge tone="gold">{t("own")}</Badge> : <Badge tone="navy">{t("platform")}</Badge>}</Td>
+          <Td>
+            {r.organizationId ? <Badge tone="gold">{t("own")}</Badge> : <Badge tone="navy">{t("platform")}</Badge>}
+          </Td>
         </tr>
       ))}
     </Table>

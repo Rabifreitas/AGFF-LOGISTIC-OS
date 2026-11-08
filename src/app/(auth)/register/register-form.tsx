@@ -13,7 +13,7 @@ export function RegisterForm() {
       {(state) => (
         <>
           <fieldset className="space-y-4">
-            <legend className="mb-2 text-sm font-semibold text-navy-900">{t("register.company")}</legend>
+            <legend className="text-navy-900 mb-2 text-sm font-semibold">{t("register.company")}</legend>
             <div className="grid gap-4 md:grid-cols-2">
               <Field name="companyName" label={t("register.companyName")} state={state} required />
               <Field name="legalName" label={t("register.legalName")} state={state} required />
@@ -31,12 +31,26 @@ export function RegisterForm() {
             </div>
           </fieldset>
           <fieldset className="space-y-4">
-            <legend className="mb-2 text-sm font-semibold text-navy-900">{t("register.admin")}</legend>
+            <legend className="text-navy-900 mb-2 text-sm font-semibold">{t("register.admin")}</legend>
             <div className="grid gap-4 md:grid-cols-2">
               <Field name="adminName" label={t("register.adminName")} state={state} autoComplete="name" required />
-              <Field name="adminEmail" type="email" label={t("register.adminEmail")} state={state} autoComplete="email" required />
+              <Field
+                name="adminEmail"
+                type="email"
+                label={t("register.adminEmail")}
+                state={state}
+                autoComplete="email"
+                required
+              />
             </div>
-            <Field name="password" type="password" label={t("register.password")} state={state} autoComplete="new-password" required />
+            <Field
+              name="password"
+              type="password"
+              label={t("register.password")}
+              state={state}
+              autoComplete="new-password"
+              required
+            />
             <p className="text-xs text-gray-500">{t("register.passwordHint")}</p>
             <label className="flex items-start gap-2 text-sm text-gray-700">
               <input type="checkbox" name="acceptTerms" className="mt-1" />

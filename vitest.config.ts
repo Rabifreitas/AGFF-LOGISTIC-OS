@@ -4,7 +4,10 @@ import { defineConfig } from "vitest/config";
 
 loadEnv({ quiet: true });
 
-const alias = { "@": path.resolve(__dirname, "src"), "server-only": path.resolve(__dirname, "tests/stubs/server-only.ts") };
+const alias = {
+  "@": path.resolve(__dirname, "src"),
+  "server-only": path.resolve(__dirname, "tests/stubs/server-only.ts"),
+};
 const testDatabaseUrl =
   process.env.TEST_DATABASE_URL ?? "postgresql://agff:agff@localhost:5432/agff_logistics_test?schema=public";
 

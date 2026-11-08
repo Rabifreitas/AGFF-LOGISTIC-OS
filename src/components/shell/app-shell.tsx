@@ -26,24 +26,30 @@ export async function AppShell({
   const activeOrgs = memberships.filter((m) => m.status === "ACTIVE");
   return (
     <div className="flex min-h-screen">
-      <aside className="hidden w-64 shrink-0 flex-col bg-navy-900 text-gray-200 md:flex">
+      <aside className="bg-navy-900 hidden w-64 shrink-0 flex-col text-gray-200 md:flex">
         <div className="px-5 py-5">
           <Link href="/app">
             <Logo light />
           </Link>
-          {title && <p className="mt-2 text-xs uppercase tracking-wider text-gold-500">{title}</p>}
+          {title && <p className="text-gold-500 mt-2 text-xs tracking-wider uppercase">{title}</p>}
         </div>
         <nav className="flex-1 space-y-1 px-3 pb-6" aria-label="Main">
           {nav.map((item) => (
-            <Link key={item.href} href={item.href} className="flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-navy-800 hover:text-white">
+            <Link
+              key={item.href}
+              href={item.href}
+              className="hover:bg-navy-800 flex items-center justify-between rounded-md px-3 py-2 text-sm hover:text-white"
+            >
               <span>{item.label}</span>
-              {!!item.badge && <span className="rounded-full bg-gold-500 px-2 text-xs font-semibold text-navy-950">{item.badge}</span>}
+              {!!item.badge && (
+                <span className="bg-gold-500 text-navy-950 rounded-full px-2 text-xs font-semibold">{item.badge}</span>
+              )}
             </Link>
           ))}
         </nav>
         {ctx.isPlatform && hasPermission(ctx, "platform.access") && (
-          <div className="border-t border-navy-800 px-3 py-3">
-            <Link href="/admin" className="block rounded-md px-3 py-2 text-sm text-gold-500 hover:bg-navy-800">
+          <div className="border-navy-800 border-t px-3 py-3">
+            <Link href="/admin" className="text-gold-500 hover:bg-navy-800 block rounded-md px-3 py-2 text-sm">
               {t("nav.admin")}
             </Link>
           </div>
@@ -52,27 +58,36 @@ export async function AppShell({
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-6 py-3">
           <div className="flex items-center gap-3 text-sm">
-            <span className="font-medium text-navy-900">{ctx.organizationName}</span>
+            <span className="text-navy-900 font-medium">{ctx.organizationName}</span>
             <Badge tone="navy">{t(`roles.${ctx.roleKey}`)}</Badge>
             {activeOrgs.length > 1 && (
               <form action={switchOrganizationAction} className="flex items-center gap-2">
-                <select name="organizationId" defaultValue={ctx.organizationId} className="rounded border border-gray-300 px-2 py-1 text-xs" aria-label={t("nav.switchOrg")}>
+                <select
+                  name="organizationId"
+                  defaultValue={ctx.organizationId}
+                  className="rounded border border-gray-300 px-2 py-1 text-xs"
+                  aria-label={t("nav.switchOrg")}
+                >
                   {activeOrgs.map((m) => (
                     <option key={m.organizationId} value={m.organizationId}>
                       {m.organization.name}
                     </option>
                   ))}
                 </select>
-                <button className="text-xs text-navy-700 hover:underline">{t("nav.switchOrg")}</button>
+                <button className="text-navy-700 text-xs hover:underline">{t("nav.switchOrg")}</button>
               </form>
             )}
           </div>
           <div className="flex items-center gap-4 text-sm">
-            <Link href="/app/notifications" className="text-gray-600 hover:text-navy-900">
+            <Link href="/app/notifications" className="hover:text-navy-900 text-gray-600">
               {t("nav.notifications")}
-              {unread > 0 && <span className="ml-1 rounded-full bg-gold-500 px-1.5 text-xs font-semibold text-navy-950">{unread}</span>}
+              {unread > 0 && (
+                <span className="bg-gold-500 text-navy-950 ml-1 rounded-full px-1.5 text-xs font-semibold">
+                  {unread}
+                </span>
+              )}
             </Link>
-            <Link href="/account" className="text-gray-600 hover:text-navy-900">
+            <Link href="/account" className="hover:text-navy-900 text-gray-600">
               {ctx.name}
             </Link>
             <LocaleSwitcher />
@@ -83,7 +98,7 @@ export async function AppShell({
         </header>
         <nav className="flex gap-3 overflow-x-auto border-b border-gray-200 bg-white px-4 py-2 text-sm md:hidden">
           {nav.map((item) => (
-            <Link key={item.href} href={item.href} className="whitespace-nowrap text-navy-900">
+            <Link key={item.href} href={item.href} className="text-navy-900 whitespace-nowrap">
               {item.label}
             </Link>
           ))}

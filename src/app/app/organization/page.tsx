@@ -23,7 +23,7 @@ export default async function OrganizationPage() {
         actions={<Badge tone={statusTone(org.status)}>{t(`status.${org.status}`)}</Badge>}
       />
       <Card className="mb-6">
-        <h2 className="mb-1 font-semibold text-navy-900">{t("org.profile")}</h2>
+        <h2 className="text-navy-900 mb-1 font-semibold">{t("org.profile")}</h2>
         <p className="mb-4 text-sm text-gray-600">
           {t("org.nif")}: <strong>{org.nif}</strong> · {t(`orgType.${org.type}`)}
         </p>
@@ -55,7 +55,7 @@ export default async function OrganizationPage() {
       </Card>
 
       <Card className="mb-6">
-        <h2 className="mb-4 font-semibold text-navy-900">{t("org.addresses")}</h2>
+        <h2 className="text-navy-900 mb-4 font-semibold">{t("org.addresses")}</h2>
         {org.addresses.length === 0 ? (
           <EmptyState title={t("org.noAddresses")} />
         ) : (
@@ -87,7 +87,7 @@ export default async function OrganizationPage() {
       </Card>
 
       <Card className="mb-6">
-        <h2 className="mb-4 font-semibold text-navy-900">{t("org.contacts")}</h2>
+        <h2 className="text-navy-900 mb-4 font-semibold">{t("org.contacts")}</h2>
         {org.contacts.length === 0 ? (
           <EmptyState title={t("org.noContacts")} />
         ) : (
@@ -111,7 +111,7 @@ export default async function OrganizationPage() {
       </Card>
 
       <Card>
-        <h2 className="mb-4 font-semibold text-navy-900">{t("org.representatives")}</h2>
+        <h2 className="text-navy-900 mb-4 font-semibold">{t("org.representatives")}</h2>
         {org.representatives.length === 0 ? (
           <EmptyState title={t("org.noRepresentatives")} />
         ) : (

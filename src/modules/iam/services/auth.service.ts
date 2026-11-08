@@ -6,11 +6,7 @@ import { recordAccess } from "./access-log.service";
 import { createSession } from "./session.service";
 
 export type LoginFailureCode =
-  | "invalid_credentials"
-  | "account_locked"
-  | "account_disabled"
-  | "temporarily_locked"
-  | "no_active_membership";
+  "invalid_credentials" | "account_locked" | "account_disabled" | "temporarily_locked" | "no_active_membership";
 
 export type AuthenticateResult =
   | { ok: true; user: { id: string; email: string; name: string }; sessionId: string; organizationId: string }
@@ -51,7 +47,14 @@ export async function authenticate(
       data: { failedLoginAttempts: next.failedLoginAttempts, lockedUntil: next.lockedUntil },
     });
     if (next.justLocked) {
-      await recordAccess({ userId: user.id, email, event: "ACCOUNT_LOCKED", success: false, reason: "too_many_attempts", ...meta });
+      await recordAccess({
+        userId: user.id,
+        email,
+        event: "ACCOUNT_LOCKED",
+        success: false,
+        reason: "too_many_attempts",
+        ...meta,
+      });
       return fail("temporarily_locked");
     }
     return fail("invalid_credentials");

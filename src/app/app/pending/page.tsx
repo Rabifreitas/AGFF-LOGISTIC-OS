@@ -9,7 +9,7 @@ export default async function PendingPage() {
   const t = await getTranslations("pending");
   return (
     <Card className="mx-auto max-w-xl">
-      <h1 className="text-xl font-semibold text-navy-900">{t("title")}</h1>
+      <h1 className="text-navy-900 text-xl font-semibold">{t("title")}</h1>
       <p className="mt-2 text-sm text-gray-600">{t(ctx.organizationStatus as "PENDING_APPROVAL")}</p>
     </Card>
   );

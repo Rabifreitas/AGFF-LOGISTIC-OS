@@ -27,9 +27,7 @@ export async function loadActorContext(
   const { user, organization, role } = membership;
   const userActive = user.status === "ACTIVE" && (!user.lockedUntil || user.lockedUntil <= new Date());
   const active = userActive && membership.status === "ACTIVE" && organization.status === "ACTIVE";
-  const permissions = new Set<Permission>(
-    active ? role.permissions.map((rp) => rp.permission.key as Permission) : [],
-  );
+  const permissions = new Set<Permission>(active ? role.permissions.map((rp) => rp.permission.key as Permission) : []);
 
   return {
     userId: user.id,

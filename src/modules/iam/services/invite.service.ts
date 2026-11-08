@@ -69,7 +69,13 @@ export async function revokeInvite(ctx: ActorContext, inviteId: string) {
     where: { id: inviteId },
     data: { status: "REVOKED", revokedAt: new Date() },
   });
-  await recordAudit(db, ctx, { action: "invite.revoked", entityType: "UserInvite", entityId: inviteId, before: invite, after: updated });
+  await recordAudit(db, ctx, {
+    action: "invite.revoked",
+    entityType: "UserInvite",
+    entityId: inviteId,
+    before: invite,
+    after: updated,
+  });
 }
 
 /** Pesquisa pública por token (página de aceitação). */
@@ -130,22 +136,49 @@ export async function acceptInviteAsNewUser(
   const invite = await loadPendingInvite(token);
   if (invite.userExists) throw new ConflictError("invites.loginToAccept");
   const user = await prisma.user.create({
-    data: { email: invite.email, name: input.name, passwordHash: await hashPassword(input.password), passwordChangedAt: new Date() },
+    data: {
+      email: invite.email,
+      name: input.name,
+      passwordHash: await hashPassword(input.password),
+      passwordChangedAt: new Date(),
+    },
   });
-  await recordAudit(prisma, { userId: user.id, organizationId: invite.organizationId, ...meta }, {
-    action: "user.created",
-    entityType: "User",
-    entityId: user.id,
-    after: { id: user.id, email: user.email, name: user.name },
-  });
-  const membership = await finalizeAcceptance(invite.id, invite.organizationId, invite.roleId, invite.invitedById, user.id, meta);
+  await recordAudit(
+    prisma,
+    { userId: user.id, organizationId: invite.organizationId, ...meta },
+    {
+      action: "user.created",
+      entityType: "User",
+      entityId: user.id,
+      after: { id: user.id, email: user.email, name: user.name },
+    },
+  );
+  const membership = await finalizeAcceptance(
+    invite.id,
+    invite.organizationId,
+    invite.roleId,
+    invite.invitedById,
+    user.id,
+    meta,
+  );
   return { user, membership };
 }
 
-export async function acceptInviteAsExistingUser(token: string, userId: string, meta: { ip?: string; userAgent?: string } = {}) {
+export async function acceptInviteAsExistingUser(
+  token: string,
+  userId: string,
+  meta: { ip?: string; userAgent?: string } = {},
+) {
   const invite = await loadPendingInvite(token);
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
   if (user.email !== invite.email) throw new ForbiddenError("invites.emailMismatch");
-  const membership = await finalizeAcceptance(invite.id, invite.organizationId, invite.roleId, invite.invitedById, user.id, meta);
+  const membership = await finalizeAcceptance(
+    invite.id,
+    invite.organizationId,
+    invite.roleId,
+    invite.invitedById,
+    user.id,
+    meta,
+  );
   return { user, membership };
 }

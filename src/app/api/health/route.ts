@@ -11,5 +11,8 @@ export async function GET() {
     database = true;
   } catch {}
   const storage = await storageHealthy();
-  return NextResponse.json({ status: database ? "ok" : "degraded", database, storage }, { status: database ? 200 : 503 });
+  return NextResponse.json(
+    { status: database ? "ok" : "degraded", database, storage },
+    { status: database ? 200 : 503 },
+  );
 }

@@ -8,7 +8,13 @@ import { Button, Input, Label, Select } from "./ui";
 
 type Action = (state: ActionState, formData: FormData) => Promise<ActionState>;
 
-export function SubmitButton({ children, variant }: { children: ReactNode; variant?: "primary" | "gold" | "danger" | "secondary" }) {
+export function SubmitButton({
+  children,
+  variant,
+}: {
+  children: ReactNode;
+  variant?: "primary" | "gold" | "danger" | "secondary";
+}) {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} variant={variant}>
@@ -40,7 +46,11 @@ export function ActionForm({
   const [state, formAction] = useActionState(action, {});
   const msg = useMsg();
   return (
-    <form action={formAction} className={className ?? "space-y-4"} key={resetOnSuccess && state.ok ? Date.now() : undefined}>
+    <form
+      action={formAction}
+      className={className ?? "space-y-4"}
+      key={resetOnSuccess && state.ok ? Date.now() : undefined}
+    >
       {state.error && (
         <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
           {msg(state.error)}

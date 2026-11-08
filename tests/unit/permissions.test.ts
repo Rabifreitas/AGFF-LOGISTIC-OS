@@ -1,7 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { ForbiddenError } from "@/lib/errors";
-import { ORGANIZATION_ROLE_KEYS, PERMISSIONS, PLATFORM_ROLE_KEYS, ROLE_DEFINITIONS, ROLE_KEYS, type Permission, type RoleKey } from "@/modules/iam/permissions";
-import { assertCanAssignRole, assertPermission, assignableRoleKeys, hasPermission, roleHasPermission } from "@/modules/iam/rbac";
+import {
+  ORGANIZATION_ROLE_KEYS,
+  PERMISSIONS,
+  PLATFORM_ROLE_KEYS,
+  ROLE_DEFINITIONS,
+  ROLE_KEYS,
+  type Permission,
+  type RoleKey,
+} from "@/modules/iam/permissions";
+import {
+  assertCanAssignRole,
+  assertPermission,
+  assignableRoleKeys,
+  hasPermission,
+  roleHasPermission,
+} from "@/modules/iam/rbac";
 
 const holder = (role: RoleKey, isPlatform = ROLE_DEFINITIONS[role].scope === "PLATFORM") => ({
   permissions: new Set<Permission>(ROLE_DEFINITIONS[role].permissions),
@@ -11,7 +25,11 @@ const holder = (role: RoleKey, isPlatform = ROLE_DEFINITIONS[role].scope === "PL
 describe("catálogo RBAC", () => {
   it("define exactamente os 11 perfis da especificação", () => {
     expect(ROLE_KEYS).toHaveLength(11);
-    expect(Object.values(ROLE_DEFINITIONS).map((r) => r.name).sort()).toEqual(
+    expect(
+      Object.values(ROLE_DEFINITIONS)
+        .map((r) => r.name)
+        .sort(),
+    ).toEqual(
       [
         "Super Administrator",
         "Platform Operations",
@@ -35,7 +53,8 @@ describe("catálogo RBAC", () => {
 
   it("só usa permissões existentes no catálogo", () => {
     const known = new Set(Object.keys(PERMISSIONS));
-    for (const role of Object.values(ROLE_DEFINITIONS)) for (const p of role.permissions) expect(known.has(p)).toBe(true);
+    for (const role of Object.values(ROLE_DEFINITIONS))
+      for (const p of role.permissions) expect(known.has(p)).toBe(true);
   });
 
   it("perfis de empresa nunca recebem permissões de plataforma", () => {

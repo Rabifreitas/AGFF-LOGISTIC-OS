@@ -32,8 +32,10 @@ export default async function NotificationsPage() {
           {items.map((n) => (
             <li key={n.id} className={`px-4 py-3 ${n.readAt ? "" : "bg-gold-100/40"}`}>
               <div className="flex justify-between gap-4">
-                <p className="text-sm font-medium text-navy-900">{n.link ? <Link href={n.link}>{n.title}</Link> : n.title}</p>
-                <span className="whitespace-nowrap text-xs text-gray-500">{formatDateTime(n.createdAt, locale)}</span>
+                <p className="text-navy-900 text-sm font-medium">
+                  {n.link ? <Link href={n.link}>{n.title}</Link> : n.title}
+                </p>
+                <span className="text-xs whitespace-nowrap text-gray-500">{formatDateTime(n.createdAt, locale)}</span>
               </div>
               {n.body && <p className="text-sm text-gray-600">{n.body}</p>}
             </li>

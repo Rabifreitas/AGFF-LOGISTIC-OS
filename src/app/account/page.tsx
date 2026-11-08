@@ -18,18 +18,18 @@ export default async function AccountPage() {
     <>
       <PageHeader title={t("account.title")} description={`${ctx.name} · ${ctx.email}`} />
       <Card className="mb-6">
-        <h2 className="mb-4 font-semibold text-navy-900">{t("account.password")}</h2>
+        <h2 className="text-navy-900 mb-4 font-semibold">{t("account.password")}</h2>
         <PasswordForm />
       </Card>
       <Card className="mb-6">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-navy-900">{t("account.mfa")}</h2>
+          <h2 className="text-navy-900 font-semibold">{t("account.mfa")}</h2>
           <Badge tone="yellow">{t("account.mfaPending")}</Badge>
         </div>
       </Card>
       <Card className="mb-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold text-navy-900">{t("account.sessions")}</h2>
+          <h2 className="text-navy-900 font-semibold">{t("account.sessions")}</h2>
           {sessions.length > 1 && (
             <form action={revokeOtherSessionsAction}>
               <Button variant="secondary">{t("account.revokeOthers")}</Button>
@@ -58,7 +58,7 @@ export default async function AccountPage() {
         </Table>
       </Card>
       <Card>
-        <h2 className="mb-4 font-semibold text-navy-900">{t("account.accessLog")}</h2>
+        <h2 className="text-navy-900 mb-4 font-semibold">{t("account.accessLog")}</h2>
         {accessLog.length === 0 ? (
           <EmptyState title={t("account.noAccess")} />
         ) : (
@@ -70,7 +70,9 @@ export default async function AccountPage() {
                   <code className="text-xs">{a.event}</code>
                 </Td>
                 <Td>
-                  <Badge tone={a.success ? "green" : "red"}>{a.success ? t("account.success") : t("account.failure")}</Badge>
+                  <Badge tone={a.success ? "green" : "red"}>
+                    {a.success ? t("account.success") : t("account.failure")}
+                  </Badge>
                   {a.reason && <span className="ml-1 text-xs text-gray-500">{a.reason}</span>}
                 </Td>
                 <Td className="text-xs">{a.ipAddress ?? "—"}</Td>

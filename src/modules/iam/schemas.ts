@@ -29,7 +29,15 @@ export const registerSchema = z.object({
   companyName: z.string().trim().min(2, "validation.required").max(200),
   legalName: z.string().trim().min(2, "validation.required").max(200),
   nif: nifSchema,
-  organizationType: z.enum(["SHIPPER", "TRANSPORTER", "FREIGHT_FORWARDER", "CUSTOMS_BROKER", "WAREHOUSE", "SUPPLIER", "OTHER"]),
+  organizationType: z.enum([
+    "SHIPPER",
+    "TRANSPORTER",
+    "FREIGHT_FORWARDER",
+    "CUSTOMS_BROKER",
+    "WAREHOUSE",
+    "SUPPLIER",
+    "OTHER",
+  ]),
   country: z.string().trim().length(2).toUpperCase().default("AO"),
   currency: z.string().trim().length(3).toUpperCase().default("AOA"),
   companyEmail: emailSchema,
@@ -55,8 +63,14 @@ export const forgotPasswordSchema = z.object({ email: emailSchema });
 
 export const resetPasswordSchema = z
   .object({ password: passwordSchema, confirmPassword: z.string() })
-  .refine((d) => d.password === d.confirmPassword, { message: "validation.passwordMismatch", path: ["confirmPassword"] });
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "validation.passwordMismatch",
+    path: ["confirmPassword"],
+  });
 
 export const changePasswordSchema = z
   .object({ currentPassword: z.string().min(1), password: passwordSchema, confirmPassword: z.string() })
-  .refine((d) => d.password === d.confirmPassword, { message: "validation.passwordMismatch", path: ["confirmPassword"] });
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "validation.passwordMismatch",
+    path: ["confirmPassword"],
+  });

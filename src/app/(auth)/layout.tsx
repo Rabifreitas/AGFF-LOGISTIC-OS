@@ -5,7 +5,7 @@ import { Logo } from "@/components/ui";
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
-      <header className="flex items-center justify-between bg-navy-900 px-6 py-4">
+      <header className="bg-navy-900 flex items-center justify-between px-6 py-4">
         <Link href="/">
           <Logo light />
         </Link>

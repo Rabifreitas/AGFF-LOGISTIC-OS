@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  AUTH_TRUST_HOST: "true"
+
+jobs:
+  quality:
+    name: Lint, format & typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma validate
+        env:
+          DATABASE_URL: postgresql://x:x@localhost:5432/x
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+
+  test:
+    name: Unit & integration tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: agff
+          POSTGRES_PASSWORD: agff
+          POSTGRES_DB: agff_logistics_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U agff" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://agff:agff@localhost:5432/agff_logistics_test?schema=public
+      TEST_DATABASE_URL: postgresql://agff:agff@localhost:5432/agff_logistics_test?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run test:integration
+
+  e2e:
+    name: Build & E2E (Playwright)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: agff
+          POSTGRES_PASSWORD: agff
+          POSTGRES_DB: agff_logistics
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U agff" --health-interval 5s --health-timeout 5s --health-retries 10
+      mailpit:
+        image: axllent/mailpit:v1.24
+        ports: ["1025:1025", "8025:8025"]
+    env:
+      DATABASE_URL: postgresql://agff:agff@localhost:5432/agff_logistics?schema=public
+      SMTP_HOST: localhost
+      SMTP_PORT: "1025"
+      MAIL_TRANSPORT: smtp
+      MAILPIT_URL: http://localhost:8025
+      SEED_SUPERADMIN_EMAIL: admin@agff.local
+      SEED_SUPERADMIN_PASSWORD: CiOnly!Passw0rd
+      SEED_SUPERADMIN_NAME: Super Administrador
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: echo "AUTH_SECRET=$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+      - run: npm ci
+      - run: npx prisma migrate deploy
+      - run: npx prisma db seed
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
+  docker:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t agff-logistics-os:ci .

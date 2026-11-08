@@ -3,7 +3,13 @@ import { prisma } from "@/lib/db";
 import { listOrganizationAudit } from "@/modules/audit/audit.service";
 import { listInvites, createInvite } from "@/modules/iam/services/invite.service";
 import { changeMemberRole, listMembers } from "@/modules/iam/services/member.service";
-import { createCostCenter, createDepartment, deleteDepartment, getOrganizationProfile, listDepartments } from "@/modules/org/services/org.service";
+import {
+  createCostCenter,
+  createDepartment,
+  deleteDepartment,
+  getOrganizationProfile,
+  listDepartments,
+} from "@/modules/org/services/org.service";
 import { tenantDb } from "@/modules/tenancy/tenant-db";
 import { createActiveCompany, resetDatabase } from "./helpers";
 
@@ -43,7 +49,10 @@ describe("isolamento multi-tenant: org A não lê dados da org B", () => {
   it("A não consegue alterar nem apagar dados de B", async () => {
     const depB = await prisma.department.findFirstOrThrow({ where: { organizationId: B.organization.id } });
     await expect(deleteDepartment(A.ctx, depB.id)).rejects.toThrow();
-    const res = await tenantDb(A.organization.id).department.updateMany({ where: { id: depB.id }, data: { name: "hack" } });
+    const res = await tenantDb(A.organization.id).department.updateMany({
+      where: { id: depB.id },
+      data: { name: "hack" },
+    });
     expect(res.count).toBe(0);
     expect((await prisma.department.findUniqueOrThrow({ where: { id: depB.id } })).name).toBe("Operações B");
 

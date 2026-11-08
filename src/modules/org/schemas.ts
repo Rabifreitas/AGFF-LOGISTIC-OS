@@ -1,6 +1,12 @@
 import { z } from "zod";
 
-const optionalText = (max = 200) => z.string().trim().max(max).optional().transform((v) => (v ? v : null));
+const optionalText = (max = 200) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .optional()
+    .transform((v) => (v ? v : null));
 
 export const orgProfileSchema = z.object({
   name: z.string().trim().min(2, "validation.required").max(200),
@@ -10,7 +16,11 @@ export const orgProfileSchema = z.object({
   taxRegime: optionalText(),
   vatNumber: optionalText(40),
   commercialRegistry: optionalText(60),
-  email: z.string().trim().toLowerCase().pipe(z.email({ message: "validation.email" })),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email({ message: "validation.email" })),
   phone: optionalText(40),
   website: optionalText(200),
 });

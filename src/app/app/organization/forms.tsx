@@ -38,7 +38,12 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           <Field name="currency" label={t("common.currency")} state={s} defaultValue={profile.currency} required />
           <Field name="taxRegime" label={t("org.taxRegime")} state={s} defaultValue={profile.taxRegime} />
           <Field name="vatNumber" label={t("org.vatNumber")} state={s} defaultValue={profile.vatNumber} />
-          <Field name="commercialRegistry" label={t("org.commercialRegistry")} state={s} defaultValue={profile.commercialRegistry} />
+          <Field
+            name="commercialRegistry"
+            label={t("org.commercialRegistry")}
+            state={s}
+            defaultValue={profile.commercialRegistry}
+          />
           <Field name="email" type="email" label={t("common.email")} state={s} defaultValue={profile.email} required />
           <Field name="phone" label={t("common.phone")} state={s} defaultValue={profile.phone} />
           <Field name="website" label={t("org.website")} state={s} defaultValue={profile.website} />
@@ -56,7 +61,12 @@ export function AddressForm() {
     <ActionForm action={addAddressAction} submitLabel={t("common.add")} resetOnSuccess variant="secondary">
       {(s) => (
         <div className="grid gap-3 md:grid-cols-3">
-          <SelectField name="type" label={t("org.addressType")} state={s} options={ADDRESS_TYPES.map((v) => ({ value: v, label: t(`org.addrType.${v}`) }))} />
+          <SelectField
+            name="type"
+            label={t("org.addressType")}
+            state={s}
+            options={ADDRESS_TYPES.map((v) => ({ value: v, label: t(`org.addrType.${v}`) }))}
+          />
           <Field name="line1" label={t("org.line1")} state={s} required />
           <Field name="line2" label={t("org.line2")} state={s} />
           <Field name="city" label={t("org.city")} state={s} required />
@@ -109,7 +119,12 @@ export function RepresentativeForm() {
 export function DepartmentForm() {
   const t = useTranslations();
   return (
-    <ActionForm action={createDepartmentAction} submitLabel={t("common.add")} resetOnSuccess className="grid items-end gap-3 md:grid-cols-[1fr_200px_auto]">
+    <ActionForm
+      action={createDepartmentAction}
+      submitLabel={t("common.add")}
+      resetOnSuccess
+      className="grid items-end gap-3 md:grid-cols-[1fr_200px_auto]"
+    >
       {(s) => (
         <>
           <Field name="name" label={t("common.name")} state={s} required />
@@ -123,7 +138,12 @@ export function DepartmentForm() {
 export function CostCenterForm({ departments }: { departments: { id: string; name: string }[] }) {
   const t = useTranslations();
   return (
-    <ActionForm action={createCostCenterAction} submitLabel={t("common.add")} resetOnSuccess className="grid items-end gap-3 md:grid-cols-[160px_1fr_1fr_auto]">
+    <ActionForm
+      action={createCostCenterAction}
+      submitLabel={t("common.add")}
+      resetOnSuccess
+      className="grid items-end gap-3 md:grid-cols-[160px_1fr_1fr_auto]"
+    >
       {(s) => (
         <>
           <Field name="code" label={t("org.code")} state={s} required />
@@ -146,9 +166,24 @@ export function SettingsForm({ settings }: { settings: OrgSettings }) {
     <ActionForm action={updateSettingsAction} submitLabel={t("common.save")}>
       {(s) => (
         <div className="grid gap-4 md:grid-cols-2">
-          <SelectField name="defaultLocale" label={t("org.defaultLocale")} state={s} defaultValue={settings.defaultLocale} options={[{ value: "pt-PT", label: "Português (PT)" }, { value: "en", label: "English" }]} />
+          <SelectField
+            name="defaultLocale"
+            label={t("org.defaultLocale")}
+            state={s}
+            defaultValue={settings.defaultLocale}
+            options={[
+              { value: "pt-PT", label: "Português (PT)" },
+              { value: "en", label: "English" },
+            ]}
+          />
           <Field name="timezone" label={t("org.timezone")} state={s} defaultValue={settings.timezone} required />
-          <SelectField name="dateFormat" label={t("org.dateFormat")} state={s} defaultValue={settings.dateFormat} options={["dd/MM/yyyy", "yyyy-MM-dd", "MM/dd/yyyy"].map((v) => ({ value: v, label: v }))} />
+          <SelectField
+            name="dateFormat"
+            label={t("org.dateFormat")}
+            state={s}
+            defaultValue={settings.dateFormat}
+            options={["dd/MM/yyyy", "yyyy-MM-dd", "MM/dd/yyyy"].map((v) => ({ value: v, label: v }))}
+          />
           <SelectField
             name="fiscalYearStartMonth"
             label={t("org.fiscalYearStartMonth")}

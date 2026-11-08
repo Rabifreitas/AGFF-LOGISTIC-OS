@@ -17,19 +17,31 @@ type Row = {
 
 function Json({ value }: { value: unknown }) {
   if (value === null || value === undefined) return <span className="text-gray-400">—</span>;
-  return <pre className="max-h-48 max-w-xs overflow-auto whitespace-pre-wrap break-all rounded bg-gray-50 p-2 text-[11px]">{JSON.stringify(value, null, 1)}</pre>;
+  return (
+    <pre className="max-h-48 max-w-xs overflow-auto rounded bg-gray-50 p-2 text-[11px] break-all whitespace-pre-wrap">
+      {JSON.stringify(value, null, 1)}
+    </pre>
+  );
 }
 
 export async function AuditTable({ rows, showOrganization = false }: { rows: Row[]; showOrganization?: boolean }) {
   const t = await getTranslations("audit");
   const locale = await getLocale();
   if (rows.length === 0) return <EmptyState title={t("empty")} />;
-  const head = [t("date"), t("user"), ...(showOrganization ? [t("organization")] : []), t("action"), t("entity"), t("before"), t("after")];
+  const head = [
+    t("date"),
+    t("user"),
+    ...(showOrganization ? [t("organization")] : []),
+    t("action"),
+    t("entity"),
+    t("before"),
+    t("after"),
+  ];
   return (
     <Table head={head}>
       {rows.map((r) => (
         <tr key={r.id}>
-          <Td className="whitespace-nowrap text-xs text-gray-600">
+          <Td className="text-xs whitespace-nowrap text-gray-600">
             {formatDateTime(r.createdAt, locale)}
             {r.ipAddress && <span className="block text-gray-400">{r.ipAddress}</span>}
           </Td>

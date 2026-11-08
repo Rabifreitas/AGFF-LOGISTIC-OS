@@ -27,7 +27,9 @@ beforeEach(async () => {
 describe("RBAC no servidor", () => {
   it("Driver não convida, não edita a empresa e não lê auditoria", async () => {
     const driver = await memberWithRole("DRIVER");
-    await expect(createInvite(driver, { email: "x@co.test", roleKey: "DRIVER" })).rejects.toBeInstanceOf(ForbiddenError);
+    await expect(createInvite(driver, { email: "x@co.test", roleKey: "DRIVER" })).rejects.toBeInstanceOf(
+      ForbiddenError,
+    );
     await expect(createDepartment(driver, { name: "X", code: null })).rejects.toBeInstanceOf(ForbiddenError);
     await expect(listOrganizationAudit(driver)).rejects.toBeInstanceOf(ForbiddenError);
   });
@@ -36,24 +38,41 @@ describe("RBAC no servidor", () => {
     const auditor = await memberWithRole("AUDITOR");
     await expect(listOrganizationAudit(auditor)).resolves.toBeDefined();
     await expect(
-      addAddress(auditor, { type: "HEADQUARTERS", line1: "Rua 1", line2: null, city: "Luanda", province: null, postalCode: null, country: "AO", isPrimary: true }),
+      addAddress(auditor, {
+        type: "HEADQUARTERS",
+        line1: "Rua 1",
+        line2: null,
+        city: "Luanda",
+        province: null,
+        postalCode: null,
+        country: "AO",
+        isPrimary: true,
+      }),
     ).rejects.toBeInstanceOf(ForbiddenError);
   });
 
   it("Logistics Manager não consegue promover-se nem convidar administradores", async () => {
     const manager = await memberWithRole("LOGISTICS_MANAGER");
-    await expect(createInvite(manager, { email: "boss@co.test", roleKey: "COMPANY_ADMIN" })).rejects.toBeInstanceOf(ForbiddenError);
-    await expect(changeMemberRole(manager, manager.membershipId, "COMPANY_ADMIN")).rejects.toBeInstanceOf(ForbiddenError);
+    await expect(createInvite(manager, { email: "boss@co.test", roleKey: "COMPANY_ADMIN" })).rejects.toBeInstanceOf(
+      ForbiddenError,
+    );
+    await expect(changeMemberRole(manager, manager.membershipId, "COMPANY_ADMIN")).rejects.toBeInstanceOf(
+      ForbiddenError,
+    );
   });
 
   it("Company Administrator não acede a funções de plataforma", async () => {
     await expect(listOrganizations(company.ctx)).rejects.toBeInstanceOf(ForbiddenError);
-    await expect(transitionOrganization(company.ctx, company.organization.id, "suspend", "x")).rejects.toBeInstanceOf(ForbiddenError);
+    await expect(transitionOrganization(company.ctx, company.organization.id, "suspend", "x")).rejects.toBeInstanceOf(
+      ForbiddenError,
+    );
     await expect(listPlatformAudit(company.ctx)).rejects.toBeInstanceOf(ForbiddenError);
   });
 
   it("Company Administrator não pode convidar Super Administrator", async () => {
-    await expect(createInvite(company.ctx, { email: "sa@co.test", roleKey: "SUPER_ADMIN" })).rejects.toBeInstanceOf(ForbiddenError);
+    await expect(createInvite(company.ctx, { email: "sa@co.test", roleKey: "SUPER_ADMIN" })).rejects.toBeInstanceOf(
+      ForbiddenError,
+    );
   });
 
   it("membro suspenso perde as permissões", async () => {

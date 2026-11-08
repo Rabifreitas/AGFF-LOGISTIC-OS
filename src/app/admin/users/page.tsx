@@ -19,13 +19,27 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
     <>
       <PageHeader title={t("nav.users")} description={t("admin.usersDesc")} />
       <form className="mb-4 flex gap-2">
-        <Input name="q" defaultValue={q} placeholder={t("common.search")} className="max-w-xs" aria-label={t("common.search")} />
+        <Input
+          name="q"
+          defaultValue={q}
+          placeholder={t("common.search")}
+          className="max-w-xs"
+          aria-label={t("common.search")}
+        />
         <Button variant="secondary">{t("common.search")}</Button>
       </form>
       {users.length === 0 ? (
         <EmptyState title={t("admin.noUsers")} />
       ) : (
-        <Table head={[t("common.name"), t("admin.memberships"), t("common.status"), t("admin.lastLogin"), t("common.actions")]}>
+        <Table
+          head={[
+            t("common.name"),
+            t("admin.memberships"),
+            t("common.status"),
+            t("admin.lastLogin"),
+            t("common.actions"),
+          ]}
+        >
           {users.map((u) => {
             const locked = u.status === "LOCKED";
             return (
@@ -51,7 +65,11 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
                     <form action={setUserLockAction}>
                       <input type="hidden" name="userId" value={u.id} />
                       <input type="hidden" name="locked" value={String(!locked)} />
-                      <button className={locked ? "text-xs text-green-700 hover:underline" : "text-xs text-red-700 hover:underline"}>
+                      <button
+                        className={
+                          locked ? "text-xs text-green-700 hover:underline" : "text-xs text-red-700 hover:underline"
+                        }
+                      >
                         {locked ? t("admin.unlock") : t("admin.lock")}
                       </button>
                     </form>

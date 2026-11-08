@@ -12,7 +12,7 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
   const session = invite?.userExists ? await getCurrentSession() : null;
   return (
     <Card className="w-full max-w-md">
-      <h1 className="mb-2 text-xl font-semibold text-navy-900">{t("invites.title")}</h1>
+      <h1 className="text-navy-900 mb-2 text-xl font-semibold">{t("invites.title")}</h1>
       {!invite ? (
         <p className="text-sm text-red-700">{t("invites.invalid")}</p>
       ) : (

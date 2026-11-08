@@ -21,7 +21,9 @@ async function actor() {
   return ctx;
 }
 
-type Schema = { safeParse: (v: unknown) => { success: true; data: unknown } | { success: false; error: import("zod").ZodError } };
+type Schema = {
+  safeParse: (v: unknown) => { success: true; data: unknown } | { success: false; error: import("zod").ZodError };
+};
 
 function formAction<S extends Schema>(
   schema: S,

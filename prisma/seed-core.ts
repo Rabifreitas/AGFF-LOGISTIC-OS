@@ -1,6 +1,12 @@
 import type { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { ALL_PERMISSIONS, PERMISSIONS, ROLE_DEFINITIONS, ROLE_KEYS, permissionModule } from "../src/modules/iam/permissions";
+import {
+  ALL_PERMISSIONS,
+  PERMISSIONS,
+  ROLE_DEFINITIONS,
+  ROLE_KEYS,
+  permissionModule,
+} from "../src/modules/iam/permissions";
 
 /** Sincroniza o catálogo RBAC (idempotente). Usado pelo seed e pelos testes. */
 export async function syncRbac(prisma: PrismaClient) {
@@ -18,8 +24,13 @@ export async function syncRbac(prisma: PrismaClient) {
     const def = ROLE_DEFINITIONS[key];
     const existing = await prisma.role.findFirst({ where: { key, organizationId: null } });
     const role = existing
-      ? await prisma.role.update({ where: { id: existing.id }, data: { name: def.name, description: def.description, scope: def.scope } })
-      : await prisma.role.create({ data: { key, name: def.name, description: def.description, scope: def.scope, isSystem: true } });
+      ? await prisma.role.update({
+          where: { id: existing.id },
+          data: { name: def.name, description: def.description, scope: def.scope },
+        })
+      : await prisma.role.create({
+          data: { key, name: def.name, description: def.description, scope: def.scope, isSystem: true },
+        });
     const wanted = def.permissions.map((p) => idByKey.get(p)!).filter(Boolean);
     await prisma.rolePermission.deleteMany({ where: { roleId: role.id, permissionId: { notIn: wanted } } });
     await prisma.rolePermission.createMany({
@@ -31,10 +42,7 @@ export async function syncRbac(prisma: PrismaClient) {
 
 export const PLATFORM_NIF = "AGFF-PLATFORM";
 
-export async function ensurePlatform(
-  prisma: PrismaClient,
-  admin: { email: string; password: string; name: string },
-) {
+export async function ensurePlatform(prisma: PrismaClient, admin: { email: string; password: string; name: string }) {
   const platform = await prisma.organization.upsert({
     where: { nif: PLATFORM_NIF },
     update: {},
@@ -52,7 +60,12 @@ export async function ensurePlatform(
   const user =
     (await prisma.user.findUnique({ where: { email } })) ??
     (await prisma.user.create({
-      data: { email, name: admin.name, passwordHash: await bcrypt.hash(admin.password, 12), passwordChangedAt: new Date() },
+      data: {
+        email,
+        name: admin.name,
+        passwordHash: await bcrypt.hash(admin.password, 12),
+        passwordChangedAt: new Date(),
+      },
     }));
   const role = await prisma.role.findFirstOrThrow({ where: { key: "SUPER_ADMIN", organizationId: null } });
   await prisma.membership.upsert({

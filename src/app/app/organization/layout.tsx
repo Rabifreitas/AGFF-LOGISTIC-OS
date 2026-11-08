@@ -9,7 +9,11 @@ export default async function OrganizationLayout({ children }: { children: React
   const tabs = [
     { href: "/app/organization", label: t("profile"), show: true },
     { href: "/app/organization/departments", label: t("departments"), show: true },
-    { href: "/app/organization/cost-centers", label: t("costCenters"), show: hasPermission(ctx, "org.cost_centers.read") },
+    {
+      href: "/app/organization/cost-centers",
+      label: t("costCenters"),
+      show: hasPermission(ctx, "org.cost_centers.read"),
+    },
     { href: "/app/organization/settings", label: t("settings"), show: true },
   ];
   return (
@@ -18,7 +22,11 @@ export default async function OrganizationLayout({ children }: { children: React
         {tabs
           .filter((x) => x.show)
           .map((x) => (
-            <Link key={x.href} href={x.href} className="-mb-px border-b-2 border-transparent px-1 pb-2 text-gray-600 hover:border-gold-500 hover:text-navy-900">
+            <Link
+              key={x.href}
+              href={x.href}
+              className="hover:border-gold-500 hover:text-navy-900 -mb-px border-b-2 border-transparent px-1 pb-2 text-gray-600"
+            >
               {x.label}
             </Link>
           ))}

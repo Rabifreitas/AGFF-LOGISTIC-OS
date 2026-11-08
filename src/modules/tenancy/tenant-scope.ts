@@ -73,7 +73,10 @@ export function applyTenantScope(
     if (WHERE_OPERATIONS.has(operation)) {
       const where = (a.where as Data) ?? {};
       // Um id pedido diferente da org actual nunca pode resolver para a org actual.
-      a.where = where.id !== undefined ? { ...where, id: organizationId, AND: [{ id: where.id }] } : { ...where, id: organizationId };
+      a.where =
+        where.id !== undefined
+          ? { ...where, id: organizationId, AND: [{ id: where.id }] }
+          : { ...where, id: organizationId };
     }
     if (operation.startsWith("create") || operation === "upsert") {
       throw new Error("Organizations cannot be created through a tenant-scoped client");

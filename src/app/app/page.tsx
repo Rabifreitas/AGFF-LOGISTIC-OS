@@ -35,21 +35,25 @@ export default async function DashboardPage() {
         {stats.map((s) => (
           <Card key={s.label}>
             <p className="text-sm text-gray-500">{s.label}</p>
-            <p className="mt-1 text-3xl font-semibold text-navy-900">{s.value}</p>
+            <p className="text-navy-900 mt-1 text-3xl font-semibold">{s.value}</p>
           </Card>
         ))}
       </div>
-      <h2 className="mb-1 text-lg font-semibold text-navy-900">{t("dashboard.modulesTitle")}</h2>
+      <h2 className="text-navy-900 mb-1 text-lg font-semibold">{t("dashboard.modulesTitle")}</h2>
       <p className="mb-4 text-sm text-gray-600">{t("dashboard.modulesDesc")}</p>
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {MODULES.filter((m) => !m.permission || hasPermission(ctx, m.permission)).map((m) => {
           const inner = (
-            <Card className={m.status === "planned" ? "h-full opacity-70" : "h-full hover:border-gold-500"}>
+            <Card className={m.status === "planned" ? "h-full opacity-70" : "hover:border-gold-500 h-full"}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-gold-600">{m.code}</span>
-                {m.status === "planned" ? <Badge>{t("dashboard.plannedModule", { n: m.phase })}</Badge> : <Badge tone="green">{t("status.ACTIVE")}</Badge>}
+                <span className="text-gold-600 text-xs font-semibold">{m.code}</span>
+                {m.status === "planned" ? (
+                  <Badge>{t("dashboard.plannedModule", { n: m.phase })}</Badge>
+                ) : (
+                  <Badge tone="green">{t("status.ACTIVE")}</Badge>
+                )}
               </div>
-              <p className="mt-2 font-medium text-navy-900">{t(`nav.${m.key}`)}</p>
+              <p className="text-navy-900 mt-2 font-medium">{t(`nav.${m.key}`)}</p>
             </Card>
           );
           return m.href ? (

@@ -21,7 +21,12 @@ import {
   resetPasswordSchema,
 } from "./schemas";
 import { getActorContext, getCurrentSession } from "./session-context";
-import { acceptInviteAsExistingUser, acceptInviteAsNewUser, createInvite, revokeInvite } from "./services/invite.service";
+import {
+  acceptInviteAsExistingUser,
+  acceptInviteAsNewUser,
+  createInvite,
+  revokeInvite,
+} from "./services/invite.service";
 import { changeMemberRole, setMemberStatus } from "./services/member.service";
 import { changePassword, requestPasswordReset, resetPassword } from "./services/password.service";
 import { registerOrganization } from "./services/registration.service";
@@ -74,7 +79,8 @@ export async function forgotPasswordAction(_: ActionState, formData: FormData): 
   const parsed = forgotPasswordSchema.safeParse(formToObject(formData));
   if (!parsed.success) return fromZodError(parsed.error);
   const res = await requestPasswordReset(parsed.data.email, await getRequestMeta());
-  if (res) await sendMail(resetEmail({ to: res.user.email, name: res.user.name, token: res.token, locale: res.user.locale }));
+  if (res)
+    await sendMail(resetEmail({ to: res.user.email, name: res.user.name, token: res.token, locale: res.user.locale }));
   // Resposta idêntica exista ou não o email (sem enumeração de contas).
   return { ok: true, message: "forgot.sent" };
 }
@@ -95,7 +101,13 @@ export async function changePasswordAction(_: ActionState, formData: FormData): 
   if (!parsed.success) return fromZodError(parsed.error);
   try {
     const ctx = await actor();
-    await changePassword(ctx.userId, ctx.sessionId, parsed.data.currentPassword, parsed.data.password, await getRequestMeta());
+    await changePassword(
+      ctx.userId,
+      ctx.sessionId,
+      parsed.data.currentPassword,
+      parsed.data.password,
+      await getRequestMeta(),
+    );
     return { ok: true, message: "account.passwordChanged" };
   } catch (e) {
     return toActionState(e);
@@ -109,7 +121,13 @@ export async function inviteAction(_: ActionState, formData: FormData): Promise<
     const ctx = await actor();
     const { token, role } = await createInvite(ctx, parsed.data);
     await sendMail(
-      inviteEmail({ to: parsed.data.email, organization: ctx.organizationName, role: role.name, token, inviter: ctx.name }),
+      inviteEmail({
+        to: parsed.data.email,
+        organization: ctx.organizationName,
+        role: role.name,
+        token,
+        inviter: ctx.name,
+      }),
     );
     revalidatePath("/app/team");
     return { ok: true, message: "team.inviteSent" };
@@ -154,7 +172,11 @@ export async function acceptInviteExistingUserAction(_: ActionState, formData: F
   const session = await getCurrentSession();
   if (!session) return { ok: false, error: "auth.required" };
   try {
-    const { membership } = await acceptInviteAsExistingUser(String(formData.get("token")), session.userId, await getRequestMeta());
+    const { membership } = await acceptInviteAsExistingUser(
+      String(formData.get("token")),
+      session.userId,
+      await getRequestMeta(),
+    );
     await switchActiveOrganization(session.id, session.userId, membership.organizationId);
   } catch (e) {
     return toActionState(e);
@@ -185,7 +207,7 @@ export async function revokeOtherSessionsAction() {
 
 export async function setLocaleAction(formData: FormData) {
   const locale = String(formData.get("locale"));
-  if (isLocale(locale)) (await cookies()).set(LOCALE_COOKIE, locale, { path: "/", maxAge: 31_536_000, sameSite: "lax" });
+  if (isLocale(locale))
+    (await cookies()).set(LOCALE_COOKIE, locale, { path: "/", maxAge: 31_536_000, sameSite: "lax" });
   revalidatePath("/", "layout");
 }
-

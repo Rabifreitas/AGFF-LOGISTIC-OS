@@ -38,7 +38,9 @@ export default async function CostCentersPage() {
                     <form action={toggleCostCenterAction}>
                       <input type="hidden" name="id" value={c.id} />
                       <input type="hidden" name="active" value={String(!c.active)} />
-                      <button className="text-xs text-navy-700 hover:underline">{c.active ? t("org.deactivate") : t("org.activate")}</button>
+                      <button className="text-navy-700 text-xs hover:underline">
+                        {c.active ? t("org.deactivate") : t("org.activate")}
+                      </button>
                     </form>
                     <RemoveButton id={c.id} kind="costCenter" label={t("common.remove")} />
                   </div>

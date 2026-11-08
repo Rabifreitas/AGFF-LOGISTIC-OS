@@ -7,7 +7,10 @@ export async function LocaleSwitcher({ light = false }: { light?: boolean }) {
   return (
     <form action={setLocaleAction}>
       <input type="hidden" name="locale" value={next} />
-      <button type="submit" className={light ? "text-sm text-gray-300 hover:text-white" : "text-sm text-gray-600 hover:text-navy-900"}>
+      <button
+        type="submit"
+        className={light ? "text-sm text-gray-300 hover:text-white" : "hover:text-navy-900 text-sm text-gray-600"}
+      >
         {next === "en" ? "EN" : "PT"}
       </button>
     </form>

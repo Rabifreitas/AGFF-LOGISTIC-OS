@@ -42,9 +42,24 @@ export async function registerOrganization(input: RegisterInput, meta: { ip?: st
       data: { userId: user.id, organizationId: organization.id, roleId: role.id },
     });
     const actor = { userId: user.id, organizationId: organization.id, ...meta };
-    await recordAudit(tx, actor, { action: "organization.registered", entityType: "Organization", entityId: organization.id, after: organization });
-    await recordAudit(tx, actor, { action: "user.created", entityType: "User", entityId: user.id, after: { id: user.id, email: user.email, name: user.name } });
-    await recordAudit(tx, actor, { action: "membership.created", entityType: "Membership", entityId: membership.id, after: { ...membership, roleKey: role.key } });
+    await recordAudit(tx, actor, {
+      action: "organization.registered",
+      entityType: "Organization",
+      entityId: organization.id,
+      after: organization,
+    });
+    await recordAudit(tx, actor, {
+      action: "user.created",
+      entityType: "User",
+      entityId: user.id,
+      after: { id: user.id, email: user.email, name: user.name },
+    });
+    await recordAudit(tx, actor, {
+      action: "membership.created",
+      entityType: "Membership",
+      entityId: membership.id,
+      after: { ...membership, roleKey: role.key },
+    });
     return { organization, user };
   });
 
