@@ -25,35 +25,40 @@ export async function listExchangeRates(ctx: ActorContext) {
 }
 
 async function upsertRate(ctx: ActorContext, organizationId: string | null, input: ExchangeRateInput) {
-  const existing = await prisma.exchangeRate.findFirst({
-    where: {
+  return prisma.$transaction(async (tx) => {
+    // O índice único não impede duplicados com organization_id NULL: serializa por par/data.
+    const lockKey = `fx:${organizationId ?? "platform"}:${input.baseCurrency}:${input.quoteCurrency}:${input.effectiveDate.toISOString()}`;
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
+    const existing = await tx.exchangeRate.findFirst({
+      where: {
+        organizationId,
+        baseCurrency: input.baseCurrency,
+        quoteCurrency: input.quoteCurrency,
+        effectiveDate: input.effectiveDate,
+      },
+    });
+    const data = {
       organizationId,
       baseCurrency: input.baseCurrency,
       quoteCurrency: input.quoteCurrency,
+      rate: new Prisma.Decimal(input.rate),
       effectiveDate: input.effectiveDate,
-    },
+      source: input.source || null,
+      createdById: ctx.userId,
+    };
+    const after = existing
+      ? await tx.exchangeRate.update({ where: { id: existing.id }, data })
+      : await tx.exchangeRate.create({ data });
+    await recordAudit(tx, ctx, {
+      organizationId,
+      action: existing ? "exchange_rate.updated" : "exchange_rate.created",
+      entityType: "ExchangeRate",
+      entityId: after.id,
+      before: existing,
+      after,
+    });
+    return after;
   });
-  const data = {
-    organizationId,
-    baseCurrency: input.baseCurrency,
-    quoteCurrency: input.quoteCurrency,
-    rate: new Prisma.Decimal(input.rate),
-    effectiveDate: input.effectiveDate,
-    source: input.source || null,
-    createdById: ctx.userId,
-  };
-  const after = existing
-    ? await prisma.exchangeRate.update({ where: { id: existing.id }, data })
-    : await prisma.exchangeRate.create({ data });
-  await recordAudit(prisma, ctx, {
-    organizationId,
-    action: existing ? "exchange_rate.updated" : "exchange_rate.created",
-    entityType: "ExchangeRate",
-    entityId: after.id,
-    before: existing,
-    after,
-  });
-  return after;
 }
 
 export async function setPlatformExchangeRate(ctx: ActorContext, input: ExchangeRateInput) {
