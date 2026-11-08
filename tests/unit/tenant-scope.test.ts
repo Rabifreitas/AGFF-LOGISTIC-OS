@@ -55,6 +55,10 @@ describe("applyTenantScope", () => {
 
   it("Organization: limita à própria org e proíbe criação", () => {
     expect(applyTenantScope("Organization", "findMany", {}, ORG).where).toEqual({ id: ORG });
+    expect(applyTenantScope("Organization", "findUnique", { where: { id: "org_b" } }, ORG).where).toEqual({
+      id: ORG,
+      AND: [{ id: "org_b" }],
+    });
     expect(() => applyTenantScope("Organization", "create", { data: {} }, ORG)).toThrow();
   });
 

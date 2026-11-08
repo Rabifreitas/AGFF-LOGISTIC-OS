@@ -11,6 +11,8 @@ const testDatabaseUrl =
 export default defineConfig({
   resolve: { alias },
   test: {
+    // Os testes de integração partilham uma BD: ficheiros correm em série.
+    fileParallelism: false,
     projects: [
       {
         resolve: { alias },
@@ -24,7 +26,6 @@ export default defineConfig({
           environment: "node",
           globalSetup: ["tests/integration/global-setup.ts"],
           env: { DATABASE_URL: testDatabaseUrl, NODE_ENV: "test", MAIL_TRANSPORT: "memory" },
-          fileParallelism: false,
           testTimeout: 30_000,
           hookTimeout: 60_000,
         },
