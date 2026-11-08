@@ -29,6 +29,7 @@ export async function transitionOrganizationAction(_: ActionState, formData: For
   try {
     const reason = String(formData.get("reason") ?? "") || undefined;
     const { organization, notifiedAdmins } = await transitionOrganization(await actor(), id, transition, reason);
+    // A transição já foi gravada: uma falha de email não pode reportar a acção como falhada.
     for (const admin of notifiedAdmins) {
       await sendMail(
         organizationStatusEmail({
@@ -39,7 +40,7 @@ export async function transitionOrganizationAction(_: ActionState, formData: For
           reason,
           locale: admin.locale,
         }),
-      );
+      ).catch((err) => console.error("[mail] organization status email failed", err));
     }
     revalidatePath("/admin", "layout");
     return { ok: true, message: "common.saved" };
