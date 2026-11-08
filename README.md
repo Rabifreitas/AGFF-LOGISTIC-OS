@@ -22,7 +22,7 @@ docker compose up -d --build    # postgres, minio, mailpit e app
 | Consola MinIO             | http://localhost:9001 (`agffminio` / `agffminio-secret`) |
 | Health check              | http://localhost:3000/api/health                         |
 
-O contentor `app` aplica as migrações (`prisma migrate deploy`) e o seed (permissões, perfis, organização da plataforma e Super Administrator) ao arrancar. O Super Administrator inicial usa `SEED_SUPERADMIN_EMAIL` / `SEED_SUPERADMIN_PASSWORD` do `.env`; não há password por omissão (o Compose recusa arrancar sem `AUTH_SECRET` e `SEED_SUPERADMIN_PASSWORD`).
+O contentor `app` aplica as migrações (`prisma migrate deploy`) e o seed (permissões, perfis, organização da plataforma e Super Administrator) ao arrancar. O Super Administrator inicial usa `SEED_SUPERADMIN_EMAIL` / `SEED_SUPERADMIN_PASSWORD` do `.env`; não há password por omissão (sem ela o seed não cria o Super Administrator; sem `AUTH_SECRET` a autenticação não funciona).
 
 Redis é opcional: `docker compose --profile redis up -d`.
 

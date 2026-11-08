@@ -61,7 +61,7 @@ services:
         condition: service_started
     environment:
       DATABASE_URL: postgresql://agff:agff@postgres:5432/agff_logistics?schema=public
-      AUTH_SECRET: ${AUTH_SECRET:?defina AUTH_SECRET no .env (openssl rand -base64 32)}
+      AUTH_SECRET: ${AUTH_SECRET:-}
       AUTH_TRUST_HOST: "true"
       APP_URL: ${APP_URL:-http://localhost:3000}
       SMTP_HOST: mailpit
@@ -73,7 +73,7 @@ services:
       S3_SECRET_KEY: agffminio-secret
       S3_BUCKET: agff-documents
       SEED_SUPERADMIN_EMAIL: ${SEED_SUPERADMIN_EMAIL:-admin@agff.local}
-      SEED_SUPERADMIN_PASSWORD: ${SEED_SUPERADMIN_PASSWORD:?defina SEED_SUPERADMIN_PASSWORD no .env}
+      SEED_SUPERADMIN_PASSWORD: ${SEED_SUPERADMIN_PASSWORD:-}
       SEED_SUPERADMIN_NAME: ${SEED_SUPERADMIN_NAME:-Super Administrador}
     ports:
       - "3000:3000"
