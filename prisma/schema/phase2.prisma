@@ -1,0 +1,302 @@
+// ─────────────────────────────────────────────────────────────
+// FASE 2 — Tabelas preparadas (sem UI nem serviços ainda).
+// Marketplace (MKT), Transportes (TMS), Expedições (SHP), Documentos (DMS),
+// Tracking (TRK) e Incidentes. Todas com organizationId (tenant).
+// ─────────────────────────────────────────────────────────────
+
+enum PartnerType {
+  TRANSPORTER
+  FREIGHT_FORWARDER
+  CUSTOMS_BROKER
+  WAREHOUSE
+  SUPPLIER
+  CUSTOMER
+  OTHER
+}
+
+enum PartnerStatus {
+  DRAFT
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum ShipmentStatus {
+  DRAFT
+  REQUESTED
+  QUOTED
+  BOOKED
+  IN_TRANSIT
+  AT_CUSTOMS
+  DELIVERED
+  CANCELLED
+}
+
+enum TransportMode {
+  ROAD
+  SEA
+  AIR
+  RAIL
+  MULTIMODAL
+}
+
+enum StopType {
+  PICKUP
+  DELIVERY
+  WAYPOINT
+  CUSTOMS
+}
+
+enum QuotationStatus {
+  DRAFT
+  SUBMITTED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  WITHDRAWN
+}
+
+enum DocumentStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+model Partner {
+  id                 String        @id @default(cuid())
+  organizationId     String        @map("organization_id")
+  // Organização da plataforma que representa este parceiro (quando existir)
+  linkedOrganizationId String?     @map("linked_organization_id")
+  type               PartnerType
+  status             PartnerStatus @default(DRAFT)
+  name               String
+  nif                String?
+  country            String        @default("AO") @db.Char(2)
+  email              String?
+  phone              String?
+  rating             Decimal?      @db.Decimal(3, 2)
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+  organization       Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  verifications      PartnerVerification[]
+  quotations         Quotation[]
+
+  @@index([organizationId])
+  @@map("partners")
+}
+
+model PartnerVerification {
+  id             String             @id @default(cuid())
+  organizationId String             @map("organization_id")
+  partnerId      String             @map("partner_id")
+  kind           String
+  status         VerificationStatus @default(PENDING)
+  documentId     String?            @map("document_id")
+  reviewedById   String?            @map("reviewed_by_id")
+  reviewedAt     DateTime?          @map("reviewed_at")
+  expiresAt      DateTime?          @map("expires_at")
+  notes          String?
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  partner        Partner            @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("partner_verifications")
+}
+
+model Shipment {
+  id             String         @id @default(cuid())
+  organizationId String         @map("organization_id")
+  reference      String
+  status         ShipmentStatus @default(DRAFT)
+  mode           TransportMode  @default(ROAD)
+  incoterm       String?
+  customerPartnerId String?     @map("customer_partner_id")
+  carrierPartnerId  String?     @map("carrier_partner_id")
+  costCenterId   String?        @map("cost_center_id")
+  plannedPickupAt   DateTime?   @map("planned_pickup_at")
+  plannedDeliveryAt DateTime?   @map("planned_delivery_at")
+  currency       String         @default("AOA") @db.Char(3)
+  declaredValue  Decimal?       @map("declared_value") @db.Decimal(20, 2)
+  notes          String?
+  createdById    String?        @map("created_by_id")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  stops          ShipmentStop[]
+  items          ShipmentItem[]
+  quotations     Quotation[]
+  trackingEvents TrackingEvent[]
+  incidents      Incident[]
+  documents      Document[]
+
+  @@unique([organizationId, reference])
+  @@index([organizationId, status])
+  @@map("shipments")
+}
+
+model ShipmentStop {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  shipmentId     String       @map("shipment_id")
+  sequence       Int
+  type           StopType
+  name           String?
+  address        String
+  city           String?
+  country        String       @default("AO") @db.Char(2)
+  latitude       Decimal?     @db.Decimal(9, 6)
+  longitude      Decimal?     @db.Decimal(9, 6)
+  plannedAt      DateTime?    @map("planned_at")
+  arrivedAt      DateTime?    @map("arrived_at")
+  departedAt     DateTime?    @map("departed_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shipment       Shipment     @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@unique([shipmentId, sequence])
+  @@index([organizationId])
+  @@map("shipment_stops")
+}
+
+model ShipmentItem {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  shipmentId     String       @map("shipment_id")
+  description    String
+  quantity       Decimal      @db.Decimal(14, 3)
+  unit           String       @default("UN")
+  weightKg       Decimal?     @map("weight_kg") @db.Decimal(14, 3)
+  volumeM3       Decimal?     @map("volume_m3") @db.Decimal(14, 3)
+  hsCode         String?      @map("hs_code")
+  dangerousGoods Boolean      @default(false) @map("dangerous_goods")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shipment       Shipment     @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("shipment_items")
+}
+
+model Quotation {
+  id             String          @id @default(cuid())
+  organizationId String          @map("organization_id")
+  shipmentId     String?         @map("shipment_id")
+  partnerId      String?         @map("partner_id")
+  reference      String
+  status         QuotationStatus @default(DRAFT)
+  currency       String          @default("AOA") @db.Char(3)
+  amount         Decimal?        @db.Decimal(20, 2)
+  validUntil     DateTime?       @map("valid_until")
+  notes          String?
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shipment       Shipment?       @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+  partner        Partner?        @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, reference])
+  @@index([organizationId, status])
+  @@map("quotations")
+}
+
+model Document {
+  id             String           @id @default(cuid())
+  organizationId String           @map("organization_id")
+  shipmentId     String?          @map("shipment_id")
+  type           String
+  title          String
+  status         DocumentStatus   @default(DRAFT)
+  currentVersion Int              @default(0) @map("current_version")
+  expiresAt      DateTime?        @map("expires_at")
+  createdById    String?          @map("created_by_id")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shipment       Shipment?        @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+  versions       DocumentVersion[]
+
+  @@index([organizationId, type])
+  @@map("documents")
+}
+
+model DocumentVersion {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  documentId     String       @map("document_id")
+  version        Int
+  storageKey     String       @map("storage_key")
+  fileName       String       @map("file_name")
+  mimeType       String       @map("mime_type")
+  sizeBytes      Int          @map("size_bytes")
+  checksumSha256 String       @map("checksum_sha256")
+  uploadedById   String?      @map("uploaded_by_id")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  document       Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, version])
+  @@index([organizationId])
+  @@map("document_versions")
+}
+
+model TrackingEvent {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  shipmentId     String       @map("shipment_id")
+  code           String
+  description    String?
+  latitude       Decimal?     @db.Decimal(9, 6)
+  longitude      Decimal?     @db.Decimal(9, 6)
+  occurredAt     DateTime     @map("occurred_at")
+  source         String       @default("MANUAL")
+  reportedById   String?      @map("reported_by_id")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shipment       Shipment     @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, shipmentId, occurredAt])
+  @@map("tracking_events")
+}
+
+model Incident {
+  id             String           @id @default(cuid())
+  organizationId String           @map("organization_id")
+  shipmentId     String?          @map("shipment_id")
+  title          String
+  description    String?
+  severity       IncidentSeverity @default(MEDIUM)
+  status         IncidentStatus   @default(OPEN)
+  reportedById   String?          @map("reported_by_id")
+  resolvedAt     DateTime?        @map("resolved_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shipment       Shipment?        @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, status])
+  @@map("incidents")
+}

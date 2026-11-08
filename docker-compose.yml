@@ -1,0 +1,83 @@
+name: agff-logistics-os
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: agff
+      POSTGRES_PASSWORD: agff
+      POSTGRES_DB: agff_logistics
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agff -d agff_logistics"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # MinIO deixou de publicar imagens oficiais no Docker Hub/Quay; usamos a build Bitnami (legacy) fixada.
+  minio:
+    image: bitnamilegacy/minio:2025.4.22
+    environment:
+      MINIO_ROOT_USER: agffminio
+      MINIO_ROOT_PASSWORD: agffminio-secret
+      MINIO_DEFAULT_BUCKETS: agff-documents
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/bitnami/minio/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:v1.24
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  redis:
+    image: redis:7-alpine
+    profiles: ["optional"]
+    ports:
+      - "6379:6379"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql://agff:agff@postgres:5432/agff_logistics?schema=public
+      AUTH_SECRET: ${AUTH_SECRET:-}
+      AUTH_TRUST_HOST: "true"
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      MAIL_FROM: "AGFF Logistics OS <no-reply@agff.local>"
+      S3_ENDPOINT: http://minio:9000
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY: agffminio
+      S3_SECRET_KEY: agffminio-secret
+      S3_BUCKET: agff-documents
+      SEED_SUPERADMIN_EMAIL: ${SEED_SUPERADMIN_EMAIL:-admin@agff.local}
+      SEED_SUPERADMIN_PASSWORD: ${SEED_SUPERADMIN_PASSWORD:-}
+      SEED_SUPERADMIN_NAME: ${SEED_SUPERADMIN_NAME:-Super Administrador}
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
+  miniodata:

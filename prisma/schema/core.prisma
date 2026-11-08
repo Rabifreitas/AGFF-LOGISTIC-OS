@@ -1,0 +1,403 @@
+// ─────────────────────────────────────────────────────────────
+// FASE 1 — Foundation: IAM (01), ORG (02), Audit, Câmbios, Notificações
+// Todas as entidades empresariais têm organizationId (tenant).
+// ─────────────────────────────────────────────────────────────
+
+enum OrganizationType {
+  PLATFORM
+  SHIPPER
+  TRANSPORTER
+  FREIGHT_FORWARDER
+  CUSTOMS_BROKER
+  WAREHOUSE
+  SUPPLIER
+  OTHER
+}
+
+enum OrganizationStatus {
+  PENDING_APPROVAL
+  ACTIVE
+  REJECTED
+  SUSPENDED
+}
+
+enum UserStatus {
+  ACTIVE
+  LOCKED
+  DISABLED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum RoleScope {
+  PLATFORM
+  ORGANIZATION
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
+enum AddressType {
+  HEADQUARTERS
+  BILLING
+  OPERATIONS
+  WAREHOUSE
+  OTHER
+}
+
+model Organization {
+  id             String             @id @default(cuid())
+  name           String
+  legalName      String             @map("legal_name")
+  nif            String             @unique
+  type           OrganizationType   @default(SHIPPER)
+  status         OrganizationStatus @default(PENDING_APPROVAL)
+  country        String             @default("AO") @db.Char(2)
+  currency       String             @default("AOA") @db.Char(3)
+  taxRegime      String?            @map("tax_regime")
+  vatNumber      String?            @map("vat_number")
+  commercialRegistry String?        @map("commercial_registry")
+  email          String
+  phone          String?
+  website        String?
+  settings       Json               @default("{}")
+  statusReason   String?            @map("status_reason")
+  approvedAt     DateTime?          @map("approved_at")
+  approvedById   String?            @map("approved_by_id")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  memberships     Membership[]
+  invites         UserInvite[]
+  addresses       OrganizationAddress[]
+  contacts        OrganizationContact[]
+  representatives OrganizationRepresentative[]
+  departments     Department[]
+  costCenters     CostCenter[]
+  auditLogs       AuditLog[]
+  exchangeRates   ExchangeRate[]
+  notifications   Notification[]
+  sessions        Session[]
+  customRoles     Role[]
+
+  // Fase 2
+  partners             Partner[]
+  partnerVerifications PartnerVerification[]
+  shipments            Shipment[]
+  shipmentStops        ShipmentStop[]
+  shipmentItems        ShipmentItem[]
+  quotations           Quotation[]
+  documents            Document[]
+  documentVersions     DocumentVersion[]
+  trackingEvents       TrackingEvent[]
+  incidents            Incident[]
+
+  @@index([status])
+  @@map("organizations")
+}
+
+model OrganizationAddress {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  type           AddressType  @default(HEADQUARTERS)
+  line1          String
+  line2          String?
+  city           String
+  province       String?
+  postalCode     String?      @map("postal_code")
+  country        String       @default("AO") @db.Char(2)
+  isPrimary      Boolean      @default(false) @map("is_primary")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("organization_addresses")
+}
+
+model OrganizationContact {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String
+  role           String?
+  email          String?
+  phone          String?
+  isPrimary      Boolean      @default(false) @map("is_primary")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("organization_contacts")
+}
+
+model OrganizationRepresentative {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String
+  position       String?
+  documentType   String?      @map("document_type")
+  documentNumber String?      @map("document_number")
+  email          String?
+  phone          String?
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("organization_representatives")
+}
+
+model Department {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  name           String
+  code           String?
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  memberships    Membership[]
+  costCenters    CostCenter[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("departments")
+}
+
+model CostCenter {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  departmentId   String?      @map("department_id")
+  code           String
+  name           String
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  department     Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@map("cost_centers")
+}
+
+model User {
+  id                  String     @id @default(cuid())
+  email               String     @unique
+  name                String
+  phone               String?
+  passwordHash        String     @map("password_hash")
+  status              UserStatus @default(ACTIVE)
+  locale              String     @default("pt-PT")
+  failedLoginAttempts Int        @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime?  @map("locked_until")
+  lockReason          String?    @map("lock_reason")
+  lastLoginAt         DateTime?  @map("last_login_at")
+  // MFA: pendente (ver docs/integrations.md). Campos reservados.
+  mfaEnabled          Boolean    @default(false) @map("mfa_enabled")
+  passwordChangedAt   DateTime?  @map("password_changed_at")
+  createdAt           DateTime   @default(now()) @map("created_at")
+  updatedAt           DateTime   @updatedAt @map("updated_at")
+
+  memberships         Membership[]
+  sessions            Session[]
+  invitesSent         UserInvite[]         @relation("InviteInviter")
+  passwordResetTokens PasswordResetToken[]
+  accessLogs          AccessLog[]
+  auditLogs           AuditLog[]
+  notifications       Notification[]
+
+  @@map("users")
+}
+
+model Membership {
+  id             String           @id @default(cuid())
+  userId         String           @map("user_id")
+  organizationId String           @map("organization_id")
+  roleId         String           @map("role_id")
+  departmentId   String?          @map("department_id")
+  status         MembershipStatus @default(ACTIVE)
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           Role             @relation(fields: [roleId], references: [id])
+  department     Department?      @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+  @@map("memberships")
+}
+
+model Role {
+  id             String           @id @default(cuid())
+  key            String
+  name           String
+  description    String?
+  scope          RoleScope
+  isSystem       Boolean          @default(true) @map("is_system")
+  // null = perfil de sistema (global). Preenchido = perfil personalizado da organização (futuro).
+  organizationId String?          @map("organization_id")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  organization   Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  permissions    RolePermission[]
+  memberships    Membership[]
+  invites        UserInvite[]
+
+  @@unique([key, organizationId])
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  key         String           @unique
+  module      String
+  description String?
+  roles       RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String     @map("role_id")
+  permissionId String     @map("permission_id")
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model UserInvite {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  email          String
+  roleId         String       @map("role_id")
+  tokenHash      String       @unique @map("token_hash")
+  status         InviteStatus @default(PENDING)
+  invitedById    String       @map("invited_by_id")
+  expiresAt      DateTime     @map("expires_at")
+  acceptedAt     DateTime?    @map("accepted_at")
+  revokedAt      DateTime?    @map("revoked_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  role           Role         @relation(fields: [roleId], references: [id])
+  invitedBy      User         @relation("InviteInviter", fields: [invitedById], references: [id])
+
+  @@index([organizationId])
+  @@index([email])
+  @@map("user_invites")
+}
+
+model Session {
+  id                   String        @id @default(cuid())
+  userId               String        @map("user_id")
+  activeOrganizationId String?       @map("active_organization_id")
+  ipAddress            String?       @map("ip_address")
+  userAgent            String?       @map("user_agent")
+  createdAt            DateTime      @default(now()) @map("created_at")
+  lastSeenAt           DateTime      @default(now()) @map("last_seen_at")
+  expiresAt            DateTime      @map("expires_at")
+  revokedAt            DateTime?     @map("revoked_at")
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activeOrganization   Organization? @relation(fields: [activeOrganizationId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+// Histórico de acessos (logins com sucesso/falha, logout, bloqueios)
+model AccessLog {
+  id        String   @id @default(cuid())
+  userId    String?  @map("user_id")
+  email     String
+  event     String
+  success   Boolean
+  reason    String?
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([email])
+  @@map("access_logs")
+}
+
+model AuditLog {
+  id             String        @id @default(cuid())
+  organizationId String?       @map("organization_id")
+  userId         String?       @map("user_id")
+  action         String
+  entityType     String        @map("entity_type")
+  entityId       String?       @map("entity_id")
+  before         Json?
+  after          Json?
+  ipAddress      String?       @map("ip_address")
+  userAgent      String?       @map("user_agent")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+model ExchangeRate {
+  id             String        @id @default(cuid())
+  // null = taxa de referência da plataforma; preenchido = taxa própria da organização
+  organizationId String?       @map("organization_id")
+  baseCurrency   String        @map("base_currency") @db.Char(3)
+  quoteCurrency  String        @map("quote_currency") @db.Char(3)
+  rate           Decimal       @db.Decimal(20, 8)
+  effectiveDate  DateTime      @map("effective_date") @db.Date
+  source         String?
+  createdById    String?       @map("created_by_id")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, baseCurrency, quoteCurrency, effectiveDate])
+  @@index([baseCurrency, quoteCurrency, effectiveDate])
+  @@map("exchange_rates")
+}
+
+model Notification {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  userId         String       @map("user_id")
+  type           String
+  title          String
+  body           String?
+  link           String?
+  data           Json?
+  readAt         DateTime?    @map("read_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, userId, readAt])
+  @@map("notifications")
+}

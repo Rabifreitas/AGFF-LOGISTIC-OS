@@ -1,0 +1,12 @@
+// AGFF Logistics OS — Prisma schema (multi-file).
+// base.prisma: generator/datasource. core.prisma: Fase 1. phase2.prisma: Fase 2 (sem UI).
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = []
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
