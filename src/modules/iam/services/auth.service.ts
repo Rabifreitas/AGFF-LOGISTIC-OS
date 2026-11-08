@@ -41,11 +41,19 @@ export async function authenticate(
   if (isTemporarilyLocked(user.lockedUntil, now)) return fail("temporarily_locked");
 
   if (!(await verifyPassword(password, user.passwordHash))) {
-    const next = nextLockStateAfterFailure(user.failedLoginAttempts, now);
-    await prisma.user.update({
+    // Incremento atómico: tentativas concorrentes não podem sobrescrever o contador.
+    const { failedLoginAttempts } = await prisma.user.update({
       where: { id: user.id },
-      data: { failedLoginAttempts: next.failedLoginAttempts, lockedUntil: next.lockedUntil },
+      data: { failedLoginAttempts: { increment: 1 } },
+      select: { failedLoginAttempts: true },
     });
+    const next = nextLockStateAfterFailure(failedLoginAttempts - 1, now);
+    if (next.justLocked) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { failedLoginAttempts: 0, lockedUntil: next.lockedUntil },
+      });
+    }
     if (next.justLocked) {
       await recordAccess({
         userId: user.id,
