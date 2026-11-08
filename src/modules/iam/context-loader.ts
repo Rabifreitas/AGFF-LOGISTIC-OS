@@ -47,13 +47,14 @@ export async function loadActorContext(
   };
 }
 
-/** Organização por omissão: a primeira associação activa (plataforma primeiro). */
+/** Organização por omissão: plataforma, depois empresas activas, depois qualquer associação activa. */
 export async function defaultOrganizationId(userId: string): Promise<string | null> {
   const memberships = await prisma.membership.findMany({
     where: { userId, status: "ACTIVE" },
-    include: { organization: { select: { type: true } } },
+    include: { organization: { select: { type: true, status: true } } },
     orderBy: { createdAt: "asc" },
   });
   const platform = memberships.find((m) => m.organization.type === "PLATFORM");
-  return (platform ?? memberships[0])?.organizationId ?? null;
+  const active = memberships.find((m) => m.organization.status === "ACTIVE");
+  return (platform ?? active ?? memberships[0])?.organizationId ?? null;
 }
