@@ -11,7 +11,7 @@ Next.js 15 (App Router, TypeScript) · Tailwind CSS v4 · PostgreSQL 16 + Prisma
 ## Arranque rápido (Docker Compose — ambiente completo)
 
 ```bash
-cp .env.example .env            # defina AUTH_SECRET (openssl rand -base64 32)
+cp .env.example .env            # defina AUTH_SECRET (openssl rand -base64 32) e SEED_SUPERADMIN_PASSWORD
 docker compose up -d --build    # postgres, minio, mailpit e app
 ```
 
@@ -22,7 +22,7 @@ docker compose up -d --build    # postgres, minio, mailpit e app
 | Consola MinIO             | http://localhost:9001 (`agffminio` / `agffminio-secret`) |
 | Health check              | http://localhost:3000/api/health                         |
 
-O contentor `app` aplica as migrações (`prisma migrate deploy`) e o seed (permissões, perfis, organização da plataforma e Super Administrator) ao arrancar. Credenciais iniciais de desenvolvimento: `SEED_SUPERADMIN_EMAIL` / `SEED_SUPERADMIN_PASSWORD` (por omissão `admin@agff.local` / `ChangeMe!2026`). **Altere-as fora de desenvolvimento.**
+O contentor `app` aplica as migrações (`prisma migrate deploy`) e o seed (permissões, perfis, organização da plataforma e Super Administrator) ao arrancar. O Super Administrator inicial usa `SEED_SUPERADMIN_EMAIL` / `SEED_SUPERADMIN_PASSWORD` do `.env`; não há password por omissão (o Compose recusa arrancar sem `AUTH_SECRET` e `SEED_SUPERADMIN_PASSWORD`).
 
 Redis é opcional: `docker compose --profile redis up -d`.
 
