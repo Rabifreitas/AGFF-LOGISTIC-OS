@@ -68,6 +68,7 @@ describe("verificação de permissões", () => {
   it("Company Administrator gere a equipa; Driver não", () => {
     expect(roleHasPermission("COMPANY_ADMIN", "iam.members.invite")).toBe(true);
     expect(roleHasPermission("DRIVER", "iam.members.invite")).toBe(false);
+    expect(roleHasPermission("DRIVER", "incidents.read")).toBe(true);
     expect(() => assertPermission(holder("DRIVER"), "iam.members.invite")).toThrow(ForbiddenError);
   });
 

@@ -218,7 +218,7 @@ export const ROLE_DEFINITIONS: Record<RoleKey, RoleDefinition> = {
     name: "Driver",
     scope: "ORGANIZATION",
     description: "Executa transportes e regista eventos de tracking.",
-    permissions: ["tms.shipments.read", "trk.events.read", "trk.events.create", "incidents.manage"],
+    permissions: ["tms.shipments.read", "trk.events.read", "trk.events.create", "incidents.read", "incidents.manage"],
   },
   CUSTOMER: {
     key: "CUSTOMER",
