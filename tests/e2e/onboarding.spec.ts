@@ -87,6 +87,19 @@ test("empresa regista-se → admin aprova → convite → login do convidado", a
   await page.getByRole("button", { name: "Enviar convite" }).click();
   await expect(page.getByText(inviteeEmail)).toBeVisible();
 
+  // Botões de transição: cada clique envia a sua transição (regressão: Aprovar rejeitava)
+  const carrier = `Trans E2E ${id}`;
+  await page.goto("/app/partners");
+  await page.getByLabel("Nome", { exact: true }).fill(carrier);
+  await page.getByRole("button", { name: "Novo parceiro" }).click();
+  await page.getByRole("link", { name: carrier }).click();
+  await page.getByRole("button", { name: "Adicionar verificação" }).click();
+  await page.getByRole("button", { name: "Aprovar" }).click();
+  await expect(page.getByText("Aprovado").first()).toBeVisible();
+  await page.getByRole("button", { name: "Submeter a verificação" }).click();
+  await page.getByRole("button", { name: "Marcar como verificado" }).click();
+  await expect(page.getByText("Verificado", { exact: true }).first()).toBeVisible();
+
   // RBAC: um admin de empresa não entra no painel da plataforma
   await page.goto("/admin");
   await expect(page).toHaveURL(/\/app\/forbidden/);
