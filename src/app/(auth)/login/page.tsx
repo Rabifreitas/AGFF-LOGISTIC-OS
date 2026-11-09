@@ -5,7 +5,10 @@ import { Card } from "@/components/ui";
 import { getCurrentSession } from "@/modules/iam/session-context";
 import { LoginForm } from "./login-form";
 
-export const metadata = { title: "Entrar" };
+export async function generateMetadata() {
+  const t = await getTranslations("login");
+  return { title: t("title") };
+}
 
 export default async function LoginPage({
   searchParams,

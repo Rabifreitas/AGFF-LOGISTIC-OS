@@ -6,7 +6,10 @@ import { listExchangeRates } from "@/modules/fin/services/exchange-rate.service"
 import { hasPermission } from "@/modules/iam/rbac";
 import { requirePagePermission } from "@/modules/iam/session-context";
 
-export const metadata = { title: "Câmbios" };
+export async function generateMetadata() {
+  const t = await getTranslations("nav");
+  return { title: t("exchangeRates") };
+}
 
 export default async function ExchangeRatesPage() {
   const ctx = await requirePagePermission("exchange_rates.read");

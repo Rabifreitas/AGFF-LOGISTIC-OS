@@ -11,7 +11,10 @@ import { availableIncidentTransitions } from "@/modules/trk/incident-status";
 import { listIncidents } from "@/modules/trk/services/incident.service";
 import { IncidentForm } from "../shipments/forms";
 
-export const metadata = { title: "Incidentes" };
+export async function generateMetadata() {
+  const t = await getTranslations("nav");
+  return { title: t("incidents") };
+}
 
 export default async function IncidentsPage() {
   const ctx = await requirePagePermission("incidents.read");

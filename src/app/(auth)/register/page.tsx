@@ -3,7 +3,10 @@ import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui";
 import { RegisterForm } from "./register-form";
 
-export const metadata = { title: "Registar empresa" };
+export async function generateMetadata() {
+  const t = await getTranslations("register");
+  return { title: t("title") };
+}
 
 export default async function RegisterPage() {
   const t = await getTranslations("register");

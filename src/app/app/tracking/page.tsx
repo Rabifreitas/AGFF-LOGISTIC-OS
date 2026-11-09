@@ -5,7 +5,10 @@ import { formatDateTime } from "@/lib/utils";
 import { requirePagePermission } from "@/modules/iam/session-context";
 import { listTrackingEvents } from "@/modules/trk/services/tracking.service";
 
-export const metadata = { title: "Tracking" };
+export async function generateMetadata() {
+  const t = await getTranslations("nav");
+  return { title: t("tracking") };
+}
 
 export default async function TrackingPage() {
   const ctx = await requirePagePermission("trk.events.read");

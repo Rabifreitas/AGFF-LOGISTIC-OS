@@ -7,7 +7,10 @@ import { listUserAccessLog } from "@/modules/iam/services/access-log.service";
 import { listActiveSessions } from "@/modules/iam/services/session.service";
 import { PasswordForm } from "./password-form";
 
-export const metadata = { title: "A minha conta" };
+export async function generateMetadata() {
+  const t = await getTranslations("nav");
+  return { title: t("account") };
+}
 
 export default async function AccountPage() {
   const ctx = await requireActor();

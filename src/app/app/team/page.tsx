@@ -8,7 +8,10 @@ import { listInvites } from "@/modules/iam/services/invite.service";
 import { listMembers, listRolesWithPermissions } from "@/modules/iam/services/member.service";
 import { InviteForm } from "./invite-form";
 
-export const metadata = { title: "Equipa" };
+export async function generateMetadata() {
+  const t = await getTranslations("nav");
+  return { title: t("team") };
+}
 
 export default async function TeamPage() {
   const ctx = await requirePagePermission("iam.members.read");
