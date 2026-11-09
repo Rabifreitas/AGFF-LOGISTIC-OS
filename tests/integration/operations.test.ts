@@ -105,6 +105,15 @@ describe("Parceiros e verificação", () => {
   });
 });
 
+describe("Tipos de parceiro na expedição", () => {
+  it("rejeita transportador como cliente", async () => {
+    const carrier = await createPartner(A.ctx, partner());
+    await expect(createShipment(A.ctx, shipment({ customerPartnerId: carrier.id }))).rejects.toThrow(
+      "shp.customerType",
+    );
+  });
+});
+
 describe("Validade das verificações", () => {
   it("não reserva nem reactiva transportadores com a verificação expirada", async () => {
     const carrier = await verifiedCarrier(A.ctx);

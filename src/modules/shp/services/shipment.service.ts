@@ -25,6 +25,7 @@ async function assertRelationsInTenant(
   if (input.customerPartnerId) {
     const p = await tx.partner.findUnique({ where: { id: input.customerPartnerId } });
     if (!p) throw new NotFoundError("shp.customerNotFound");
+    if (p.type !== "CUSTOMER") throw new InvalidStateError("shp.customerType");
   }
   if (input.carrierPartnerId) {
     const p = await tx.partner.findUnique({ where: { id: input.carrierPartnerId } });

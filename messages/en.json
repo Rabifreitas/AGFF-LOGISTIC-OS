@@ -529,6 +529,7 @@
     "carrierNotVerified": "The carrier must be verified with a valid (non-expired) verification.",
     "carrierType": "The selected partner is not a transporter or freight forwarder.",
     "carrierNotFound": "Carrier not found.",
+    "customerType": "The selected partner is not a customer.",
     "customerNotFound": "Customer not found.",
     "costCenterNotFound": "Cost centre not found or inactive.",
     "deliveryBeforePickup": "Planned delivery cannot be before pickup.",

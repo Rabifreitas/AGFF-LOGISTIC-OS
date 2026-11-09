@@ -529,6 +529,7 @@
     "carrierNotVerified": "O transportador tem de estar verificado e com verificação válida.",
     "carrierType": "O parceiro escolhido não é transportador nem transitário.",
     "carrierNotFound": "Transportador não encontrado.",
+    "customerType": "O parceiro escolhido não é um cliente.",
     "customerNotFound": "Cliente não encontrado.",
     "costCenterNotFound": "Centro de custo não encontrado ou inactivo.",
     "deliveryBeforePickup": "A entrega prevista não pode ser anterior à recolha.",
