@@ -30,7 +30,7 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
   const canSeeEvents = hasPermission(ctx, "trk.events.read");
   const canSeeIncidents = hasPermission(ctx, "incidents.read");
   const canManageIncidents = hasPermission(ctx, "incidents.manage");
-  const options = editable ? await shipmentFormOptions(ctx) : null;
+  const options = editable ? await shipmentFormOptions(ctx, [s.customerPartnerId, s.carrierPartnerId]) : null;
   const totalWeight = s.items.reduce((a, i) => a + Number(i.weightKg ?? 0), 0);
   const totalVolume = s.items.reduce((a, i) => a + Number(i.volumeM3 ?? 0), 0);
   const back = `/app/shipments/${s.id}`;

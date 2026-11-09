@@ -2,11 +2,14 @@ import { hasPermission, type ActorContext } from "@/modules/iam/rbac";
 import { tenantDb } from "@/modules/tenancy/tenant-db";
 
 /** Opções dos selectores de expedição, sempre lidas no tenant actual. */
-export async function shipmentFormOptions(ctx: ActorContext) {
+export async function shipmentFormOptions(ctx: ActorContext, keepIds: (string | null)[] = []) {
   const db = tenantDb(ctx.organizationId);
   const [partners, costCenters, org] = await Promise.all([
     db.partner.findMany({
-      where: { status: { notIn: ["REJECTED", "SUSPENDED"] } },
+      // Mantém os parceiros já associados, mesmo suspensos, para não os apagar ao gravar.
+      where: {
+        OR: [{ status: { notIn: ["REJECTED", "SUSPENDED"] } }, { id: { in: keepIds.filter((id) => id !== null) } }],
+      },
       select: { id: true, name: true, type: true, status: true },
       orderBy: { name: "asc" },
     }),
