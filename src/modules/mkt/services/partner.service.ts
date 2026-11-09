@@ -109,10 +109,13 @@ export async function reviewVerification(
     if (decision === "APPROVED" && before.expiresAt && before.expiresAt < new Date()) {
       throw new InvalidStateError("partners.verificationExpired");
     }
-    const after = await tx.partnerVerification.update({
-      where: { id: verificationId },
+    // Guarda optimista: duas decisões simultâneas não se sobrepõem.
+    const { count } = await tx.partnerVerification.updateMany({
+      where: { id: verificationId, status: "PENDING" },
       data: { status: decision, reviewedById: ctx.userId, reviewedAt: new Date(), notes: notes ?? before.notes },
     });
+    if (count !== 1) throw new InvalidStateError("partners.verificationReviewed");
+    const after = await tx.partnerVerification.findUniqueOrThrow({ where: { id: verificationId } });
     await recordAudit(tx, ctx, {
       action: `partner.verification.${decision === "APPROVED" ? "approved" : "rejected"}`,
       entityType: "PartnerVerification",
