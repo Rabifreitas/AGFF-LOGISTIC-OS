@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-// FASE 2 — Tabelas preparadas (sem UI nem serviços ainda).
+// FASE 2 — Operações logísticas (2A: parceiros, expedições, tracking, incidentes).
 // Marketplace (MKT), Transportes (TMS), Expedições (SHP), Documentos (DMS),
 // Tracking (TRK) e Incidentes. Todas com organizationId (tenant).
 // ─────────────────────────────────────────────────────────────
@@ -87,23 +87,26 @@ enum IncidentStatus {
 }
 
 model Partner {
-  id                 String        @id @default(cuid())
-  organizationId     String        @map("organization_id")
+  id                   String                @id @default(cuid())
+  organizationId       String                @map("organization_id")
   // Organização da plataforma que representa este parceiro (quando existir)
-  linkedOrganizationId String?     @map("linked_organization_id")
-  type               PartnerType
-  status             PartnerStatus @default(DRAFT)
-  name               String
-  nif                String?
-  country            String        @default("AO") @db.Char(2)
-  email              String?
-  phone              String?
-  rating             Decimal?      @db.Decimal(3, 2)
-  createdAt          DateTime      @default(now()) @map("created_at")
-  updatedAt          DateTime      @updatedAt @map("updated_at")
-  organization       Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  verifications      PartnerVerification[]
-  quotations         Quotation[]
+  linkedOrganizationId String?               @map("linked_organization_id")
+  type                 PartnerType
+  status               PartnerStatus         @default(DRAFT)
+  name                 String
+  nif                  String?
+  country              String                @default("AO") @db.Char(2)
+  email                String?
+  phone                String?
+  rating               Decimal?              @db.Decimal(3, 2)
+  notes                String?
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+  organization         Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  verifications        PartnerVerification[]
+  quotations           Quotation[]
+  shipmentsAsCustomer  Shipment[]            @relation("ShipmentCustomer")
+  shipmentsAsCarrier   Shipment[]            @relation("ShipmentCarrier")
 
   @@index([organizationId])
   @@map("partners")
@@ -130,30 +133,33 @@ model PartnerVerification {
 }
 
 model Shipment {
-  id             String         @id @default(cuid())
-  organizationId String         @map("organization_id")
-  reference      String
-  status         ShipmentStatus @default(DRAFT)
-  mode           TransportMode  @default(ROAD)
-  incoterm       String?
-  customerPartnerId String?     @map("customer_partner_id")
-  carrierPartnerId  String?     @map("carrier_partner_id")
-  costCenterId   String?        @map("cost_center_id")
-  plannedPickupAt   DateTime?   @map("planned_pickup_at")
-  plannedDeliveryAt DateTime?   @map("planned_delivery_at")
-  currency       String         @default("AOA") @db.Char(3)
-  declaredValue  Decimal?       @map("declared_value") @db.Decimal(20, 2)
-  notes          String?
-  createdById    String?        @map("created_by_id")
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
-  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  stops          ShipmentStop[]
-  items          ShipmentItem[]
-  quotations     Quotation[]
-  trackingEvents TrackingEvent[]
-  incidents      Incident[]
-  documents      Document[]
+  id                String          @id @default(cuid())
+  organizationId    String          @map("organization_id")
+  reference         String
+  status            ShipmentStatus  @default(DRAFT)
+  mode              TransportMode   @default(ROAD)
+  incoterm          String?
+  customerPartnerId String?         @map("customer_partner_id")
+  carrierPartnerId  String?         @map("carrier_partner_id")
+  costCenterId      String?         @map("cost_center_id")
+  plannedPickupAt   DateTime?       @map("planned_pickup_at")
+  plannedDeliveryAt DateTime?       @map("planned_delivery_at")
+  currency          String          @default("AOA") @db.Char(3)
+  declaredValue     Decimal?        @map("declared_value") @db.Decimal(20, 2)
+  notes             String?
+  createdById       String?         @map("created_by_id")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customerPartner   Partner?        @relation("ShipmentCustomer", fields: [customerPartnerId], references: [id], onDelete: SetNull)
+  carrierPartner    Partner?        @relation("ShipmentCarrier", fields: [carrierPartnerId], references: [id], onDelete: SetNull)
+  costCenter        CostCenter?     @relation(fields: [costCenterId], references: [id], onDelete: SetNull)
+  stops             ShipmentStop[]
+  items             ShipmentItem[]
+  quotations        Quotation[]
+  trackingEvents    TrackingEvent[]
+  incidents         Incident[]
+  documents         Document[]
 
   @@unique([organizationId, reference])
   @@index([organizationId, status])
@@ -224,19 +230,19 @@ model Quotation {
 }
 
 model Document {
-  id             String           @id @default(cuid())
-  organizationId String           @map("organization_id")
-  shipmentId     String?          @map("shipment_id")
+  id             String            @id @default(cuid())
+  organizationId String            @map("organization_id")
+  shipmentId     String?           @map("shipment_id")
   type           String
   title          String
-  status         DocumentStatus   @default(DRAFT)
-  currentVersion Int              @default(0) @map("current_version")
-  expiresAt      DateTime?        @map("expires_at")
-  createdById    String?          @map("created_by_id")
-  createdAt      DateTime         @default(now()) @map("created_at")
-  updatedAt      DateTime         @updatedAt @map("updated_at")
-  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  shipment       Shipment?        @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+  status         DocumentStatus    @default(DRAFT)
+  currentVersion Int               @default(0) @map("current_version")
+  expiresAt      DateTime?         @map("expires_at")
+  createdById    String?           @map("created_by_id")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shipment       Shipment?         @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
   versions       DocumentVersion[]
 
   @@index([organizationId, type])
@@ -291,6 +297,7 @@ model Incident {
   severity       IncidentSeverity @default(MEDIUM)
   status         IncidentStatus   @default(OPEN)
   reportedById   String?          @map("reported_by_id")
+  resolution     String?
   resolvedAt     DateTime?        @map("resolved_at")
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")
