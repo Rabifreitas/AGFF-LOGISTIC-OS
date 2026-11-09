@@ -4,7 +4,7 @@ Esquema Prisma dividido em `prisma/schema/`:
 
 - `base.prisma` — gerador e datasource (PostgreSQL)
 - `core.prisma` — Fase 1 (implementado e usado pela aplicação)
-- `phase2.prisma` — Fase 2 (só tabelas, sem UI nem serviços)
+- `phase2.prisma` — Fase 2 (2A com serviços e UI: parceiros, expedições, tracking, incidentes; cotações e documentos ainda sem UI)
 
 Convenções: ids `cuid`, colunas `snake_case` (`@map`), tabelas no plural, `created_at`/`updated_at`. **Todas as entidades empresariais têm `organization_id`** e são filtradas por `tenantDb()`. Tabelas globais: `users`, `permissions`, `role_permissions`, `sessions`, `password_reset_tokens`, `access_logs`. `roles`, `audit_logs` e `exchange_rates` têm `organization_id` opcional (registos de sistema/plataforma ficam a `NULL`).
 
@@ -118,7 +118,7 @@ erDiagram
   }
 ```
 
-## Fase 2 (preparada, sem UI)
+## Fase 2 (2A implementada; cotações/documentos pendentes)
 
 ```mermaid
 erDiagram

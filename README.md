@@ -2,7 +2,7 @@
 
 Plataforma logística multiempresa (multi-tenant) para Angola, com expansão africana: marketplace, SaaS de gestão logística, gestão documental, tracking e financeiro.
 
-Este repositório contém a **Fase 1 — Foundation**: identidade e acessos (IAM), empresas (ORG), RBAC com 11 perfis, isolamento multi-tenant, auditoria, câmbios, notificações e o esquema de dados da Fase 2 (só tabelas). Ver [roadmap.md](roadmap.md).
+Este repositório contém: identidade e acessos (IAM), empresas (ORG), RBAC com 11 perfis, isolamento multi-tenant, auditoria, câmbios e notificações (**Fase 1 — Foundation**), mais a **Fase 2A — Operações**: parceiros e verificação, expedições (paragens, carga, máquina de estados), tracking manual e incidentes. Ver [roadmap.md](roadmap.md).
 
 ## Stack
 

@@ -22,7 +22,16 @@
     "no": "Não",
     "never": "Nunca",
     "open": "Abrir",
-    "all": "Todos"
+    "all": "Todos",
+    "reason": "Motivo / nota",
+    "notes": "Notas",
+    "none": "—",
+    "filter": "Filtrar",
+    "details": "Detalhes",
+    "edit": "Editar",
+    "type": "Tipo",
+    "up": "Subir",
+    "down": "Descer"
   },
   "nav": {
     "dashboard": "Painel",
@@ -45,7 +54,9 @@
     "organizations": "Empresas",
     "users": "Utilizadores",
     "switchOrg": "Mudar de empresa",
-    "backToApp": "Voltar à aplicação"
+    "backToApp": "Voltar à aplicação",
+    "partners": "Parceiros",
+    "incidents": "Incidentes"
   },
   "landing": {
     "tagline": "Plataforma logística multiempresa para Angola e África",
@@ -136,12 +147,17 @@
       "lowercase": "Precisa de uma letra minúscula.",
       "uppercase": "Precisa de uma letra maiúscula.",
       "digit": "Precisa de um dígito."
-    }
+    },
+    "date": "Data inválida.",
+    "nonNegative": "Não pode ser negativo.",
+    "coordinate": "Coordenada inválida."
   },
   "errors": {
     "forbidden": "Não tem permissão para esta operação.",
     "roleNotAssignable": "Não pode atribuir este perfil.",
-    "notFound": "Registo não encontrado."
+    "notFound": "Registo não encontrado.",
+    "invalidState": "Operação não permitida no estado actual.",
+    "conflict": "Conflito com um registo existente."
   },
   "invites": {
     "alreadyMember": "Este utilizador já pertence à empresa.",
@@ -195,7 +211,22 @@
     "PENDING": "Pendente",
     "ACCEPTED": "Aceite",
     "REVOKED": "Revogado",
-    "EXPIRED": "Expirado"
+    "EXPIRED": "Expirado",
+    "DRAFT": "Rascunho",
+    "PENDING_VERIFICATION": "Em verificação",
+    "VERIFIED": "Verificado",
+    "APPROVED": "Aprovado",
+    "REQUESTED": "Pedida",
+    "QUOTED": "Cotada",
+    "BOOKED": "Reservada",
+    "IN_TRANSIT": "Em trânsito",
+    "AT_CUSTOMS": "Na alfândega",
+    "DELIVERED": "Entregue",
+    "CANCELLED": "Cancelada",
+    "OPEN": "Aberto",
+    "INVESTIGATING": "Em análise",
+    "RESOLVED": "Resolvido",
+    "CLOSED": "Fechado"
   },
   "orgType": {
     "PLATFORM": "Plataforma",
@@ -224,13 +255,19 @@
     "welcome": "Bem-vindo, {name}",
     "subtitle": "{org} · {role}",
     "modulesTitle": "Módulos",
-    "modulesDesc": "Os módulos operacionais são activados nas próximas fases.",
+    "modulesDesc": "Módulos activos e próximos módulos da plataforma.",
     "noActivity": "Ainda não há actividade.",
-    "noActivityDesc": "As operações logísticas (expedições, cotações, documentos) ficam disponíveis na Fase 2.",
+    "noActivityDesc": "Crie a primeira expedição para começar a operar.",
     "members": "Membros activos",
     "pendingInvites": "Convites pendentes",
     "unread": "Notificações por ler",
-    "plannedModule": "Disponível na fase {n}"
+    "plannedModule": "Disponível na fase {n}",
+    "activeShipments": "Expedições activas",
+    "inTransit": "Em trânsito / alfândega",
+    "openIncidents": "Incidentes abertos",
+    "verifiedPartners": "Parceiros verificados",
+    "recentShipments": "Expedições recentes",
+    "newShipment": "Nova expedição"
   },
   "pending": {
     "title": "Empresa em validação",
@@ -375,5 +412,183 @@
   },
   "auth": {
     "required": "Sessão necessária."
+  },
+  "partners": {
+    "title": "Parceiros",
+    "desc": "Transportadores, clientes, despachantes e outros parceiros da empresa.",
+    "new": "Novo parceiro",
+    "empty": "Ainda não há parceiros.",
+    "emptyDesc": "Registe transportadores e clientes para os associar às expedições.",
+    "nif": "NIF",
+    "notes": "Notas",
+    "type": {
+      "TRANSPORTER": "Transportador",
+      "FREIGHT_FORWARDER": "Transitário",
+      "CUSTOMS_BROKER": "Despachante",
+      "WAREHOUSE": "Armazém",
+      "SUPPLIER": "Fornecedor",
+      "CUSTOMER": "Cliente",
+      "OTHER": "Outro"
+    },
+    "transition": {
+      "submit": "Submeter a verificação",
+      "verify": "Marcar como verificado",
+      "reject": "Rejeitar",
+      "suspend": "Suspender",
+      "reactivate": "Reactivar"
+    },
+    "verifications": "Verificações",
+    "verificationsDesc": "Documentos e verificações (alvará, certidão fiscal, seguro). O upload de ficheiros chega com o DMS.",
+    "noVerifications": "Sem verificações registadas.",
+    "addVerification": "Adicionar verificação",
+    "kind": "Verificação",
+    "expiresAt": "Validade",
+    "reviewedAt": "Revista em",
+    "kinds": {
+      "COMMERCIAL_REGISTRY": "Registo comercial",
+      "TAX_CERTIFICATE": "Certidão fiscal",
+      "INSURANCE": "Seguro",
+      "TRANSPORT_LICENSE": "Alvará de transporte",
+      "OTHER": "Outra"
+    },
+    "review": {
+      "APPROVED": "Aprovar",
+      "REJECTED": "Rejeitar"
+    },
+    "invalidTransition": "Transição de estado do parceiro não permitida.",
+    "needsApprovedVerification": "É necessária pelo menos uma verificação aprovada.",
+    "verificationReviewed": "Esta verificação já foi revista.",
+    "verificationExpired": "Não é possível aprovar uma verificação expirada."
+  },
+  "shp": {
+    "title": "Expedições",
+    "desc": "Planeamento e execução de expedições: rota, carga, transportador e estado.",
+    "new": "Nova expedição",
+    "created": "Expedição criada.",
+    "empty": "Ainda não há expedições.",
+    "emptyDesc": "Crie uma expedição, adicione recolha, entrega e carga, e submeta o pedido.",
+    "reference": "Referência",
+    "mode": "Modo",
+    "incoterm": "Incoterm",
+    "customer": "Cliente",
+    "carrier": "Transportador",
+    "costCenter": "Centro de custo",
+    "plannedPickupAt": "Recolha prevista",
+    "plannedDeliveryAt": "Entrega prevista",
+    "declaredValue": "Valor declarado",
+    "route": "Rota",
+    "createdAt": "Criada em",
+    "notes": "Notas",
+    "search": "Referência…",
+    "modes": {
+      "ROAD": "Rodoviário",
+      "SEA": "Marítimo",
+      "AIR": "Aéreo",
+      "RAIL": "Ferroviário",
+      "MULTIMODAL": "Multimodal"
+    },
+    "transition": {
+      "request": "Submeter pedido",
+      "markQuoted": "Marcar como cotada",
+      "book": "Reservar",
+      "dispatch": "Iniciar transporte",
+      "enterCustoms": "Entrada na alfândega",
+      "clearCustoms": "Desalfandegada",
+      "deliver": "Confirmar entrega",
+      "cancel": "Cancelar expedição"
+    },
+    "stops": "Paragens",
+    "noStops": "Sem paragens. Adicione pelo menos uma recolha e uma entrega.",
+    "addStop": "Adicionar paragem",
+    "stopType": {
+      "PICKUP": "Recolha",
+      "DELIVERY": "Entrega",
+      "WAYPOINT": "Ponto intermédio",
+      "CUSTOMS": "Alfândega"
+    },
+    "stopName": "Local",
+    "address": "Morada",
+    "city": "Cidade",
+    "plannedAt": "Data prevista",
+    "sequence": "#",
+    "items": "Carga",
+    "noItems": "Sem carga registada.",
+    "addItem": "Adicionar carga",
+    "description": "Descrição",
+    "quantity": "Quantidade",
+    "unit": "Unidade",
+    "weightKg": "Peso (kg)",
+    "volumeM3": "Volume (m³)",
+    "hsCode": "Código HS",
+    "dangerousGoods": "Mercadoria perigosa",
+    "totals": "Total: {weight} kg · {volume} m³",
+    "lockedHint": "A rota e a carga ficam bloqueadas depois da reserva.",
+    "needsStops": "Adicione pelo menos uma recolha e uma entrega.",
+    "needsItems": "Adicione a carga antes de submeter.",
+    "needsCarrier": "Escolha um transportador antes de reservar.",
+    "carrierNotVerified": "O transportador tem de estar verificado.",
+    "carrierType": "O parceiro escolhido não é transportador nem transitário.",
+    "carrierNotFound": "Transportador não encontrado.",
+    "customerNotFound": "Cliente não encontrado.",
+    "costCenterNotFound": "Centro de custo não encontrado ou inactivo.",
+    "deliveryBeforePickup": "A entrega prevista não pode ser anterior à recolha.",
+    "notEditable": "A expedição já não pode ser alterada neste estado.",
+    "invalidTransition": "Transição de estado da expedição não permitida.",
+    "concurrentChange": "A expedição foi alterada por outro utilizador. Actualize a página."
+  },
+  "trk": {
+    "title": "Tracking",
+    "desc": "Linha temporal de eventos de todas as expedições.",
+    "timeline": "Linha temporal",
+    "empty": "Ainda não há eventos.",
+    "emptyDesc": "Os eventos ficam disponíveis quando uma expedição é reservada.",
+    "record": "Registar evento",
+    "code": "Evento",
+    "occurredAt": "Ocorreu em",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "source": "Origem",
+    "shipment": "Expedição",
+    "codes": {
+      "PICKED_UP": "Carga recolhida",
+      "DEPARTED": "Partida",
+      "ARRIVED": "Chegada a ponto",
+      "CUSTOMS_IN": "Entrada na alfândega",
+      "CUSTOMS_CLEARED": "Desalfandegada",
+      "DELAYED": "Atraso",
+      "DELIVERED": "Entregue",
+      "NOTE": "Nota"
+    },
+    "notTrackable": "Só é possível registar eventos em expedições reservadas ou em curso.",
+    "invalidForStatus": "Este evento não é coerente com o estado actual da expedição.",
+    "futureEvent": "A data do evento não pode estar no futuro."
+  },
+  "incidents": {
+    "title": "Incidentes",
+    "desc": "Ocorrências operacionais: avarias, atrasos, danos e perdas.",
+    "new": "Registar incidente",
+    "empty": "Sem incidentes.",
+    "emptyDesc": "Os incidentes registados aparecem aqui.",
+    "titleField": "Título",
+    "description": "Descrição",
+    "severity": "Severidade",
+    "shipment": "Expedição (opcional)",
+    "resolution": "Resolução",
+    "openedAt": "Aberto em",
+    "severities": {
+      "LOW": "Baixa",
+      "MEDIUM": "Média",
+      "HIGH": "Alta",
+      "CRITICAL": "Crítica"
+    },
+    "transition": {
+      "investigate": "Analisar",
+      "resolve": "Resolver",
+      "close": "Fechar",
+      "reopen": "Reabrir"
+    },
+    "invalidTransition": "Transição de estado do incidente não permitida.",
+    "resolutionRequired": "Descreva a resolução no campo de motivo.",
+    "concurrentChange": "O incidente foi alterado por outro utilizador."
   }
 }

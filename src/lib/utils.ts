@@ -19,3 +19,14 @@ export function formatDate(d: Date | string | null | undefined, locale = "pt-PT"
   if (!d) return "—";
   return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(d));
 }
+
+/** Angola (WAT) é UTC+1 sem horário de verão; os campos datetime-local são interpretados nesse fuso. */
+const WAT_OFFSET_MS = 60 * 60 * 1000;
+
+export function parseLocalDateTime(v: string): Date {
+  return new Date(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(v) ? `${v}+01:00` : v);
+}
+
+export function toLocalDateTimeInput(d: Date | null | undefined): string | null {
+  return d ? new Date(d.getTime() + WAT_OFFSET_MS).toISOString().slice(0, 16) : null;
+}

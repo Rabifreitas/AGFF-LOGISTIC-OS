@@ -22,7 +22,16 @@
     "no": "No",
     "never": "Never",
     "open": "Open",
-    "all": "All"
+    "all": "All",
+    "reason": "Reason / note",
+    "notes": "Notes",
+    "none": "—",
+    "filter": "Filter",
+    "details": "Details",
+    "edit": "Edit",
+    "type": "Type",
+    "up": "Up",
+    "down": "Down"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -45,7 +54,9 @@
     "organizations": "Companies",
     "users": "Users",
     "switchOrg": "Switch company",
-    "backToApp": "Back to app"
+    "backToApp": "Back to app",
+    "partners": "Partners",
+    "incidents": "Incidents"
   },
   "landing": {
     "tagline": "Multi-company logistics platform for Angola and Africa",
@@ -136,12 +147,17 @@
       "lowercase": "Needs a lower-case letter.",
       "uppercase": "Needs an upper-case letter.",
       "digit": "Needs a digit."
-    }
+    },
+    "date": "Invalid date.",
+    "nonNegative": "Cannot be negative.",
+    "coordinate": "Invalid coordinate."
   },
   "errors": {
     "forbidden": "You are not allowed to perform this operation.",
     "roleNotAssignable": "You cannot assign this role.",
-    "notFound": "Record not found."
+    "notFound": "Record not found.",
+    "invalidState": "Operation not allowed in the current state.",
+    "conflict": "Conflicts with an existing record."
   },
   "invites": {
     "alreadyMember": "This user is already a member.",
@@ -195,7 +211,22 @@
     "PENDING": "Pending",
     "ACCEPTED": "Accepted",
     "REVOKED": "Revoked",
-    "EXPIRED": "Expired"
+    "EXPIRED": "Expired",
+    "DRAFT": "Draft",
+    "PENDING_VERIFICATION": "Under verification",
+    "VERIFIED": "Verified",
+    "APPROVED": "Approved",
+    "REQUESTED": "Requested",
+    "QUOTED": "Quoted",
+    "BOOKED": "Booked",
+    "IN_TRANSIT": "In transit",
+    "AT_CUSTOMS": "At customs",
+    "DELIVERED": "Delivered",
+    "CANCELLED": "Cancelled",
+    "OPEN": "Open",
+    "INVESTIGATING": "Investigating",
+    "RESOLVED": "Resolved",
+    "CLOSED": "Closed"
   },
   "orgType": {
     "PLATFORM": "Platform",
@@ -224,13 +255,19 @@
     "welcome": "Welcome, {name}",
     "subtitle": "{org} · {role}",
     "modulesTitle": "Modules",
-    "modulesDesc": "Operational modules are enabled in upcoming phases.",
+    "modulesDesc": "Active modules and upcoming platform modules.",
     "noActivity": "No activity yet.",
-    "noActivityDesc": "Logistics operations (shipments, quotations, documents) become available in Phase 2.",
+    "noActivityDesc": "Create your first shipment to start operating.",
     "members": "Active members",
     "pendingInvites": "Pending invites",
     "unread": "Unread notifications",
-    "plannedModule": "Available in phase {n}"
+    "plannedModule": "Available in phase {n}",
+    "activeShipments": "Active shipments",
+    "inTransit": "In transit / customs",
+    "openIncidents": "Open incidents",
+    "verifiedPartners": "Verified partners",
+    "recentShipments": "Recent shipments",
+    "newShipment": "New shipment"
   },
   "pending": {
     "title": "Company under review",
@@ -375,5 +412,183 @@
   },
   "auth": {
     "required": "Sign-in required."
+  },
+  "partners": {
+    "title": "Partners",
+    "desc": "Transporters, customers, customs brokers and other company partners.",
+    "new": "New partner",
+    "empty": "No partners yet.",
+    "emptyDesc": "Register transporters and customers to link them to shipments.",
+    "nif": "Tax ID (NIF)",
+    "notes": "Notes",
+    "type": {
+      "TRANSPORTER": "Transporter",
+      "FREIGHT_FORWARDER": "Freight forwarder",
+      "CUSTOMS_BROKER": "Customs broker",
+      "WAREHOUSE": "Warehouse",
+      "SUPPLIER": "Supplier",
+      "CUSTOMER": "Customer",
+      "OTHER": "Other"
+    },
+    "transition": {
+      "submit": "Submit for verification",
+      "verify": "Mark as verified",
+      "reject": "Reject",
+      "suspend": "Suspend",
+      "reactivate": "Reactivate"
+    },
+    "verifications": "Verifications",
+    "verificationsDesc": "Documents and checks (licence, tax certificate, insurance). File upload arrives with DMS.",
+    "noVerifications": "No verifications recorded.",
+    "addVerification": "Add verification",
+    "kind": "Verification",
+    "expiresAt": "Expires",
+    "reviewedAt": "Reviewed at",
+    "kinds": {
+      "COMMERCIAL_REGISTRY": "Commercial registry",
+      "TAX_CERTIFICATE": "Tax certificate",
+      "INSURANCE": "Insurance",
+      "TRANSPORT_LICENSE": "Transport licence",
+      "OTHER": "Other"
+    },
+    "review": {
+      "APPROVED": "Approve",
+      "REJECTED": "Reject"
+    },
+    "invalidTransition": "Partner status transition not allowed.",
+    "needsApprovedVerification": "At least one approved verification is required.",
+    "verificationReviewed": "This verification has already been reviewed.",
+    "verificationExpired": "An expired verification cannot be approved."
+  },
+  "shp": {
+    "title": "Shipments",
+    "desc": "Shipment planning and execution: route, cargo, carrier and status.",
+    "new": "New shipment",
+    "created": "Shipment created.",
+    "empty": "No shipments yet.",
+    "emptyDesc": "Create a shipment, add pickup, delivery and cargo, then submit the request.",
+    "reference": "Reference",
+    "mode": "Mode",
+    "incoterm": "Incoterm",
+    "customer": "Customer",
+    "carrier": "Carrier",
+    "costCenter": "Cost centre",
+    "plannedPickupAt": "Planned pickup",
+    "plannedDeliveryAt": "Planned delivery",
+    "declaredValue": "Declared value",
+    "route": "Route",
+    "createdAt": "Created",
+    "notes": "Notes",
+    "search": "Reference…",
+    "modes": {
+      "ROAD": "Road",
+      "SEA": "Sea",
+      "AIR": "Air",
+      "RAIL": "Rail",
+      "MULTIMODAL": "Multimodal"
+    },
+    "transition": {
+      "request": "Submit request",
+      "markQuoted": "Mark as quoted",
+      "book": "Book",
+      "dispatch": "Start transport",
+      "enterCustoms": "Entered customs",
+      "clearCustoms": "Cleared customs",
+      "deliver": "Confirm delivery",
+      "cancel": "Cancel shipment"
+    },
+    "stops": "Stops",
+    "noStops": "No stops. Add at least one pickup and one delivery.",
+    "addStop": "Add stop",
+    "stopType": {
+      "PICKUP": "Pickup",
+      "DELIVERY": "Delivery",
+      "WAYPOINT": "Waypoint",
+      "CUSTOMS": "Customs"
+    },
+    "stopName": "Location",
+    "address": "Address",
+    "city": "City",
+    "plannedAt": "Planned date",
+    "sequence": "#",
+    "items": "Cargo",
+    "noItems": "No cargo recorded.",
+    "addItem": "Add cargo",
+    "description": "Description",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "weightKg": "Weight (kg)",
+    "volumeM3": "Volume (m³)",
+    "hsCode": "HS code",
+    "dangerousGoods": "Dangerous goods",
+    "totals": "Total: {weight} kg · {volume} m³",
+    "lockedHint": "Route and cargo are locked once the shipment is booked.",
+    "needsStops": "Add at least one pickup and one delivery.",
+    "needsItems": "Add cargo before submitting.",
+    "needsCarrier": "Choose a carrier before booking.",
+    "carrierNotVerified": "The carrier must be verified.",
+    "carrierType": "The selected partner is not a transporter or freight forwarder.",
+    "carrierNotFound": "Carrier not found.",
+    "customerNotFound": "Customer not found.",
+    "costCenterNotFound": "Cost centre not found or inactive.",
+    "deliveryBeforePickup": "Planned delivery cannot be before pickup.",
+    "notEditable": "The shipment can no longer be changed in this status.",
+    "invalidTransition": "Shipment status transition not allowed.",
+    "concurrentChange": "The shipment was changed by another user. Refresh the page."
+  },
+  "trk": {
+    "title": "Tracking",
+    "desc": "Event timeline across all shipments.",
+    "timeline": "Timeline",
+    "empty": "No events yet.",
+    "emptyDesc": "Events become available once a shipment is booked.",
+    "record": "Record event",
+    "code": "Event",
+    "occurredAt": "Occurred at",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "source": "Source",
+    "shipment": "Shipment",
+    "codes": {
+      "PICKED_UP": "Picked up",
+      "DEPARTED": "Departed",
+      "ARRIVED": "Arrived at point",
+      "CUSTOMS_IN": "Entered customs",
+      "CUSTOMS_CLEARED": "Cleared customs",
+      "DELAYED": "Delayed",
+      "DELIVERED": "Delivered",
+      "NOTE": "Note"
+    },
+    "notTrackable": "Events can only be recorded on booked or in-progress shipments.",
+    "invalidForStatus": "This event is inconsistent with the shipment's current status.",
+    "futureEvent": "The event date cannot be in the future."
+  },
+  "incidents": {
+    "title": "Incidents",
+    "desc": "Operational occurrences: breakdowns, delays, damage and loss.",
+    "new": "Report incident",
+    "empty": "No incidents.",
+    "emptyDesc": "Reported incidents appear here.",
+    "titleField": "Title",
+    "description": "Description",
+    "severity": "Severity",
+    "shipment": "Shipment (optional)",
+    "resolution": "Resolution",
+    "openedAt": "Opened",
+    "severities": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "transition": {
+      "investigate": "Investigate",
+      "resolve": "Resolve",
+      "close": "Close",
+      "reopen": "Reopen"
+    },
+    "invalidTransition": "Incident status transition not allowed.",
+    "resolutionRequired": "Describe the resolution in the reason field.",
+    "concurrentChange": "The incident was changed by another user."
   }
 }

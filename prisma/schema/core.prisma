@@ -53,26 +53,26 @@ enum AddressType {
 }
 
 model Organization {
-  id             String             @id @default(cuid())
-  name           String
-  legalName      String             @map("legal_name")
-  nif            String             @unique
-  type           OrganizationType   @default(SHIPPER)
-  status         OrganizationStatus @default(PENDING_APPROVAL)
-  country        String             @default("AO") @db.Char(2)
-  currency       String             @default("AOA") @db.Char(3)
-  taxRegime      String?            @map("tax_regime")
-  vatNumber      String?            @map("vat_number")
-  commercialRegistry String?        @map("commercial_registry")
-  email          String
-  phone          String?
-  website        String?
-  settings       Json               @default("{}")
-  statusReason   String?            @map("status_reason")
-  approvedAt     DateTime?          @map("approved_at")
-  approvedById   String?            @map("approved_by_id")
-  createdAt      DateTime           @default(now()) @map("created_at")
-  updatedAt      DateTime           @updatedAt @map("updated_at")
+  id                 String             @id @default(cuid())
+  name               String
+  legalName          String             @map("legal_name")
+  nif                String             @unique
+  type               OrganizationType   @default(SHIPPER)
+  status             OrganizationStatus @default(PENDING_APPROVAL)
+  country            String             @default("AO") @db.Char(2)
+  currency           String             @default("AOA") @db.Char(3)
+  taxRegime          String?            @map("tax_regime")
+  vatNumber          String?            @map("vat_number")
+  commercialRegistry String?            @map("commercial_registry")
+  email              String
+  phone              String?
+  website            String?
+  settings           Json               @default("{}")
+  statusReason       String?            @map("status_reason")
+  approvedAt         DateTime?          @map("approved_at")
+  approvedById       String?            @map("approved_by_id")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
 
   memberships     Membership[]
   invites         UserInvite[]
@@ -182,6 +182,7 @@ model CostCenter {
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   department     Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  shipments      Shipment[]
 
   @@unique([organizationId, code])
   @@index([organizationId])
