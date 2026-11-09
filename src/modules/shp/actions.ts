@@ -37,9 +37,10 @@ export async function addItemAction(_: ActionState, f: FormData) {
 /** Botões das linhas de paragens/carga: transition = up | down | remove. */
 export async function stopRowAction(_: ActionState, f: FormData) {
   const op = String(f.get("transition"));
+  if (op !== "up" && op !== "down" && op !== "remove") return { ok: false, error: "errors.invalidState" };
   const stopId = formId(f);
   return runAction(
-    (ctx) => (op === "remove" ? svc.removeStop(ctx, stopId) : svc.moveStop(ctx, stopId, op === "up" ? "up" : "down")),
+    (ctx) => (op === "remove" ? svc.removeStop(ctx, stopId) : svc.moveStop(ctx, stopId, op)),
     path(formId(f, "shipmentId")),
   );
 }

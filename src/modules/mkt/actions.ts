@@ -28,7 +28,8 @@ export async function addVerificationAction(_: ActionState, f: FormData) {
 }
 
 export async function reviewVerificationAction(_: ActionState, f: FormData) {
-  const decision = f.get("transition") === "APPROVED" ? "APPROVED" : "REJECTED";
+  const decision = f.get("transition");
+  if (decision !== "APPROVED" && decision !== "REJECTED") return { ok: false, error: "errors.invalidState" };
   return runAction(
     (ctx) => svc.reviewVerification(ctx, formId(f), decision),
     `/app/partners/${formId(f, "partnerId")}`,
