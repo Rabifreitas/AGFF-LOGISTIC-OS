@@ -526,7 +526,7 @@
     "needsStops": "The route must start with a pickup and end with a delivery.",
     "needsItems": "Add cargo before submitting.",
     "needsCarrier": "Choose a carrier before booking.",
-    "carrierNotVerified": "The carrier must be verified.",
+    "carrierNotVerified": "The carrier must be verified with a valid (non-expired) verification.",
     "carrierType": "The selected partner is not a transporter or freight forwarder.",
     "carrierNotFound": "Carrier not found.",
     "customerNotFound": "Customer not found.",

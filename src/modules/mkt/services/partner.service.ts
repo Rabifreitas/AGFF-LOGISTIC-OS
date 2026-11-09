@@ -3,7 +3,7 @@ import { InvalidStateError, NotFoundError } from "@/lib/errors";
 import { recordAudit } from "@/modules/audit/audit.service";
 import { assertPermission, type ActorContext } from "@/modules/iam/rbac";
 import { tenantDb } from "@/modules/tenancy/tenant-db";
-import { nextPartnerStatus, type PartnerTransition } from "../partner-status";
+import { hasValidVerification, nextPartnerStatus, type PartnerTransition } from "../partner-status";
 import type { PartnerInput, VerificationInput } from "../schemas";
 
 export async function listPartners(ctx: ActorContext, filter: { type?: PartnerType; status?: PartnerStatus } = {}) {
@@ -60,7 +60,7 @@ export async function transitionPartner(ctx: ActorContext, id: string, transitio
     if (!before) throw new NotFoundError();
     const to = nextPartnerStatus(before.status, transition);
     if (!to) throw new InvalidStateError("partners.invalidTransition");
-    if (transition === "verify" && !before.verifications.some((v) => v.status === "APPROVED")) {
+    if ((transition === "verify" || transition === "reactivate") && !hasValidVerification(before.verifications)) {
       throw new InvalidStateError("partners.needsApprovedVerification");
     }
     const after = await tx.partner.update({ where: { id }, data: { status: to } });

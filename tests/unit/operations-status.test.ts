@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { ShipmentStatus } from "@prisma/client";
-import { availablePartnerTransitions, canBeBookedAsCarrier, nextPartnerStatus } from "@/modules/mkt/partner-status";
+import {
+  hasValidVerification,
+  availablePartnerTransitions,
+  canBeBookedAsCarrier,
+  nextPartnerStatus,
+} from "@/modules/mkt/partner-status";
 import { itemSchema, shipmentSchema, stopSchema } from "@/modules/shp/schemas";
 import {
   availableShipmentTransitions,
@@ -56,6 +61,15 @@ describe("máquina de estados da expedição", () => {
     expect(shipmentTransitionBlocker("request", reversed)).toBe("shp.needsStops");
     expect(shipmentTransitionBlocker("book", { ...base, carrierPartnerId: "c" })).toBe("shp.needsStops");
     expect(shipmentTransitionBlocker("book", { ...ok, items: [], carrierPartnerId: "c" })).toBe("shp.needsItems");
+  });
+
+  it("verificação válida exige aprovação dentro do prazo", () => {
+    const now = new Date("2026-06-01T00:00:00Z");
+    expect(hasValidVerification([{ status: "APPROVED", expiresAt: null }], now)).toBe(true);
+    expect(hasValidVerification([{ status: "APPROVED", expiresAt: new Date("2026-05-31T00:00:00Z") }], now)).toBe(
+      false,
+    );
+    expect(hasValidVerification([{ status: "PENDING", expiresAt: null }], now)).toBe(false);
   });
 
   it("formata referências", () => {

@@ -105,6 +105,26 @@ describe("Parceiros e verificação", () => {
   });
 });
 
+describe("Validade das verificações", () => {
+  it("não reserva nem reactiva transportadores com a verificação expirada", async () => {
+    const carrier = await verifiedCarrier(A.ctx);
+    const s = await createShipment(A.ctx, shipment({ carrierPartnerId: carrier.id }));
+    await addStop(A.ctx, s.id, pickup);
+    await addStop(A.ctx, s.id, delivery);
+    await addItem(A.ctx, s.id, item);
+    await transitionShipment(A.ctx, s.id, "request");
+    await prisma.partnerVerification.updateMany({
+      where: { partnerId: carrier.id },
+      data: { expiresAt: new Date(Date.now() - 1000) },
+    });
+    await expect(transitionShipment(A.ctx, s.id, "book")).rejects.toThrow("shp.carrierNotVerified");
+    await transitionPartner(A.ctx, carrier.id, "suspend");
+    await expect(transitionPartner(A.ctx, carrier.id, "reactivate")).rejects.toThrow(
+      "partners.needsApprovedVerification",
+    );
+  });
+});
+
 describe("Expedições: ciclo completo", () => {
   it("rascunho → pedido → reservada → trânsito ⇄ alfândega → entregue, via tracking", async () => {
     const carrier = await verifiedCarrier(A.ctx);

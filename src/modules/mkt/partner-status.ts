@@ -25,6 +25,11 @@ export function availablePartnerTransitions(from: PartnerStatus): PartnerTransit
 }
 
 /** Só parceiros verificados podem ser atribuídos como transportador de uma expedição reservada. */
+/** Há pelo menos uma verificação aprovada e ainda dentro da validade. */
+export function hasValidVerification(verifications: { status: string; expiresAt: Date | null }[], now = new Date()) {
+  return verifications.some((v) => v.status === "APPROVED" && (!v.expiresAt || v.expiresAt > now));
+}
+
 export function canBeBookedAsCarrier(p: { status: PartnerStatus; type: string }) {
   return p.status === "VERIFIED" && (p.type === "TRANSPORTER" || p.type === "FREIGHT_FORWARDER");
 }

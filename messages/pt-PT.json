@@ -526,7 +526,7 @@
     "needsStops": "A rota tem de começar numa recolha e terminar numa entrega.",
     "needsItems": "Adicione a carga antes de submeter.",
     "needsCarrier": "Escolha um transportador antes de reservar.",
-    "carrierNotVerified": "O transportador tem de estar verificado.",
+    "carrierNotVerified": "O transportador tem de estar verificado e com verificação válida.",
     "carrierType": "O parceiro escolhido não é transportador nem transitário.",
     "carrierNotFound": "Transportador não encontrado.",
     "customerNotFound": "Cliente não encontrado.",

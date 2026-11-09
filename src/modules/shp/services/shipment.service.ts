@@ -2,7 +2,7 @@ import type { Prisma, ShipmentStatus } from "@prisma/client";
 import { InvalidStateError, NotFoundError } from "@/lib/errors";
 import { recordAudit } from "@/modules/audit/audit.service";
 import { assertPermission, type ActorContext } from "@/modules/iam/rbac";
-import { canBeBookedAsCarrier } from "@/modules/mkt/partner-status";
+import { canBeBookedAsCarrier, hasValidVerification } from "@/modules/mkt/partner-status";
 import { tenantDb } from "@/modules/tenancy/tenant-db";
 import type { ItemInput, ShipmentInput, StopInput } from "../schemas";
 import {
@@ -143,7 +143,11 @@ export async function applyShipmentTransition(tx: Tx, ctx: ActorContext, id: str
   if (!to) throw new InvalidStateError("shp.invalidTransition");
   const blocker = shipmentTransitionBlocker(transition, before);
   if (blocker) throw new InvalidStateError(blocker);
-  if (transition === "book" && before.carrierPartner && !canBeBookedAsCarrier(before.carrierPartner)) {
+  if (
+    transition === "book" &&
+    before.carrierPartner &&
+    (!canBeBookedAsCarrier(before.carrierPartner) || !hasValidVerification(before.carrierPartner.verifications))
+  ) {
     throw new InvalidStateError("shp.carrierNotVerified");
   }
   // Guarda optimista: falha se outro pedido mudou o estado entretanto.
