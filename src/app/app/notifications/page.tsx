@@ -6,7 +6,10 @@ import { requireActor } from "@/modules/iam/session-context";
 import { markAllReadAction } from "@/modules/notifications/actions";
 import { listMyNotifications } from "@/modules/notifications/notification.service";
 
-export const metadata = { title: "Notificações" };
+export async function generateMetadata() {
+  const t = await getTranslations("nav");
+  return { title: t("notifications") };
+}
 
 export default async function NotificationsPage() {
   const ctx = await requireActor();

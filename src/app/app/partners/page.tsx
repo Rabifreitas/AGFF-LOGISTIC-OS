@@ -6,7 +6,10 @@ import { requirePagePermission } from "@/modules/iam/session-context";
 import { listPartners } from "@/modules/mkt/services/partner.service";
 import { PartnerForm } from "./forms";
 
-export const metadata = { title: "Parceiros" };
+export async function generateMetadata() {
+  const t = await getTranslations("nav");
+  return { title: t("partners") };
+}
 
 export default async function PartnersPage() {
   const ctx = await requirePagePermission("mkt.partners.read");

@@ -9,7 +9,10 @@ import { ACTIVE_SHIPMENT_STATUSES } from "@/modules/shp/shipment-status";
 import { tenantDb } from "@/modules/tenancy/tenant-db";
 import Link from "next/link";
 
-export const metadata = { title: "Painel" };
+export async function generateMetadata() {
+  const t = await getTranslations("nav");
+  return { title: t("dashboard") };
+}
 
 export default async function DashboardPage() {
   const ctx = await requireActiveOrgActor();

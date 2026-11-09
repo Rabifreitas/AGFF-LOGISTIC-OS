@@ -6,7 +6,10 @@ import { getOrganizationProfile } from "@/modules/org/services/org.service";
 import { AddressForm, ContactForm, ProfileForm, RepresentativeForm } from "./forms";
 import { RemoveButton } from "./remove-button";
 
-export const metadata = { title: "Empresa" };
+export async function generateMetadata() {
+  const t = await getTranslations("nav");
+  return { title: t("organization") };
+}
 
 export default async function OrganizationPage() {
   const ctx = await requirePagePermission("org.profile.read");

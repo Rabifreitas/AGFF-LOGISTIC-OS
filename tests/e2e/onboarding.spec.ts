@@ -90,6 +90,7 @@ test("empresa regista-se → admin aprova → convite → login do convidado", a
   // Botões de transição: cada clique envia a sua transição (regressão: Aprovar rejeitava)
   const carrier = `Trans E2E ${id}`;
   await page.goto("/app/partners");
+  await expect(page).toHaveTitle(/^Parceiros · AGFF Logistics OS$/);
   await page.getByLabel("Nome", { exact: true }).fill(carrier);
   await page.getByRole("button", { name: "Novo parceiro" }).click();
   await page.getByRole("link", { name: carrier }).click();

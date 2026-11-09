@@ -4,7 +4,10 @@ import { PageHeader } from "@/components/ui";
 import { listOrganizationAudit } from "@/modules/audit/audit.service";
 import { requirePagePermission } from "@/modules/iam/session-context";
 
-export const metadata = { title: "Auditoria" };
+export async function generateMetadata() {
+  const t = await getTranslations("nav");
+  return { title: t("audit") };
+}
 
 export default async function AuditPage() {
   const ctx = await requirePagePermission("audit.read");

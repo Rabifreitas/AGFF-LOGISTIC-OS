@@ -9,7 +9,10 @@ import { listShipments } from "@/modules/shp/services/shipment.service";
 import { ShipmentForm } from "./forms";
 import { shipmentFormOptions } from "./options";
 
-export const metadata = { title: "Expedições" };
+export async function generateMetadata() {
+  const t = await getTranslations("nav");
+  return { title: t("shipments") };
+}
 
 const STATUSES: ShipmentStatus[] = [
   "DRAFT",
