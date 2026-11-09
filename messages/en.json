@@ -226,7 +226,9 @@
     "OPEN": "Open",
     "INVESTIGATING": "Investigating",
     "RESOLVED": "Resolved",
-    "CLOSED": "Closed"
+    "CLOSED": "Closed",
+    "PENDING_REVIEW": "In review",
+    "ARCHIVED": "Archived"
   },
   "orgType": {
     "PLATFORM": "Platform",
@@ -267,7 +269,8 @@
     "openIncidents": "Open incidents",
     "verifiedPartners": "Verified partners",
     "recentShipments": "Recent shipments",
-    "newShipment": "New shipment"
+    "newShipment": "New shipment",
+    "expiringDocuments": "Expired or expiring documents (30 days)"
   },
   "pending": {
     "title": "Company under review",
@@ -591,5 +594,63 @@
     "invalidTransition": "Incident status transition not allowed.",
     "resolutionRequired": "Describe the resolution in the reason field.",
     "concurrentChange": "The incident was changed by another user."
+  },
+  "dms": {
+    "title": "Documents",
+    "desc": "Company and shipment documents, with versions, SHA-256 checksum and approval.",
+    "new": "New document",
+    "empty": "No documents yet.",
+    "emptyDesc": "Upload the first document (invoice, B/L, licence…).",
+    "file": "File",
+    "fileHint": "PDF, PNG, JPG, WEBP, DOCX or XLSX · max 15 MB",
+    "titleField": "Title",
+    "expiresAt": "Expiry date",
+    "shipment": "Shipment",
+    "version": "Version",
+    "versions": "Versions",
+    "noVersions": "No file uploaded yet.",
+    "uploadVersion": "Upload new version",
+    "fileName": "File",
+    "size": "Size",
+    "checksum": "SHA-256",
+    "uploadedAt": "Uploaded at",
+    "download": "Download",
+    "expired": "Expired",
+    "expiring": "Expiring soon",
+    "filterAll": "All",
+    "filterExpiring": "Expiring (30 days)",
+    "lockedHint": "In review: new versions and edits are not allowed.",
+    "newVersionResets": "A new version or change puts the document back into draft for a new review.",
+    "details": "Details",
+    "reviewedAt": "Reviewed at",
+    "reviewNotes": "Review notes",
+    "fileEmpty": "The file is empty.",
+    "fileTooLarge": "The file exceeds 15 MB.",
+    "fileType": "Unsupported file type, or content does not match the extension.",
+    "locked": "The document is in review or archived and cannot be changed.",
+    "concurrentChange": "The document changed in the meantime. Refresh the page.",
+    "reasonRequired": "Give a reason for the rejection.",
+    "invalidTransition": "Status transition not allowed.",
+    "needsVersion": "Upload at least one version before submitting.",
+    "shipmentNotFound": "Shipment not found.",
+    "transition": {
+      "submit": "Submit for review",
+      "approve": "Approve",
+      "reject": "Reject",
+      "archive": "Archive"
+    },
+    "types": {
+      "BILL_OF_LADING": "Bill of lading (B/L)",
+      "AIR_WAYBILL": "Air waybill (AWB)",
+      "COMMERCIAL_INVOICE": "Commercial invoice",
+      "PACKING_LIST": "Packing list",
+      "CUSTOMS_DECLARATION": "Customs declaration",
+      "CERTIFICATE_OF_ORIGIN": "Certificate of origin",
+      "DELIVERY_NOTE": "Delivery note",
+      "INSURANCE": "Insurance",
+      "LICENSE": "Licence / permit",
+      "CONTRACT": "Contract",
+      "OTHER": "Other"
+    }
   }
 }

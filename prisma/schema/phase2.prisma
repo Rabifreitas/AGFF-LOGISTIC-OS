@@ -238,6 +238,9 @@ model Document {
   status         DocumentStatus    @default(DRAFT)
   currentVersion Int               @default(0) @map("current_version")
   expiresAt      DateTime?         @map("expires_at")
+  reviewedById   String?           @map("reviewed_by_id")
+  reviewedAt     DateTime?         @map("reviewed_at")
+  reviewNotes    String?           @map("review_notes")
   createdById    String?           @map("created_by_id")
   createdAt      DateTime          @default(now()) @map("created_at")
   updatedAt      DateTime          @updatedAt @map("updated_at")
@@ -246,6 +249,8 @@ model Document {
   versions       DocumentVersion[]
 
   @@index([organizationId, type])
+  @@index([organizationId, expiresAt])
+  @@index([organizationId, shipmentId])
   @@map("documents")
 }
 

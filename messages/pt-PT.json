@@ -226,7 +226,9 @@
     "OPEN": "Aberto",
     "INVESTIGATING": "Em análise",
     "RESOLVED": "Resolvido",
-    "CLOSED": "Fechado"
+    "CLOSED": "Fechado",
+    "PENDING_REVIEW": "Em revisão",
+    "ARCHIVED": "Arquivado"
   },
   "orgType": {
     "PLATFORM": "Plataforma",
@@ -267,7 +269,8 @@
     "openIncidents": "Incidentes abertos",
     "verifiedPartners": "Parceiros verificados",
     "recentShipments": "Expedições recentes",
-    "newShipment": "Nova expedição"
+    "newShipment": "Nova expedição",
+    "expiringDocuments": "Documentos expirados ou a expirar (30 dias)"
   },
   "pending": {
     "title": "Empresa em validação",
@@ -591,5 +594,63 @@
     "invalidTransition": "Transição de estado do incidente não permitida.",
     "resolutionRequired": "Descreva a resolução no campo de motivo.",
     "concurrentChange": "O incidente foi alterado por outro utilizador."
+  },
+  "dms": {
+    "title": "Documentos",
+    "desc": "Documentos da empresa e das expedições, com versões, checksum SHA-256 e aprovação.",
+    "new": "Novo documento",
+    "empty": "Ainda não há documentos.",
+    "emptyDesc": "Carregue o primeiro documento (factura, B/L, licença…).",
+    "file": "Ficheiro",
+    "fileHint": "PDF, PNG, JPG, WEBP, DOCX ou XLSX · máx. 15 MB",
+    "titleField": "Título",
+    "expiresAt": "Validade",
+    "shipment": "Expedição",
+    "version": "Versão",
+    "versions": "Versões",
+    "noVersions": "Ainda sem ficheiro carregado.",
+    "uploadVersion": "Carregar nova versão",
+    "fileName": "Ficheiro",
+    "size": "Tamanho",
+    "checksum": "SHA-256",
+    "uploadedAt": "Carregado em",
+    "download": "Descarregar",
+    "expired": "Expirado",
+    "expiring": "Expira em breve",
+    "filterAll": "Todos",
+    "filterExpiring": "A expirar (30 dias)",
+    "lockedHint": "Em revisão: não é possível carregar novas versões nem editar.",
+    "newVersionResets": "Uma nova versão ou alteração volta a colocar o documento em rascunho para nova revisão.",
+    "details": "Detalhes",
+    "reviewedAt": "Revisto em",
+    "reviewNotes": "Notas da revisão",
+    "fileEmpty": "O ficheiro está vazio.",
+    "fileTooLarge": "O ficheiro excede 15 MB.",
+    "fileType": "Tipo de ficheiro não suportado ou conteúdo não corresponde à extensão.",
+    "locked": "O documento está em revisão ou arquivado e não pode ser alterado.",
+    "concurrentChange": "O documento foi alterado entretanto. Actualize a página.",
+    "reasonRequired": "Indique o motivo da rejeição.",
+    "invalidTransition": "Transição de estado não permitida.",
+    "needsVersion": "Carregue pelo menos uma versão antes de submeter.",
+    "shipmentNotFound": "Expedição não encontrada.",
+    "transition": {
+      "submit": "Submeter para revisão",
+      "approve": "Aprovar",
+      "reject": "Rejeitar",
+      "archive": "Arquivar"
+    },
+    "types": {
+      "BILL_OF_LADING": "Conhecimento de embarque (B/L)",
+      "AIR_WAYBILL": "Carta de porte aéreo (AWB)",
+      "COMMERCIAL_INVOICE": "Factura comercial",
+      "PACKING_LIST": "Lista de embalagem",
+      "CUSTOMS_DECLARATION": "Declaração aduaneira (DU)",
+      "CERTIFICATE_OF_ORIGIN": "Certificado de origem",
+      "DELIVERY_NOTE": "Guia de remessa",
+      "INSURANCE": "Seguro",
+      "LICENSE": "Licença / alvará",
+      "CONTRACT": "Contrato",
+      "OTHER": "Outro"
+    }
   }
 }

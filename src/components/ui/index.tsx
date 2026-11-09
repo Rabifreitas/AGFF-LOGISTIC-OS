@@ -109,9 +109,16 @@ export function Badge({ tone = "gray", children }: { tone?: keyof typeof badgeTo
 export function statusTone(status: string): keyof typeof badgeTones {
   if (["ACTIVE", "ACCEPTED", "APPROVED", "VERIFIED", "DELIVERED", "RESOLVED"].includes(status)) return "green";
   if (
-    ["PENDING_APPROVAL", "PENDING", "PENDING_VERIFICATION", "REQUESTED", "QUOTED", "OPEN", "INVESTIGATING"].includes(
-      status,
-    )
+    [
+      "PENDING_APPROVAL",
+      "PENDING",
+      "PENDING_VERIFICATION",
+      "PENDING_REVIEW",
+      "REQUESTED",
+      "QUOTED",
+      "OPEN",
+      "INVESTIGATING",
+    ].includes(status)
   )
     return "yellow";
   if (["BOOKED", "IN_TRANSIT", "AT_CUSTOMS", "MEDIUM"].includes(status)) return "navy";
