@@ -523,7 +523,7 @@
     "dangerousGoods": "Mercadoria perigosa",
     "totals": "Total: {weight} kg · {volume} m³",
     "lockedHint": "A rota e a carga ficam bloqueadas depois da reserva.",
-    "needsStops": "Adicione pelo menos uma recolha e uma entrega.",
+    "needsStops": "A rota tem de começar numa recolha e terminar numa entrega.",
     "needsItems": "Adicione a carga antes de submeter.",
     "needsCarrier": "Escolha um transportador antes de reservar.",
     "carrierNotVerified": "O transportador tem de estar verificado.",

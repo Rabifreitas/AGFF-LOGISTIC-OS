@@ -51,6 +51,11 @@ describe("máquina de estados da expedição", () => {
     expect(shipmentTransitionBlocker("request", { ...ok, items: [] })).toBe("shp.needsItems");
     expect(shipmentTransitionBlocker("request", ok)).toBeNull();
     expect(shipmentTransitionBlocker("book", ok)).toBe("shp.needsCarrier");
+    expect(shipmentTransitionBlocker("book", { ...ok, carrierPartnerId: "c" })).toBeNull();
+    const reversed = { ...ok, stops: [{ type: "DELIVERY" }, { type: "PICKUP" }] };
+    expect(shipmentTransitionBlocker("request", reversed)).toBe("shp.needsStops");
+    expect(shipmentTransitionBlocker("book", { ...base, carrierPartnerId: "c" })).toBe("shp.needsStops");
+    expect(shipmentTransitionBlocker("book", { ...ok, items: [], carrierPartnerId: "c" })).toBe("shp.needsItems");
   });
 
   it("formata referências", () => {

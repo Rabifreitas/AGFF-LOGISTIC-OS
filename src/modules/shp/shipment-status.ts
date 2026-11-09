@@ -52,9 +52,9 @@ export function shipmentTransitionBlocker(
   t: ShipmentTransition,
   s: { stops: { type: string }[]; items: unknown[]; carrierPartnerId: string | null },
 ): string | null {
-  if (t === "request") {
-    if (!s.stops.some((x) => x.type === "PICKUP") || !s.stops.some((x) => x.type === "DELIVERY"))
-      return "shp.needsStops";
+  // `stops` em ordem de sequência; a rota é revalidada em cada passo porque pode ser editada até QUOTED.
+  if (t === "request" || t === "markQuoted" || t === "book") {
+    if (s.stops[0]?.type !== "PICKUP" || s.stops.at(-1)?.type !== "DELIVERY") return "shp.needsStops";
     if (s.items.length === 0) return "shp.needsItems";
   }
   if (t === "book" && !s.carrierPartnerId) return "shp.needsCarrier";

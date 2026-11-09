@@ -523,7 +523,7 @@
     "dangerousGoods": "Dangerous goods",
     "totals": "Total: {weight} kg · {volume} m³",
     "lockedHint": "Route and cargo are locked once the shipment is booked.",
-    "needsStops": "Add at least one pickup and one delivery.",
+    "needsStops": "The route must start with a pickup and end with a delivery.",
     "needsItems": "Add cargo before submitting.",
     "needsCarrier": "Choose a carrier before booking.",
     "carrierNotVerified": "The carrier must be verified.",

@@ -132,7 +132,11 @@ export async function updateShipment(ctx: ActorContext, id: string, input: Shipm
 export async function applyShipmentTransition(tx: Tx, ctx: ActorContext, id: string, transition: ShipmentTransition) {
   const before = await tx.shipment.findUnique({
     where: { id },
-    include: { stops: { select: { type: true } }, items: { select: { id: true } }, carrierPartner: true },
+    include: {
+      stops: { orderBy: { sequence: "asc" }, select: { type: true } },
+      items: { select: { id: true } },
+      carrierPartner: { include: { verifications: { where: { status: "APPROVED" } } } },
+    },
   });
   if (!before) throw new NotFoundError();
   const to = nextShipmentStatus(before.status, transition);
