@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 
 const MAILPIT = process.env.MAILPIT_URL ?? "http://localhost:8025";
@@ -100,6 +101,24 @@ test("empresa regista-se → admin aprova → convite → login do convidado", a
   await page.getByRole("button", { name: "Submeter a verificação" }).click();
   await page.getByRole("button", { name: "Marcar como verificado" }).click();
   await expect(page.getByText("Verificado", { exact: true }).first()).toBeVisible();
+
+  // DMS: upload real para o MinIO, aprovação e download com o mesmo conteúdo
+  const docTitle = `Factura E2E ${id}`;
+  const pdf = Buffer.from(`%PDF-1.7\nE2E ${id}\n`);
+  await page.goto("/app/documents");
+  await page.getByLabel("Título").fill(docTitle);
+  await page.getByLabel("Ficheiro").setInputFiles({ name: "factura.pdf", mimeType: "application/pdf", buffer: pdf });
+  await page.getByRole("button", { name: "Novo documento" }).click();
+  await page.getByRole("link", { name: docTitle }).click();
+  await expect(page.getByRole("cell", { name: "factura.pdf" })).toBeVisible();
+  await page.getByRole("button", { name: "Submeter para revisão" }).click();
+  await page.getByRole("button", { name: "Aprovar" }).click();
+  await expect(page.getByText("Aprovado", { exact: true }).first()).toBeVisible();
+  const download = page.waitForEvent("download");
+  await page.getByRole("link", { name: "Descarregar" }).click();
+  const file = await download;
+  expect(file.suggestedFilename()).toBe("factura.pdf");
+  expect(readFileSync((await file.path())!).equals(pdf)).toBe(true);
 
   // RBAC: um admin de empresa não entra no painel da plataforma
   await page.goto("/admin");

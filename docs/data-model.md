@@ -4,7 +4,7 @@ Esquema Prisma dividido em `prisma/schema/`:
 
 - `base.prisma` — gerador e datasource (PostgreSQL)
 - `core.prisma` — Fase 1 (implementado e usado pela aplicação)
-- `phase2.prisma` — Fase 2 (2A com serviços e UI: parceiros, expedições, tracking, incidentes; cotações e documentos ainda sem UI)
+- `phase2.prisma` — Fase 2 (2A: parceiros, expedições, tracking, incidentes; 2B: documentos e versões; cotações ainda sem UI)
 
 Convenções: ids `cuid`, colunas `snake_case` (`@map`), tabelas no plural, `created_at`/`updated_at`. **Todas as entidades empresariais têm `organization_id`** e são filtradas por `tenantDb()`. Tabelas globais: `users`, `permissions`, `role_permissions`, `sessions`, `password_reset_tokens`, `access_logs`. `roles`, `audit_logs` e `exchange_rates` têm `organization_id` opcional (registos de sistema/plataforma ficam a `NULL`).
 
@@ -118,7 +118,7 @@ erDiagram
   }
 ```
 
-## Fase 2 (2A implementada; cotações/documentos pendentes)
+## Fase 2 (2A e 2B implementadas; cotações pendentes)
 
 ```mermaid
 erDiagram
@@ -135,4 +135,4 @@ erDiagram
   shipments |o--o{ incidents : sofre
 ```
 
-Todas estas tabelas têm `organization_id` e já estão em `TENANT_SCOPED_MODELS`. `document_versions.storage_key` usa o prefixo `org/<organizationId>/` no MinIO.
+Todas estas tabelas têm `organization_id` e já estão em `TENANT_SCOPED_MODELS`. `document_versions.storage_key` usa o prefixo `org/<organizationId>/documents/<documentId>/<uuid>` no MinIO (cada versão é um objecto novo; nunca há substituição) e guarda `checksum_sha256`, tamanho e MIME detectado no servidor.

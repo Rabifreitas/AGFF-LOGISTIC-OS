@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { TransitionButtons } from "@/components/transition-buttons";
 import { Badge, Card, PageHeader, Table, Td, statusTone } from "@/components/ui";
 import { isAppError } from "@/lib/errors";
+import { listDocuments } from "@/modules/dms/services/document.service";
 import { formatDateTime, toLocalDateTimeInput } from "@/lib/utils";
 import { hasPermission } from "@/modules/iam/rbac";
 import { requirePagePermission } from "@/modules/iam/session-context";
@@ -12,6 +13,7 @@ import { getShipment } from "@/modules/shp/services/shipment.service";
 import { availableShipmentTransitions, isShipmentEditable } from "@/modules/shp/shipment-status";
 import { availableIncidentTransitions } from "@/modules/trk/incident-status";
 import { transitionIncidentAction } from "@/modules/trk/actions";
+import { DocumentForm } from "../../documents/forms";
 import { IncidentForm, ItemForm, ShipmentForm, StopForm, TrackingEventForm } from "../forms";
 import { shipmentFormOptions } from "../options";
 
@@ -30,6 +32,9 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
   const canSeeEvents = hasPermission(ctx, "trk.events.read");
   const canSeeIncidents = hasPermission(ctx, "incidents.read");
   const canManageIncidents = hasPermission(ctx, "incidents.manage");
+  const canSeeDocuments = hasPermission(ctx, "dms.documents.read");
+  const canManageDocuments = hasPermission(ctx, "dms.documents.manage");
+  const documents = canSeeDocuments ? await listDocuments(ctx, { shipmentId: s.id }) : [];
   const options = editable ? await shipmentFormOptions(ctx, [s.customerPartnerId, s.carrierPartnerId]) : null;
   const totalWeight = s.items.reduce((a, i) => a + Number(i.weightKg ?? 0), 0);
   const totalVolume = s.items.reduce((a, i) => a + Number(i.volumeM3 ?? 0), 0);
@@ -244,6 +249,27 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
                   ))}
                 </ol>
               )}
+            </Card>
+          )}
+
+          {canSeeDocuments && (
+            <Card>
+              <h2 className="text-navy-900 mb-4 font-semibold">{t("dms.title")}</h2>
+              {documents.length === 0 ? (
+                <p className="mb-4 text-sm text-gray-500">{t("dms.empty")}</p>
+              ) : (
+                <ul className="mb-4 space-y-2">
+                  {documents.map((d) => (
+                    <li key={d.id} className="flex items-center justify-between gap-2 text-sm">
+                      <Link href={`/app/documents/${d.id}`} className="text-navy-900 hover:underline">
+                        {d.title}
+                      </Link>
+                      <Badge tone={statusTone(d.status)}>{t(`status.${d.status}`)}</Badge>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {canManageDocuments && <DocumentForm shipmentId={s.id} back={back} />}
             </Card>
           )}
 

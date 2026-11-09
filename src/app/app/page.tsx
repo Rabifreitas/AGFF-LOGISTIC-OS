@@ -3,6 +3,7 @@ import { Badge, Card, EmptyState, PageHeader, statusTone } from "@/components/ui
 import { formatDateTime } from "@/lib/utils";
 import { hasPermission } from "@/modules/iam/rbac";
 import { requireActiveOrgActor } from "@/modules/iam/session-context";
+import { countExpiringDocuments } from "@/modules/dms/services/document.service";
 import { countUnread } from "@/modules/notifications/notification.service";
 import { MODULES } from "@/modules/registry";
 import { ACTIVE_SHIPMENT_STATUSES } from "@/modules/shp/shipment-status";
@@ -23,8 +24,9 @@ export default async function DashboardPage() {
   const canSeeShipments = hasPermission(ctx, "tms.shipments.read");
   const canSeeIncidents = hasPermission(ctx, "incidents.read");
   const canSeePartners = hasPermission(ctx, "mkt.partners.read");
+  const canSeeDocuments = hasPermission(ctx, "dms.documents.read");
   const none = Promise.resolve(null);
-  const [members, invites, unread, active, moving, incidents, partners, recent] = await Promise.all([
+  const [members, invites, unread, active, moving, incidents, partners, expiringDocs, recent] = await Promise.all([
     canSeeTeam ? db.membership.count({ where: { status: "ACTIVE" } }) : none,
     canSeeTeam ? db.userInvite.count({ where: { status: "PENDING" } }) : none,
     countUnread(ctx),
@@ -32,6 +34,7 @@ export default async function DashboardPage() {
     canSeeShipments ? db.shipment.count({ where: { status: { in: ["IN_TRANSIT", "AT_CUSTOMS"] } } }) : none,
     canSeeIncidents ? db.incident.count({ where: { status: { in: ["OPEN", "INVESTIGATING"] } } }) : none,
     canSeePartners ? db.partner.count({ where: { status: "VERIFIED" } }) : none,
+    canSeeDocuments ? countExpiringDocuments(ctx) : none,
     canSeeShipments
       ? db.shipment.findMany({
           orderBy: { updatedAt: "desc" },
@@ -45,6 +48,7 @@ export default async function DashboardPage() {
     { label: t("dashboard.inTransit"), value: moving, href: "/app/shipments?status=IN_TRANSIT" },
     { label: t("dashboard.openIncidents"), value: incidents, href: "/app/incidents" },
     { label: t("dashboard.verifiedPartners"), value: partners, href: "/app/partners" },
+    { label: t("dashboard.expiringDocuments"), value: expiringDocs, href: "/app/documents?expiry=expiring" },
     { label: t("dashboard.members"), value: members },
     { label: t("dashboard.pendingInvites"), value: invites },
     { label: t("dashboard.unread"), value: unread },
