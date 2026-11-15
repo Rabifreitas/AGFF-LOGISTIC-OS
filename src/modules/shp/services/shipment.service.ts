@@ -63,7 +63,7 @@ async function nextReference(tx: Tx, organizationId: string, now = new Date()) {
 async function lockShipment(tx: Tx, shipmentId: string) {
   const found = await tx.shipment.findUnique({ where: { id: shipmentId }, select: { id: true } });
   if (!found) throw new NotFoundError();
-  await tx.$executeRaw`SELECT 1 FROM "shipments" WHERE "id" = ${shipmentId} FOR UPDATE`;
+  await tx.$executeRaw`SELECT 1 FROM "shipments" WHERE "id" = ${shipmentId} FOR NO KEY UPDATE`;
 }
 
 async function loadEditable(tx: Tx, shipmentId: string) {
