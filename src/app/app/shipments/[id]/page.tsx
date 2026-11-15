@@ -8,13 +8,13 @@ import { listDocuments } from "@/modules/dms/services/document.service";
 import { formatDateTime, toLocalDateTimeInput } from "@/lib/utils";
 import { hasPermission } from "@/modules/iam/rbac";
 import { requirePagePermission } from "@/modules/iam/session-context";
-import { itemRowAction, stopRowAction, transitionShipmentAction } from "@/modules/shp/actions";
+import { itemRowAction, legRowAction, stopRowAction, transitionShipmentAction } from "@/modules/shp/actions";
 import { getShipment } from "@/modules/shp/services/shipment.service";
 import { availableShipmentTransitions, isShipmentEditable } from "@/modules/shp/shipment-status";
 import { availableIncidentTransitions } from "@/modules/trk/incident-status";
 import { transitionIncidentAction } from "@/modules/trk/actions";
 import { DocumentForm } from "../../documents/forms";
-import { IncidentForm, ItemForm, ShipmentForm, StopForm, TrackingEventForm } from "../forms";
+import { IncidentForm, ItemForm, LegForm, ShipmentForm, StopForm, TrackingEventForm } from "../forms";
 import { shipmentFormOptions } from "../options";
 
 export default async function ShipmentPage({ params }: { params: Promise<{ id: string }> }) {
@@ -95,6 +95,7 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
                   currency: s.currency,
                   declaredValue: s.declaredValue?.toString() ?? null,
                   notes: s.notes,
+                  services: s.services,
                 }}
               />
             ) : (
@@ -107,6 +108,15 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
                     </div>
                   ))}
                 </dl>
+                {s.services.length > 0 && (
+                  <div className="mt-4 flex flex-wrap gap-1">
+                    {s.services.map((v) => (
+                      <Badge key={v} tone="gray">
+                        {t(`shp.services.${v}`)}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
                 {s.notes && <p className="mt-4 text-sm whitespace-pre-line text-gray-700">{s.notes}</p>}
                 {canManage && <p className="mt-4 text-xs text-gray-500">{t("shp.lockedHint")}</p>}
               </>
@@ -163,6 +173,68 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
           </Card>
 
           <Card>
+            <h2 className="text-navy-900 mb-1 font-semibold">{t("shp.legs")}</h2>
+            <p className="mb-4 text-xs text-gray-500">{t("shp.legsHint")}</p>
+            {s.legs.length === 0 ? (
+              <p className="mb-4 text-sm text-gray-500">{t("shp.noLegs")}</p>
+            ) : (
+              <div className="mb-4">
+                <Table
+                  head={[
+                    t("shp.sequence"),
+                    t("shp.mode"),
+                    t("shp.route"),
+                    t("shp.carrier"),
+                    t("shp.legReferences"),
+                    editable ? "" : null,
+                  ].filter((h) => h !== null)}
+                >
+                  {s.legs.map((leg, i) => (
+                    <tr key={leg.id}>
+                      <Td>{i + 1}</Td>
+                      <Td>
+                        {t(`shp.modes.${leg.mode}`)}
+                        {leg.equipmentType && <div className="text-xs text-gray-500">{leg.equipmentType}</div>}
+                      </Td>
+                      <Td>
+                        {leg.origin} → {leg.destination}
+                        <div className="text-xs text-gray-500">
+                          {formatDateTime(leg.plannedDepartureAt, locale)} →{" "}
+                          {formatDateTime(leg.plannedArrivalAt, locale)}
+                        </div>
+                      </Td>
+                      <Td>{leg.carrierPartner?.name ?? t("common.none")}</Td>
+                      <Td className="text-xs text-gray-600">
+                        {[
+                          leg.vehiclePlate,
+                          leg.vesselName && `${leg.vesselName}${leg.voyageNumber ? ` / ${leg.voyageNumber}` : ""}`,
+                          leg.flightNumber,
+                          leg.transportDocNumber && `${t("shp.transportDocNumber")}: ${leg.transportDocNumber}`,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ") || t("common.none")}
+                      </Td>
+                      {editable && (
+                        <Td>
+                          <TransitionButtons
+                            action={legRowAction}
+                            fields={{ id: leg.id, shipmentId: s.id }}
+                            transitions={["remove"]}
+                            labelPrefix="common"
+                            danger={["remove"]}
+                            size="sm"
+                          />
+                        </Td>
+                      )}
+                    </tr>
+                  ))}
+                </Table>
+              </div>
+            )}
+            {editable && options && <LegForm shipmentId={s.id} shipmentMode={s.mode} carriers={options.carriers} />}
+          </Card>
+
+          <Card>
             <div className="mb-4 flex items-baseline justify-between">
               <h2 className="text-navy-900 font-semibold">{t("shp.items")}</h2>
               {s.items.length > 0 && (
@@ -185,6 +257,7 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
                     t("shp.weightKg"),
                     t("shp.volumeM3"),
                     t("shp.hsCode"),
+                    t("shp.cargoType"),
                     editable ? "" : null,
                   ].filter((h) => h !== null)}
                 >
@@ -204,6 +277,22 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
                       <Td>{it.weightKg ? Number(it.weightKg).toLocaleString(locale) : t("common.none")}</Td>
                       <Td>{it.volumeM3 ? Number(it.volumeM3).toLocaleString(locale) : t("common.none")}</Td>
                       <Td>{it.hsCode ?? t("common.none")}</Td>
+                      <Td className="text-xs">
+                        {t(`shp.cargoTypes.${it.cargoType}`)}
+                        <div className="text-gray-500">
+                          {[
+                            it.containerNumber &&
+                              `${it.containerNumber}${it.containerType ? ` (${it.containerType})` : ""}`,
+                            it.sealNumber && `${t("shp.sealNumber")}: ${it.sealNumber}`,
+                            it.unNumber &&
+                              `${it.unNumber}${it.imoClass ? ` · ${t("shp.imoClass")} ${it.imoClass}` : ""}`,
+                            (it.tempMinC !== null || it.tempMaxC !== null) &&
+                              `${it.tempMinC?.toString() ?? "…"} / ${it.tempMaxC?.toString() ?? "…"} °C`,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </div>
+                      </Td>
                       {editable && (
                         <Td>
                           <TransitionButtons

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { LOGISTICS_SERVICES, multiEnum, TRANSPORT_MODES } from "@/modules/shp/schemas";
 
 const optionalText = (max = 200) =>
   z
@@ -15,6 +16,18 @@ export const PARTNER_TYPES = [
   "WAREHOUSE",
   "SUPPLIER",
   "CUSTOMER",
+  "SHIPPING_LINE",
+  "SHIP_AGENT",
+  "AIRLINE",
+  "RAIL_OPERATOR",
+  "BARGE_OPERATOR",
+  "PORT_TERMINAL",
+  "STEVEDORE",
+  "CONTAINER_DEPOT",
+  "COURIER",
+  "HEAVY_LIFT",
+  "INSURER",
+  "SURVEYOR",
   "OTHER",
 ] as const;
 
@@ -26,6 +39,8 @@ export const partnerSchema = z.object({
   email: optionalText(200),
   phone: optionalText(40),
   notes: optionalText(2000),
+  modes: multiEnum(TRANSPORT_MODES),
+  services: multiEnum(LOGISTICS_SERVICES),
 });
 export type PartnerInput = z.infer<typeof partnerSchema>;
 

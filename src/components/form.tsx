@@ -142,3 +142,44 @@ export function SelectField({
     </div>
   );
 }
+
+/** Selecção múltipla com caixas de verificação; o servidor recebe o nome repetido. */
+export function CheckboxGroup({
+  name,
+  label,
+  options,
+  defaultValues = [],
+  state,
+}: {
+  name: string;
+  label: string;
+  options: { value: string; label: string }[];
+  defaultValues?: readonly string[];
+  state: ActionState;
+}) {
+  const msg = useMsg();
+  return (
+    <fieldset>
+      <legend className="mb-1 text-sm font-medium text-slate-700">{label}</legend>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3 lg:grid-cols-4">
+        {options.map((o) => (
+          <label key={o.value} className="flex items-center gap-2 text-sm text-slate-700">
+            <input
+              type="checkbox"
+              name={name}
+              value={o.value}
+              defaultChecked={defaultValues.includes(o.value)}
+              className="h-4 w-4"
+            />
+            {o.label}
+          </label>
+        ))}
+      </div>
+      {state.fieldErrors?.[name]?.map((e) => (
+        <p key={e} className="mt-1 text-xs text-red-600">
+          {msg(e)}
+        </p>
+      ))}
+    </fieldset>
+  );
+}

@@ -2,7 +2,7 @@
 
 import type { ActionState } from "@/modules/iam/action-result";
 import { formId, runAction, runFormAction } from "@/modules/iam/form-action";
-import { itemSchema, shipmentSchema, stopSchema } from "./schemas";
+import { itemSchema, legSchema, shipmentSchema, stopSchema } from "./schemas";
 import * as svc from "./services/shipment.service";
 import { isShipmentTransition } from "./shipment-status";
 
@@ -43,6 +43,15 @@ export async function stopRowAction(_: ActionState, f: FormData) {
     (ctx) => (op === "remove" ? svc.removeStop(ctx, stopId) : svc.moveStop(ctx, stopId, op)),
     path(formId(f, "shipmentId")),
   );
+}
+
+export async function addLegAction(_: ActionState, f: FormData) {
+  const id = formId(f);
+  return runFormAction(f, legSchema, (ctx, d) => svc.addLeg(ctx, id, d), path(id));
+}
+
+export async function legRowAction(_: ActionState, f: FormData) {
+  return runAction((ctx) => svc.removeLeg(ctx, formId(f)), path(formId(f, "shipmentId")));
 }
 
 export async function itemRowAction(_: ActionState, f: FormData) {

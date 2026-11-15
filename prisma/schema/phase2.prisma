@@ -12,6 +12,18 @@ enum PartnerType {
   SUPPLIER
   CUSTOMER
   OTHER
+  SHIPPING_LINE
+  SHIP_AGENT
+  AIRLINE
+  RAIL_OPERATOR
+  BARGE_OPERATOR
+  PORT_TERMINAL
+  STEVEDORE
+  CONTAINER_DEPOT
+  COURIER
+  HEAVY_LIFT
+  INSURER
+  SURVEYOR
 }
 
 enum PartnerStatus {
@@ -46,6 +58,42 @@ enum TransportMode {
   AIR
   RAIL
   MULTIMODAL
+  COASTAL
+  INLAND_WATERWAY
+  PIPELINE
+}
+
+enum LogisticsService {
+  TRANSPORT
+  FREIGHT_FORWARDING
+  CUSTOMS_CLEARANCE
+  WAREHOUSING
+  STEVEDORING
+  PORT_HANDLING
+  CONTAINER_DEPOT
+  HEAVY_LIFT
+  COLD_CHAIN
+  LAST_MILE
+  COURIER
+  PACKAGING
+  CARGO_INSURANCE
+  INSPECTION
+  PROJECT_CARGO
+  DANGEROUS_GOODS
+  SHIP_AGENCY
+}
+
+enum CargoType {
+  GENERAL
+  CONTAINER
+  DRY_BULK
+  LIQUID_BULK
+  BREAKBULK
+  RORO
+  PROJECT
+  REEFER
+  DANGEROUS
+  LIVESTOCK
 }
 
 enum StopType {
@@ -53,6 +101,12 @@ enum StopType {
   DELIVERY
   WAYPOINT
   CUSTOMS
+  PORT
+  AIRPORT
+  RAIL_TERMINAL
+  RIVER_PORT
+  WAREHOUSE
+  TRANSSHIPMENT
 }
 
 enum QuotationStatus {
@@ -99,6 +153,8 @@ model Partner {
   email                String?
   phone                String?
   rating               Decimal?              @db.Decimal(3, 2)
+  modes                TransportMode[]       @default([])
+  services             LogisticsService[]    @default([])
   notes                String?
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @updatedAt @map("updated_at")
@@ -107,6 +163,7 @@ model Partner {
   quotations           Quotation[]
   shipmentsAsCustomer  Shipment[]            @relation("ShipmentCustomer")
   shipmentsAsCarrier   Shipment[]            @relation("ShipmentCarrier")
+  legsAsCarrier        ShipmentLeg[]
 
   @@index([organizationId])
   @@map("partners")
@@ -133,28 +190,30 @@ model PartnerVerification {
 }
 
 model Shipment {
-  id                String          @id @default(cuid())
-  organizationId    String          @map("organization_id")
+  id                String             @id @default(cuid())
+  organizationId    String             @map("organization_id")
   reference         String
-  status            ShipmentStatus  @default(DRAFT)
-  mode              TransportMode   @default(ROAD)
+  status            ShipmentStatus     @default(DRAFT)
+  mode              TransportMode      @default(ROAD)
   incoterm          String?
-  customerPartnerId String?         @map("customer_partner_id")
-  carrierPartnerId  String?         @map("carrier_partner_id")
-  costCenterId      String?         @map("cost_center_id")
-  plannedPickupAt   DateTime?       @map("planned_pickup_at")
-  plannedDeliveryAt DateTime?       @map("planned_delivery_at")
-  currency          String          @default("AOA") @db.Char(3)
-  declaredValue     Decimal?        @map("declared_value") @db.Decimal(20, 2)
+  customerPartnerId String?            @map("customer_partner_id")
+  carrierPartnerId  String?            @map("carrier_partner_id")
+  costCenterId      String?            @map("cost_center_id")
+  plannedPickupAt   DateTime?          @map("planned_pickup_at")
+  plannedDeliveryAt DateTime?          @map("planned_delivery_at")
+  currency          String             @default("AOA") @db.Char(3)
+  declaredValue     Decimal?           @map("declared_value") @db.Decimal(20, 2)
   notes             String?
-  createdById       String?         @map("created_by_id")
-  createdAt         DateTime        @default(now()) @map("created_at")
-  updatedAt         DateTime        @updatedAt @map("updated_at")
-  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  customerPartner   Partner?        @relation("ShipmentCustomer", fields: [customerPartnerId], references: [id], onDelete: SetNull)
-  carrierPartner    Partner?        @relation("ShipmentCarrier", fields: [carrierPartnerId], references: [id], onDelete: SetNull)
-  costCenter        CostCenter?     @relation(fields: [costCenterId], references: [id], onDelete: SetNull)
+  services          LogisticsService[] @default([])
+  createdById       String?            @map("created_by_id")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customerPartner   Partner?           @relation("ShipmentCustomer", fields: [customerPartnerId], references: [id], onDelete: SetNull)
+  carrierPartner    Partner?           @relation("ShipmentCarrier", fields: [carrierPartnerId], references: [id], onDelete: SetNull)
+  costCenter        CostCenter?        @relation(fields: [costCenterId], references: [id], onDelete: SetNull)
   stops             ShipmentStop[]
+  legs              ShipmentLeg[]
   items             ShipmentItem[]
   quotations        Quotation[]
   trackingEvents    TrackingEvent[]
@@ -189,19 +248,56 @@ model ShipmentStop {
   @@map("shipment_stops")
 }
 
+/// Perna de transporte: uma expedição multimodal tem várias (ex.: camião → navio → barcaça → camião).
+model ShipmentLeg {
+  id                 String        @id @default(cuid())
+  organizationId     String        @map("organization_id")
+  shipmentId         String        @map("shipment_id")
+  sequence           Int
+  mode               TransportMode
+  carrierPartnerId   String?       @map("carrier_partner_id")
+  origin             String
+  destination        String
+  equipmentType      String?       @map("equipment_type")
+  vehiclePlate       String?       @map("vehicle_plate")
+  vesselName         String?       @map("vessel_name")
+  voyageNumber       String?       @map("voyage_number")
+  flightNumber       String?       @map("flight_number")
+  transportDocNumber String?       @map("transport_doc_number")
+  plannedDepartureAt DateTime?     @map("planned_departure_at")
+  plannedArrivalAt   DateTime?     @map("planned_arrival_at")
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+  organization       Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shipment           Shipment      @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  carrierPartner     Partner?      @relation(fields: [carrierPartnerId], references: [id], onDelete: SetNull)
+
+  @@unique([shipmentId, sequence])
+  @@index([organizationId])
+  @@map("shipment_legs")
+}
+
 model ShipmentItem {
-  id             String       @id @default(cuid())
-  organizationId String       @map("organization_id")
-  shipmentId     String       @map("shipment_id")
-  description    String
-  quantity       Decimal      @db.Decimal(14, 3)
-  unit           String       @default("UN")
-  weightKg       Decimal?     @map("weight_kg") @db.Decimal(14, 3)
-  volumeM3       Decimal?     @map("volume_m3") @db.Decimal(14, 3)
-  hsCode         String?      @map("hs_code")
-  dangerousGoods Boolean      @default(false) @map("dangerous_goods")
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  shipment       Shipment     @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  id              String       @id @default(cuid())
+  organizationId  String       @map("organization_id")
+  shipmentId      String       @map("shipment_id")
+  description     String
+  quantity        Decimal      @db.Decimal(14, 3)
+  unit            String       @default("UN")
+  weightKg        Decimal?     @map("weight_kg") @db.Decimal(14, 3)
+  volumeM3        Decimal?     @map("volume_m3") @db.Decimal(14, 3)
+  hsCode          String?      @map("hs_code")
+  dangerousGoods  Boolean      @default(false) @map("dangerous_goods")
+  cargoType       CargoType    @default(GENERAL) @map("cargo_type")
+  containerNumber String?      @map("container_number")
+  containerType   String?      @map("container_type")
+  sealNumber      String?      @map("seal_number")
+  unNumber        String?      @map("un_number")
+  imoClass        String?      @map("imo_class")
+  tempMinC        Decimal?     @map("temp_min_c") @db.Decimal(5, 1)
+  tempMaxC        Decimal?     @map("temp_max_c") @db.Decimal(5, 1)
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shipment        Shipment     @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
   @@map("shipment_items")

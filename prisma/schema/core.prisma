@@ -92,6 +92,7 @@ model Organization {
   partnerVerifications PartnerVerification[]
   shipments            Shipment[]
   shipmentStops        ShipmentStop[]
+  shipmentLegs         ShipmentLeg[]
   shipmentItems        ShipmentItem[]
   quotations           Quotation[]
   documents            Document[]

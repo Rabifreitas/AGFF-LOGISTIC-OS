@@ -58,6 +58,8 @@ export default async function PartnerPage({ params }: { params: Promise<{ id: st
                 email: partner.email,
                 phone: partner.phone,
                 notes: partner.notes,
+                modes: partner.modes,
+                services: partner.services,
               }}
             />
           ) : (
@@ -68,6 +70,10 @@ export default async function PartnerPage({ params }: { params: Promise<{ id: st
               <dd>{partner.email ?? t("common.none")}</dd>
               <dt className="text-gray-500">{t("common.phone")}</dt>
               <dd>{partner.phone ?? t("common.none")}</dd>
+              <dt className="text-gray-500">{t("partners.modes")}</dt>
+              <dd>{partner.modes.map((m) => t(`shp.modes.${m}`)).join(", ") || t("common.none")}</dd>
+              <dt className="text-gray-500">{t("partners.services")}</dt>
+              <dd>{partner.services.map((v) => t(`shp.services.${v}`)).join(", ") || t("common.none")}</dd>
             </dl>
           )}
         </Card>

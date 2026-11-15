@@ -1,4 +1,5 @@
 import { hasPermission, type ActorContext } from "@/modules/iam/rbac";
+import { isCarrierType } from "@/modules/mkt/partner-status";
 import { tenantDb } from "@/modules/tenancy/tenant-db";
 
 /** Opções dos selectores de expedição, sempre lidas no tenant actual. */
@@ -21,7 +22,7 @@ export async function shipmentFormOptions(ctx: ActorContext, keepIds: (string | 
   return {
     customers: partners.filter((p) => p.type === "CUSTOMER").map((p) => ({ value: p.id, label: p.name })),
     carriers: partners
-      .filter((p) => p.type === "TRANSPORTER" || p.type === "FREIGHT_FORWARDER")
+      .filter((p) => isCarrierType(p.type))
       .map((p) => ({ value: p.id, label: p.status === "VERIFIED" ? `${p.name} ✓` : p.name })),
     costCenters: costCenters.map((c) => ({ value: c.id, label: `${c.code} — ${c.name}` })),
     defaultCurrency: org?.currency ?? "AOA",

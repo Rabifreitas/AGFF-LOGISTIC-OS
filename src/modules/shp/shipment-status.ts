@@ -50,7 +50,13 @@ export function isShipmentEditable(status: ShipmentStatus) {
 /** Pré-requisitos de negócio para uma transição (além do estado de origem). */
 export function shipmentTransitionBlocker(
   t: ShipmentTransition,
-  s: { stops: { type: string }[]; items: unknown[]; carrierPartnerId: string | null },
+  s: {
+    stops: { type: string }[];
+    items: unknown[];
+    carrierPartnerId: string | null;
+    mode?: string;
+    legs?: { mode: string }[];
+  },
 ): string | null {
   // `stops` em ordem de sequência; a rota é revalidada em cada passo porque pode ser editada até QUOTED.
   if (t === "request" || t === "markQuoted" || t === "book") {
@@ -58,6 +64,9 @@ export function shipmentTransitionBlocker(
     if (s.items.length === 0) return "shp.needsItems";
   }
   if (t === "book" && !s.carrierPartnerId) return "shp.needsCarrier";
+  if (t === "book" && s.mode === "MULTIMODAL" && new Set(s.legs?.map((l) => l.mode)).size < 2) {
+    return "shp.multimodalNeedsLegs";
+  }
   return null;
 }
 
