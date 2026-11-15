@@ -161,15 +161,15 @@ export function CheckboxGroup({
   return (
     <fieldset>
       <legend className="mb-1 text-sm font-medium text-slate-700">{label}</legend>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] gap-x-4 gap-y-2">
         {options.map((o) => (
-          <label key={o.value} className="flex items-center gap-2 text-sm text-slate-700">
+          <label key={o.value} className="flex min-w-0 items-start gap-2 text-sm break-words text-slate-700">
             <input
               type="checkbox"
               name={name}
               value={o.value}
               defaultChecked={defaultValues.includes(o.value)}
-              className="h-4 w-4"
+              className="mt-0.5 h-4 w-4 shrink-0"
             />
             {o.label}
           </label>
