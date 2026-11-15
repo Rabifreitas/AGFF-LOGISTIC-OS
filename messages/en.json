@@ -56,7 +56,9 @@
     "switchOrg": "Switch company",
     "backToApp": "Back to app",
     "partners": "Partners",
-    "incidents": "Incidents"
+    "incidents": "Incidents",
+    "auctions": "Auctions",
+    "providers": "Providers"
   },
   "landing": {
     "tagline": "Multi-company logistics platform for Angola and Africa",
@@ -356,7 +358,8 @@
       "OPERATIONS": "Operations",
       "WAREHOUSE": "Warehouse",
       "OTHER": "Other"
-    }
+    },
+    "provider": "Provider profile"
   },
   "audit": {
     "title": "Audit log",
@@ -466,7 +469,8 @@
       "TAX_CERTIFICATE": "Tax certificate",
       "INSURANCE": "Insurance",
       "TRANSPORT_LICENSE": "Transport licence",
-      "OTHER": "Other"
+      "OTHER": "Other",
+      "MARKETPLACE": "AGFF marketplace verification"
     },
     "review": {
       "APPROVED": "Approve",
@@ -750,6 +754,132 @@
       "LICENSE": "Licence / permit",
       "CONTRACT": "Contract",
       "OTHER": "Other"
+    }
+  },
+  "mkt": {
+    "reference": "Reference",
+    "route": "Route",
+    "closesAt": "Auction closes",
+    "closes": "Closes",
+    "bids": "Bids",
+    "currency": "Currency",
+    "publicNotes": "Public notes (visible to providers)",
+    "acceptedModes": "Accepted modes",
+    "requiredServices": "Required services",
+    "anonymityNote": "Providers only see cities, dates and a cargo summary. Your company name, addresses, contacts and internal notes stay hidden.",
+    "publish": "Publish auction",
+    "publishTitle": "Find a provider by auction",
+    "publishDesc": "Publish this request on the marketplace. Verified providers bid blind until the closing time, then you pick the best offer.",
+    "award": {
+      "partnerBlocked": "This provider is suspended or rejected in your partner list.",
+      "shipmentNotOpen": "The shipment is no longer available for booking."
+    },
+    "cancel": "Cancel auction",
+    "sealedBids": "Sealed bids",
+    "blindNote": "Blind auction: amounts are only revealed after closing.",
+    "cargo": "Cargo",
+    "hazardous": "Dangerous goods",
+    "bidsHiddenUntilClose": "Bids stay sealed until the auction closes.",
+    "noBids": "No bids received.",
+    "provider": {
+      "title": "Provider profile",
+      "desc": "Transport modes and logistics services your company offers on the marketplace.",
+      "modes": "Transport modes",
+      "services": "Logistics services",
+      "countries": "Countries served (ISO codes)",
+      "description": "About",
+      "submit": "Submit for verification",
+      "verifyNote": "Only AGFF-verified providers see requests and bid. Changing modes or services requires re-verification.",
+      "reason": "Reason",
+      "company": "Company",
+      "needsScope": "Select at least one mode or service.",
+      "invalidTransition": "Not allowed in the profile's current status.",
+      "validityPast": "Validity must be a future date."
+    },
+    "amount": "Amount",
+    "mode": "Mode",
+    "transitDays": "Transit days",
+    "validUntil": "Valid until",
+    "myBids": "My bids",
+    "myBidsDesc": "Your company's bids on marketplace auctions.",
+    "noMyBids": "No bids submitted yet",
+    "auction": {
+      "closesTooSoon": "Closing must be at least 15 minutes from now.",
+      "closesTooLate": "Closing can't be more than 30 days away.",
+      "shipmentNotRequested": "Only shipments in Requested status can be auctioned.",
+      "alreadyActive": "This shipment already has an active auction.",
+      "closed": "The auction has closed.",
+      "notClosed": "You can only award after the auction closes.",
+      "notCancellable": "This auction can no longer be cancelled.",
+      "needsMode": "Select at least one transport mode."
+    },
+    "anonymousShipper": "Anonymous shipper",
+    "origin": "Origin",
+    "destination": "Destination",
+    "window": "Pickup → delivery",
+    "yourBid": "Your bid",
+    "blindBidNote": "Sealed bid: neither the shipper nor competitors see the amount before closing. You can change or withdraw it until then.",
+    "days": "days",
+    "wonContact": "Winning bid — shipper contact",
+    "updateBid": "Update bid",
+    "submitBid": "Submit bid",
+    "withdrawBid": "Withdraw bid",
+    "bidNotes": "Terms / notes",
+    "auctions": {
+      "title": "Auctions",
+      "desc": "Requests your company published on the marketplace, with automatic closing.",
+      "empty": "No auctions published yet",
+      "emptyDesc": "Open a shipment in Requested status and publish it as an auction.",
+      "detailDesc": "Timed blind auction. Pick any winning bid after closing."
+    },
+    "market": {
+      "title": "Marketplace",
+      "desc": "Transport and logistics requests that match your profile.",
+      "notVerified": "Provider profile not verified",
+      "notVerifiedDesc": "Declare the modes and services you offer and submit your profile for AGFF verification.",
+      "empty": "No open requests right now",
+      "emptyDesc": "New requests matching your modes and services will show up here."
+    },
+    "status": {
+      "OPEN": "Open",
+      "CLOSED": "Closed — awaiting decision",
+      "AWARDED": "Awarded",
+      "EXPIRED": "Expired",
+      "CANCELLED": "Cancelled"
+    },
+    "bidStatus": {
+      "SUBMITTED": "Submitted",
+      "WITHDRAWN": "Withdrawn",
+      "ACCEPTED": "Winner",
+      "LOST": "Not selected"
+    },
+    "providerStatus": {
+      "DRAFT": "Draft",
+      "PENDING": "Under review",
+      "VERIFIED": "Verified",
+      "REJECTED": "Rejected",
+      "SUSPENDED": "Suspended"
+    },
+    "providerReview": {
+      "verify": "Verify",
+      "reject": "Reject",
+      "suspend": "Suspend",
+      "reactivate": "Reactivate"
+    },
+    "admin": {
+      "title": "Marketplace providers",
+      "desc": "Verify, reject or suspend provider profiles.",
+      "empty": "No profiles submitted"
+    },
+    "bid": {
+      "notEligible": "Your provider profile doesn't meet this request's requirements.",
+      "modeNotAccepted": "This mode isn't accepted in this auction.",
+      "modeNotOffered": "This mode isn't in your verified profile.",
+      "validityTooShort": "Bid validity must last at least until closing.",
+      "notFound": "Bid not found.",
+      "notActive": "This bid is no longer active.",
+      "expired": "This bid's validity has ended.",
+      "providerNotVerified": "The provider is no longer verified."
     }
   }
 }

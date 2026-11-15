@@ -10,4 +10,4 @@
 - Rota e carga só são editáveis até `QUOTED`.
 - Referência sequencial por empresa e ano (`SHP-2026-000001`), gerada sob advisory lock.
 - Parceiros e centros de custo referenciados são validados no tenant actual. Todas as mutações ficam no audit log com antes/depois.
-- Pendente (2C): o estado `QUOTED` e a reserva passam a ser accionados pelo leilão do marketplace.
+- 2C: a adjudicação de um leilão do marketplace passa a expedição a `QUOTED → BOOKED` com a transportadora vencedora.

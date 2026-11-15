@@ -26,6 +26,10 @@ export const TENANT_SCOPED_MODELS = new Set<string>([
   "DocumentVersion",
   "TrackingEvent",
   "Incident",
+  // Fase 2C (leituras entre empresas usam o cliente base com select explícito)
+  "ProviderProfile",
+  "Auction",
+  "AuctionBid",
 ]);
 
 const WHERE_OPERATIONS = new Set([

@@ -219,6 +219,7 @@ model Shipment {
   trackingEvents    TrackingEvent[]
   incidents         Incident[]
   documents         Document[]
+  auctions          Auction[]
 
   @@unique([organizationId, reference])
   @@index([organizationId, status])

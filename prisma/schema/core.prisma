@@ -93,6 +93,11 @@ model Organization {
   shipments            Shipment[]
   shipmentStops        ShipmentStop[]
   shipmentLegs         ShipmentLeg[]
+
+  // Fase 2C
+  providerProfile ProviderProfile?
+  auctions        Auction[]
+  auctionBids     AuctionBid[]
   shipmentItems        ShipmentItem[]
   quotations           Quotation[]
   documents            Document[]
