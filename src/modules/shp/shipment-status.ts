@@ -67,6 +67,9 @@ export function shipmentTransitionBlocker(
   if (t === "book" && s.mode === "MULTIMODAL" && new Set(s.legs?.map((l) => l.mode)).size < 2) {
     return "shp.multimodalNeedsLegs";
   }
+  if (t === "book" && s.mode && s.mode !== "MULTIMODAL" && s.legs?.some((l) => l.mode !== s.mode)) {
+    return "shp.legModeMismatch";
+  }
   return null;
 }
 

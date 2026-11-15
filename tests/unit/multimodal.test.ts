@@ -47,6 +47,9 @@ describe("expedições multimodais", () => {
       shipmentTransitionBlocker("book", { ...ready, mode: "MULTIMODAL", legs: [{ mode: "ROAD" }, { mode: "SEA" }] }),
     ).toBeNull();
     expect(shipmentTransitionBlocker("book", { ...ready, mode: "AIR", legs: [] })).toBeNull();
+    expect(shipmentTransitionBlocker("book", { ...ready, mode: "ROAD", legs: [{ mode: "SEA" }] })).toBe(
+      "shp.legModeMismatch",
+    );
   });
 
   it("perna valida modo, datas e não aceita MULTIMODAL", () => {

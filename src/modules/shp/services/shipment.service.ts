@@ -59,7 +59,15 @@ async function nextReference(tx: Tx, organizationId: string, now = new Date()) {
   return formatShipmentReference(year, seq);
 }
 
+/** Serializa mutações concorrentes da mesma expedição (rota, pernas, modo, transições). */
+async function lockShipment(tx: Tx, shipmentId: string) {
+  const found = await tx.shipment.findUnique({ where: { id: shipmentId }, select: { id: true } });
+  if (!found) throw new NotFoundError();
+  await tx.$executeRaw`SELECT 1 FROM "shipments" WHERE "id" = ${shipmentId} FOR UPDATE`;
+}
+
 async function loadEditable(tx: Tx, shipmentId: string) {
+  await lockShipment(tx, shipmentId);
   const s = await tx.shipment.findUnique({ where: { id: shipmentId } });
   if (!s) throw new NotFoundError();
   if (!isShipmentEditable(s.status)) throw new InvalidStateError("shp.notEditable");
@@ -139,6 +147,7 @@ export async function updateShipment(ctx: ActorContext, id: string, input: Shipm
 
 /** Aplica uma transição dentro de uma transacção existente (usado também pelo tracking). */
 export async function applyShipmentTransition(tx: Tx, ctx: ActorContext, id: string, transition: ShipmentTransition) {
+  await lockShipment(tx, id);
   const before = await tx.shipment.findUnique({
     where: { id },
     include: {
