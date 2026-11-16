@@ -56,7 +56,9 @@
     "switchOrg": "Mudar de empresa",
     "backToApp": "Voltar à aplicação",
     "partners": "Parceiros",
-    "incidents": "Incidentes"
+    "incidents": "Incidentes",
+    "auctions": "Leilões",
+    "providers": "Prestadores"
   },
   "landing": {
     "tagline": "Plataforma logística multiempresa para Angola e África",
@@ -356,7 +358,8 @@
       "OPERATIONS": "Operações",
       "WAREHOUSE": "Armazém",
       "OTHER": "Outro"
-    }
+    },
+    "provider": "Perfil de prestador"
   },
   "audit": {
     "title": "Auditoria",
@@ -466,7 +469,8 @@
       "TAX_CERTIFICATE": "Certidão fiscal",
       "INSURANCE": "Seguro",
       "TRANSPORT_LICENSE": "Alvará de transporte",
-      "OTHER": "Outra"
+      "OTHER": "Outra",
+      "MARKETPLACE": "Verificação do marketplace AGFF"
     },
     "review": {
       "APPROVED": "Aprovar",
@@ -624,7 +628,8 @@
     "carrierModeMismatch": "O transportador não opera o modo de transporte desta expedição.",
     "legCarrierModeMismatch": "O transportador da perna não opera esse modo de transporte.",
     "legCarrierNotVerified": "O transportador de uma perna não está verificado ou a verificação expirou.",
-    "arrivalBeforeDeparture": "A chegada não pode ser antes da partida."
+    "arrivalBeforeDeparture": "A chegada não pode ser antes da partida.",
+    "lockedByAuction": "A expedição tem um leilão activo. Cancele-o para alterar rota, carga ou pernas."
   },
   "trk": {
     "title": "Tracking",
@@ -751,5 +756,136 @@
       "CONTRACT": "Contrato",
       "OTHER": "Outro"
     }
+  },
+  "mkt": {
+    "reference": "Referência",
+    "route": "Rota",
+    "closesAt": "Fecho do leilão",
+    "closes": "Fecha",
+    "bids": "Propostas",
+    "currency": "Moeda",
+    "publicNotes": "Notas públicas (visíveis aos prestadores)",
+    "acceptedModes": "Modos aceites",
+    "requiredServices": "Serviços exigidos",
+    "anonymityNote": "Os prestadores só vêem cidades, datas e o resumo da carga. O nome da empresa, moradas, contactos e notas internas ficam ocultos.",
+    "publish": "Publicar leilão",
+    "publishTitle": "Encontrar prestador por leilão",
+    "publishDesc": "Publique este pedido no marketplace. Prestadores verificados licitam às cegas até à hora de fecho e no fim escolhe a melhor proposta.",
+    "award": {
+      "partnerBlocked": "Este prestador está suspenso ou rejeitado na sua lista de parceiros.",
+      "shipmentNotOpen": "A expedição já não está disponível para reserva."
+    },
+    "cancel": "Cancelar leilão",
+    "sealedBids": "Propostas seladas",
+    "blindNote": "Leilão cego: os valores só ficam visíveis depois do fecho.",
+    "cargo": "Carga",
+    "hazardous": "Mercadoria perigosa",
+    "bidsHiddenUntilClose": "As propostas ficam seladas até ao fecho do leilão.",
+    "noBids": "Nenhuma proposta recebida.",
+    "provider": {
+      "title": "Perfil de prestador",
+      "desc": "Modos de transporte e serviços logísticos que a sua empresa oferece no marketplace.",
+      "modes": "Modos de transporte",
+      "services": "Serviços logísticos",
+      "countries": "Países onde opera (códigos ISO)",
+      "description": "Apresentação",
+      "submit": "Submeter para verificação",
+      "verifyNote": "Só prestadores verificados pela AGFF vêem pedidos e licitam. Alterar modos ou serviços exige nova verificação.",
+      "reason": "Motivo",
+      "company": "Empresa",
+      "needsScope": "Indique pelo menos um modo ou serviço.",
+      "invalidTransition": "Operação não permitida no estado actual do perfil.",
+      "validityPast": "A validade tem de ser uma data futura.",
+      "suspendedScope": "Um prestador suspenso não pode alterar modos ou serviços. Peça primeiro à AGFF a reactivação."
+    },
+    "amount": "Valor",
+    "mode": "Modo",
+    "transitDays": "Dias de trânsito",
+    "validUntil": "Válido até",
+    "myBids": "As minhas propostas",
+    "myBidsDesc": "Propostas da sua empresa nos leilões do marketplace.",
+    "noMyBids": "Ainda não submeteu propostas",
+    "auction": {
+      "closesTooSoon": "O fecho tem de ser pelo menos 15 minutos depois de agora.",
+      "closesTooLate": "O fecho não pode ultrapassar 30 dias.",
+      "shipmentNotRequested": "Só expedições no estado Pedido podem ir a leilão.",
+      "alreadyActive": "Esta expedição já tem um leilão activo.",
+      "closed": "O leilão já fechou.",
+      "notClosed": "Só pode adjudicar depois do fecho do leilão.",
+      "notCancellable": "Este leilão já não pode ser cancelado.",
+      "needsMode": "Escolha pelo menos um modo de transporte."
+    },
+    "anonymousShipper": "Expedidor anónimo",
+    "origin": "Origem",
+    "destination": "Destino",
+    "window": "Recolha → entrega",
+    "yourBid": "A sua proposta",
+    "blindBidNote": "Proposta selada: nem o expedidor nem os concorrentes vêem o valor antes do fecho. Pode alterar ou retirar até lá.",
+    "days": "dias",
+    "wonContact": "Proposta vencedora — contacto do expedidor",
+    "updateBid": "Actualizar proposta",
+    "submitBid": "Submeter proposta",
+    "withdrawBid": "Retirar proposta",
+    "bidNotes": "Condições / notas",
+    "auctions": {
+      "title": "Leilões",
+      "desc": "Pedidos publicados pela sua empresa no marketplace, com fecho automático.",
+      "empty": "Ainda não publicou leilões",
+      "emptyDesc": "Abra uma expedição no estado Pedido e publique-a em leilão.",
+      "detailDesc": "Leilão cego com tempo limite. Escolha livremente a proposta vencedora depois do fecho."
+    },
+    "market": {
+      "title": "Marketplace",
+      "desc": "Pedidos de transporte e serviços logísticos compatíveis com o seu perfil.",
+      "notVerified": "Perfil de prestador não verificado",
+      "notVerifiedDesc": "Declare os modos e serviços que oferece e submeta o perfil para verificação pela AGFF.",
+      "empty": "Sem pedidos abertos de momento",
+      "emptyDesc": "Novos pedidos compatíveis com os seus modos e serviços aparecem aqui."
+    },
+    "status": {
+      "OPEN": "Aberto",
+      "CLOSED": "Fechado — a decidir",
+      "AWARDED": "Adjudicado",
+      "EXPIRED": "Expirado",
+      "CANCELLED": "Cancelado"
+    },
+    "bidStatus": {
+      "SUBMITTED": "Submetida",
+      "WITHDRAWN": "Retirada",
+      "ACCEPTED": "Vencedora",
+      "LOST": "Não seleccionada"
+    },
+    "providerStatus": {
+      "DRAFT": "Rascunho",
+      "PENDING": "Em verificação",
+      "VERIFIED": "Verificado",
+      "REJECTED": "Rejeitado",
+      "SUSPENDED": "Suspenso"
+    },
+    "providerReview": {
+      "verify": "Verificar",
+      "reject": "Rejeitar",
+      "suspend": "Suspender",
+      "reactivate": "Reactivar"
+    },
+    "admin": {
+      "title": "Prestadores do marketplace",
+      "desc": "Verifique, rejeite ou suspenda perfis de prestadores.",
+      "empty": "Nenhum perfil submetido"
+    },
+    "bid": {
+      "notEligible": "O seu perfil de prestador não cumpre os requisitos deste pedido.",
+      "modeNotAccepted": "Este modo não é aceite neste leilão.",
+      "modeNotOffered": "Este modo não consta do seu perfil verificado.",
+      "validityTooShort": "A validade da proposta tem de ir pelo menos até ao fecho.",
+      "notFound": "Proposta não encontrada.",
+      "notActive": "Esta proposta já não está activa.",
+      "expired": "A validade desta proposta terminou.",
+      "providerNotVerified": "O prestador já não está verificado."
+    },
+    "providerLabel": "Prestador",
+    "awardBid": "Adjudicar",
+    "auctionLabel": "Leilão",
+    "bidsNotRevealed": "As propostas não foram reveladas: o leilão foi cancelado antes do fecho."
   }
 }

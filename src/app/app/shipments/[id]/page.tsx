@@ -14,6 +14,7 @@ import { availableShipmentTransitions, isShipmentEditable } from "@/modules/shp/
 import { availableIncidentTransitions } from "@/modules/trk/incident-status";
 import { transitionIncidentAction } from "@/modules/trk/actions";
 import { DocumentForm } from "../../documents/forms";
+import { PublishAuctionForm } from "../../auctions/forms";
 import { IncidentForm, ItemForm, LegForm, ShipmentForm, StopForm, TrackingEventForm } from "../forms";
 import { shipmentFormOptions } from "../options";
 
@@ -64,6 +65,18 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
         description={`${t("shp.createdAt")} ${formatDateTime(s.createdAt, locale)}`}
         actions={<Badge tone={statusTone(s.status)}>{t(`status.${s.status}`)}</Badge>}
       />
+      {s.status === "REQUESTED" && hasPermission(ctx, "mkt.auctions.manage") && (
+        <Card className="mb-6 border-amber-300">
+          <h2 className="text-navy-900 font-semibold">{t("mkt.publishTitle")}</h2>
+          <p className="mb-4 text-sm text-gray-600">{t("mkt.publishDesc")}</p>
+          <PublishAuctionForm
+            shipmentId={s.id}
+            mode={s.mode}
+            services={s.services}
+            defaultClosesAt={toLocalDateTimeInput(new Date(Date.now() + 48 * 3_600_000)) ?? ""}
+          />
+        </Card>
+      )}
       {canManage && (
         <div className="mb-6">
           <TransitionButtons

@@ -76,11 +76,13 @@ export function Field({
   required,
   autoComplete,
   placeholder,
+  step,
 }: {
   name: string;
   label: string;
   state: ActionState;
   type?: string;
+  step?: string;
   defaultValue?: string | number | null;
   required?: boolean;
   autoComplete?: string;
@@ -99,6 +101,7 @@ export function Field({
         required={required}
         autoComplete={autoComplete}
         placeholder={placeholder}
+        step={step}
         aria-invalid={!!errors}
       />
       {errors?.map((e) => (

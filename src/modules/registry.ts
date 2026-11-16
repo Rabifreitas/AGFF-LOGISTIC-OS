@@ -38,6 +38,22 @@ export const MODULES: ModuleEntry[] = [
     status: "active",
   },
   {
+    code: "LEI",
+    key: "auctions",
+    href: "/app/auctions",
+    permission: "mkt.auctions.read",
+    phase: 2,
+    status: "active",
+  },
+  {
+    code: "MKT",
+    key: "marketplace",
+    href: "/app/marketplace",
+    permission: "mkt.bids.read",
+    phase: 2,
+    status: "active",
+  },
+  {
     code: "SHP",
     key: "shipments",
     href: "/app/shipments",
@@ -54,7 +70,6 @@ export const MODULES: ModuleEntry[] = [
     phase: 2,
     status: "active",
   },
-  { code: "MKT", key: "marketplace", permission: "mkt.quotations.read", phase: 2, status: "planned" },
   {
     code: "DMS",
     key: "documents",

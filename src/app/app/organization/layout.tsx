@@ -15,6 +15,7 @@ export default async function OrganizationLayout({ children }: { children: React
       show: hasPermission(ctx, "org.cost_centers.read"),
     },
     { href: "/app/organization/settings", label: t("settings"), show: true },
+    { href: "/app/organization/provider", label: t("provider"), show: hasPermission(ctx, "mkt.provider.manage") },
   ];
   return (
     <>

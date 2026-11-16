@@ -71,6 +71,21 @@ async function loadEditable(tx: Tx, shipmentId: string) {
   const s = await tx.shipment.findUnique({ where: { id: shipmentId } });
   if (!s) throw new NotFoundError();
   if (!isShipmentEditable(s.status)) throw new InvalidStateError("shp.notEditable");
+  // As propostas foram feitas sobre o snapshot publicado: editar exige cancelar o leilão.
+  // Bloquear os leilões abertos espera por qualquer placeBid em curso (mesmo lock).
+  await tx.$executeRaw`SELECT 1 FROM "auctions" WHERE "shipment_id" = ${shipmentId} AND "status" = 'OPEN'::"AuctionStatus" FOR NO KEY UPDATE`;
+  const auctions = await tx.auction.count({
+    where: {
+      shipmentId,
+      OR: [
+        { status: "CLOSED" },
+        { status: "OPEN", closesAt: { gt: new Date() } },
+        // Vencido mas com propostas: fecha como CLOSED na próxima passagem.
+        { status: "OPEN", bids: { some: { status: "SUBMITTED" } } },
+      ],
+    },
+  });
+  if (auctions > 0) throw new InvalidStateError("shp.lockedByAuction");
   return s;
 }
 

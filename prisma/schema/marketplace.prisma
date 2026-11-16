@@ -1,0 +1,107 @@
+// Fase 2C — Marketplace: leilão cego com tempo limite.
+
+enum ProviderStatus {
+  DRAFT
+  PENDING
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+enum AuctionStatus {
+  OPEN
+  CLOSED
+  AWARDED
+  EXPIRED
+  CANCELLED
+}
+
+enum BidStatus {
+  SUBMITTED
+  WITHDRAWN
+  ACCEPTED
+  LOST
+}
+
+/// Perfil de prestador de serviços logísticos de uma organização, verificado pela plataforma.
+model ProviderProfile {
+  id             String             @id @default(cuid())
+  organizationId String             @unique @map("organization_id")
+  status         ProviderStatus     @default(DRAFT)
+  modes          TransportMode[]    @default([])
+  services       LogisticsService[] @default([])
+  countries      String[]           @default([])
+  description    String?
+  statusReason   String?            @map("status_reason")
+  verifiedAt     DateTime?          @map("verified_at")
+  verifiedById   String?            @map("verified_by_id")
+  validUntil     DateTime?          @map("valid_until")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@map("provider_profiles")
+}
+
+/// Pedido publicado pelo expedidor. Os prestadores só vêem os campos anonimizados (snapshot).
+model Auction {
+  id                 String             @id @default(cuid())
+  organizationId     String             @map("organization_id")
+  shipmentId         String             @map("shipment_id")
+  reference          String
+  status             AuctionStatus      @default(OPEN)
+  closesAt           DateTime           @map("closes_at")
+  modes              TransportMode[]
+  services           LogisticsService[] @default([])
+  currency           String             @default("USD") @db.Char(3)
+  originCity         String?            @map("origin_city")
+  originCountry      String             @map("origin_country") @db.Char(2)
+  destinationCity    String?            @map("destination_city")
+  destinationCountry String             @map("destination_country") @db.Char(2)
+  pickupFrom         DateTime?          @map("pickup_from")
+  deliveryBy         DateTime?          @map("delivery_by")
+  cargoSummary       String             @map("cargo_summary")
+  totalWeightKg      Decimal?           @map("total_weight_kg") @db.Decimal(14, 3)
+  totalVolumeM3      Decimal?           @map("total_volume_m3") @db.Decimal(14, 3)
+  hazardous          Boolean            @default(false)
+  publicNotes        String?            @map("public_notes")
+  awardedBidId       String?            @unique @map("awarded_bid_id")
+  closedAt           DateTime?          @map("closed_at")
+  createdById        String?            @map("created_by_id")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+  organization       Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shipment           Shipment           @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  bids               AuctionBid[]       @relation("AuctionBids")
+  awardedBid         AuctionBid?        @relation("AwardedBid", fields: [awardedBidId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, reference])
+  @@index([status, closesAt])
+  @@index([organizationId, status])
+  @@map("auctions")
+}
+
+/// Proposta selada; organizationId é a organização licitante (prestador).
+model AuctionBid {
+  id             String        @id @default(cuid())
+  organizationId String        @map("organization_id")
+  auctionId      String        @map("auction_id")
+  status         BidStatus     @default(SUBMITTED)
+  amount         Decimal       @db.Decimal(20, 2)
+  currency       String        @db.Char(3)
+  mode           TransportMode
+  transitDays    Int           @map("transit_days")
+  validUntil     DateTime?     @map("valid_until")
+  notes          String?
+  submittedById  String?       @map("submitted_by_id")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  auction        Auction       @relation("AuctionBids", fields: [auctionId], references: [id], onDelete: Cascade)
+  awardedIn      Auction?      @relation("AwardedBid")
+
+  @@unique([auctionId, organizationId])
+  @@index([organizationId, status])
+  @@map("auction_bids")
+}

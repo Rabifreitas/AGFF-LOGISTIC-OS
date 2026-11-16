@@ -13,6 +13,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const nav = [
     { href: "/admin", label: t("organizations"), badge: pending, perm: "platform.organizations.read" as const },
     { href: "/admin/users", label: t("users"), perm: "platform.users.read" as const },
+    { href: "/admin/providers", label: t("providers"), perm: "platform.providers.verify" as const },
     { href: "/admin/audit", label: t("audit"), perm: "platform.audit.read" as const },
     { href: "/admin/exchange-rates", label: t("exchangeRates"), perm: "platform.exchange_rates.manage" as const },
   ].filter((i) => hasPermission(ctx, i.perm));
