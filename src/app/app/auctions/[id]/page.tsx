@@ -50,7 +50,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
             <Badge tone={statusTone(a.shipment.status)}>{t(`status.${a.shipment.status}`)}</Badge>
           </p>
         </Card>
-        <Card className="bg-navy-900 text-white">
+        <Card className="!border-navy-900 !bg-navy-900 text-white">
           <p className="text-xs tracking-wide text-white/60 uppercase">{t("mkt.sealedBids")}</p>
           <p className="font-mono text-4xl font-semibold">{bidCount}</p>
           <p className="mt-2 text-sm text-white/70">{t("mkt.blindNote")}</p>
