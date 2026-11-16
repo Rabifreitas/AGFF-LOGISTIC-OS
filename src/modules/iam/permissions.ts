@@ -161,6 +161,7 @@ export const ROLE_DEFINITIONS: Record<RoleKey, RoleDefinition> = {
       "org.profile.read",
       "org.cost_centers.read",
       "exchange_rates.read",
+      "tms.shipments.read",
       "mkt.quotations.read",
       "mkt.quotations.manage",
       "mkt.partners.read",
