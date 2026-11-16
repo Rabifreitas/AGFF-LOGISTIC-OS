@@ -884,6 +884,7 @@
       "providerNotVerified": "O prestador já não está verificado."
     },
     "providerLabel": "Prestador",
-    "awardBid": "Adjudicar"
+    "awardBid": "Adjudicar",
+    "auctionLabel": "Leilão"
   }
 }

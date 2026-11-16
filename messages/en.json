@@ -884,6 +884,7 @@
       "providerNotVerified": "The provider is no longer verified."
     },
     "providerLabel": "Provider",
-    "awardBid": "Award"
+    "awardBid": "Award",
+    "auctionLabel": "Auction"
   }
 }

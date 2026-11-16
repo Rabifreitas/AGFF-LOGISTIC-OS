@@ -28,7 +28,7 @@ export default async function MyBidsPage() {
             t("mkt.route"),
             t("mkt.amount"),
             t("mkt.closesAt"),
-            t("mkt.auction"),
+            t("mkt.auctionLabel"),
             t("common.status"),
           ]}
         >
