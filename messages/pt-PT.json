@@ -58,7 +58,11 @@
     "partners": "Parceiros",
     "incidents": "Incidentes",
     "auctions": "Leilões",
-    "providers": "Prestadores"
+    "providers": "Prestadores",
+    "freight": "Frete Imediato",
+    "fleet": "Frota",
+    "driver": "App do motorista",
+    "freightTariffs": "Tarifas de frete"
   },
   "landing": {
     "tagline": "Plataforma logística multiempresa para Angola e África",

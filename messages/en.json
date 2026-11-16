@@ -58,7 +58,11 @@
     "partners": "Partners",
     "incidents": "Incidents",
     "auctions": "Auctions",
-    "providers": "Providers"
+    "providers": "Providers",
+    "freight": "On-demand freight",
+    "fleet": "Fleet",
+    "driver": "Driver app",
+    "freightTariffs": "Freight tariffs"
   },
   "landing": {
     "tagline": "Multi-company logistics platform for Angola and Africa",
