@@ -132,6 +132,31 @@ describe("Publicação e anonimização", () => {
   });
 });
 
+describe("Guardas de integridade", () => {
+  it("bloqueia edição da expedição com leilão activo, republica após expirar e mantém âmbito de suspensos", async () => {
+    const s = await requestedShipment(Shipper.ctx);
+    const a = await publish(Shipper.ctx, s.id);
+    await expect(
+      addItem(Shipper.ctx, s.id, itemSchema.parse({ description: "Extra", quantity: "1", unit: "PLT" })),
+    ).rejects.toThrow("shp.lockedByAuction");
+
+    await closeNow(a.id);
+    const again = await publish(Shipper.ctx, s.id);
+    expect((await prisma.auction.findUnique({ where: { id: a.id } }))?.status).toBe("EXPIRED");
+    expect(again.id).not.toBe(a.id);
+
+    const p1 = await prisma.providerProfile.findUniqueOrThrow({ where: { organizationId: P1.organization.id } });
+    await reviewProviderProfile(await superAdminContext(), p1.id, {
+      decision: "suspend",
+      validUntil: null,
+      reason: "x",
+    });
+    await expect(
+      saveProviderProfile(P1.ctx, providerProfileSchema.parse({ modes: ["ROAD", "AIR"], services: ["TRANSPORT"] })),
+    ).rejects.toThrow("mkt.provider.suspendedScope");
+  });
+});
+
 describe("Propostas cegas", () => {
   it("concorrentes e expedidor não vêem propostas antes do fecho", async () => {
     const s = await requestedShipment(Shipper.ctx);

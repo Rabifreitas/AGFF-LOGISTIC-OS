@@ -628,7 +628,8 @@
     "carrierModeMismatch": "O transportador não opera o modo de transporte desta expedição.",
     "legCarrierModeMismatch": "O transportador da perna não opera esse modo de transporte.",
     "legCarrierNotVerified": "O transportador de uma perna não está verificado ou a verificação expirou.",
-    "arrivalBeforeDeparture": "A chegada não pode ser antes da partida."
+    "arrivalBeforeDeparture": "A chegada não pode ser antes da partida.",
+    "lockedByAuction": "A expedição tem um leilão activo. Cancele-o para alterar rota, carga ou pernas."
   },
   "trk": {
     "title": "Tracking",
@@ -794,7 +795,8 @@
       "company": "Empresa",
       "needsScope": "Indique pelo menos um modo ou serviço.",
       "invalidTransition": "Operação não permitida no estado actual do perfil.",
-      "validityPast": "A validade tem de ser uma data futura."
+      "validityPast": "A validade tem de ser uma data futura.",
+      "suspendedScope": "Um prestador suspenso não pode alterar modos ou serviços. Peça primeiro à AGFF a reactivação."
     },
     "amount": "Valor",
     "mode": "Modo",

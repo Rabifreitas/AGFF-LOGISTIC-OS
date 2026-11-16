@@ -628,7 +628,8 @@
     "carrierModeMismatch": "The carrier doesn't operate this shipment's transport mode.",
     "legCarrierModeMismatch": "The leg's carrier doesn't operate that transport mode.",
     "legCarrierNotVerified": "A leg's carrier is not verified or its verification has expired.",
-    "arrivalBeforeDeparture": "Arrival can't be before departure."
+    "arrivalBeforeDeparture": "Arrival can't be before departure.",
+    "lockedByAuction": "The shipment has an active auction. Cancel it to change route, cargo or legs."
   },
   "trk": {
     "title": "Tracking",
@@ -794,7 +795,8 @@
       "company": "Company",
       "needsScope": "Select at least one mode or service.",
       "invalidTransition": "Not allowed in the profile's current status.",
-      "validityPast": "Validity must be a future date."
+      "validityPast": "Validity must be a future date.",
+      "suspendedScope": "A suspended provider can't change modes or services. Ask AGFF to reactivate it first."
     },
     "amount": "Amount",
     "mode": "Mode",

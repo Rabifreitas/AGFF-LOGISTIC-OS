@@ -57,17 +57,35 @@ const OWN_BID_SELECT = {
   updatedAt: true,
 } satisfies Prisma.AuctionBidSelect;
 
-/** Fecha leilões vencidos (idempotente). Chamado em cada leitura e pelo endpoint de cron. */
+/**
+ * Fecha leilões vencidos (idempotente). Chamado em cada leitura e pelo endpoint de cron.
+ * Bloqueia cada leilão antes de contar propostas: uma licitação em curso (que detém o lock)
+ * é saltada e o leilão fecha na próxima passagem, já com essa proposta visível.
+ */
 export async function sweepDueAuctions(now = new Date()) {
-  const closed = await prisma.auction.updateMany({
-    where: { status: "OPEN", closesAt: { lte: now }, bids: { some: { status: "SUBMITTED" } } },
-    data: { status: "CLOSED", closedAt: now },
+  return prisma.$transaction(async (tx) => {
+    const due = await tx.$queryRaw<{ id: string }[]>`
+      SELECT "id" FROM "auctions"
+      WHERE "status" = 'OPEN'::"AuctionStatus" AND "closes_at" <= ${now}
+      ORDER BY "id" LIMIT 500 FOR UPDATE SKIP LOCKED`;
+    if (due.length === 0) return { closed: 0, expired: 0 };
+    const ids = due.map((d) => d.id);
+    const withBids = await tx.auctionBid.findMany({
+      where: { auctionId: { in: ids }, status: "SUBMITTED" },
+      select: { auctionId: true },
+      distinct: ["auctionId"],
+    });
+    const closedIds = withBids.map((b) => b.auctionId);
+    const closed = await tx.auction.updateMany({
+      where: { id: { in: closedIds }, status: "OPEN" },
+      data: { status: "CLOSED", closedAt: now },
+    });
+    const expired = await tx.auction.updateMany({
+      where: { id: { in: ids, notIn: closedIds }, status: "OPEN" },
+      data: { status: "EXPIRED", closedAt: now },
+    });
+    return { closed: closed.count, expired: expired.count };
   });
-  const expired = await prisma.auction.updateMany({
-    where: { status: "OPEN", closesAt: { lte: now } },
-    data: { status: "EXPIRED", closedAt: now },
-  });
-  return { closed: closed.count, expired: expired.count };
 }
 
 // ---------------------------------------------------------------- Perfil de prestador
@@ -80,9 +98,12 @@ export async function getOwnProviderProfile(ctx: ActorContext) {
 export async function saveProviderProfile(ctx: ActorContext, input: ProviderProfileInput) {
   assertPermission(ctx, "mkt.provider.manage");
   return tenantDb(ctx.organizationId).$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT 1 FROM "provider_profiles" WHERE "organization_id" = ${ctx.organizationId} FOR UPDATE`;
     const before = await tx.providerProfile.findFirst();
     const same = (a: readonly string[], b: readonly string[]) => a.length === b.length && a.every((x) => b.includes(x));
     const scopeChanged = before && (!same(before.modes, input.modes) || !same(before.services, input.services));
+    // Reactivar um suspenso não pode aprovar âmbito que nunca foi verificado.
+    if (scopeChanged && before.status === "SUSPENDED") throw new InvalidStateError("mkt.provider.suspendedScope");
     const after = before
       ? await tx.providerProfile.update({
           where: { id: before.id },
@@ -139,6 +160,7 @@ export async function reviewProviderProfile(ctx: ActorContext, id: string, input
   const now = new Date();
   if (input.validUntil && input.validUntil <= now) throw new InvalidStateError("mkt.provider.validityPast");
   return prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT 1 FROM "provider_profiles" WHERE "id" = ${id} FOR UPDATE`;
     const before = await tx.providerProfile.findUnique({ where: { id } });
     if (!before) throw new NotFoundError();
     const to = nextProviderStatus(before.status, input.decision);
@@ -187,6 +209,7 @@ export async function createAuction(ctx: ActorContext, input: AuctionInput) {
   const now = new Date();
   const windowError = closesAtError(input.closesAt, now);
   if (windowError) throw new InvalidStateError(windowError);
+  await sweepDueAuctions(now);
   return tenantDb(ctx.organizationId).$transaction(async (tx) => {
     const found = await tx.shipment.findUnique({ where: { id: input.shipmentId }, select: { id: true } });
     if (!found) throw new NotFoundError();
@@ -452,15 +475,17 @@ export async function listMarketplace(ctx: ActorContext, filter: { mode?: Transp
   const { profile, active } = await activeProfile(ctx, now);
   if (!active) return { profile, auctions: [] };
   const modes = filter.mode ? active.modes.filter((m) => m === filter.mode) : active.modes;
+  // Elegibilidade (modos ∩, serviços ⊆) filtrada na base de dados antes do limite.
+  const ids = await prisma.$queryRaw<{ id: string }[]>`
+    SELECT "id" FROM "auctions"
+    WHERE "status" = 'OPEN'::"AuctionStatus" AND "closes_at" > ${now}
+      AND "organization_id" <> ${ctx.organizationId}
+      AND "modes" && ${modes}::"TransportMode"[]
+      AND "services" <@ ${active.services}::"LogisticsService"[]
+    ORDER BY "closes_at" ASC LIMIT 200`;
   const rows = await prisma.auction.findMany({
-    where: {
-      status: "OPEN",
-      closesAt: { gt: now },
-      organizationId: { not: ctx.organizationId },
-      modes: { hasSome: modes },
-    },
+    where: { id: { in: ids.map((r) => r.id) } },
     orderBy: { closesAt: "asc" },
-    take: 200,
     select: {
       ...PUBLIC_AUCTION_SELECT,
       bids: { where: { organizationId: ctx.organizationId }, select: OWN_BID_SELECT },
@@ -506,9 +531,10 @@ export async function getMarketplaceAuction(ctx: ActorContext, id: string) {
 
 export async function placeBid(ctx: ActorContext, auctionId: string, input: BidInput) {
   assertPermission(ctx, "mkt.bids.manage");
-  const now = new Date();
   return prisma.$transaction(async (tx) => {
     await lockAuction(tx, auctionId);
+    // Hora lida depois do lock: uma espera pelo lock não pode atravessar o fecho.
+    const now = new Date();
     const a = await tx.auction.findUnique({
       where: { id: auctionId },
       select: {
@@ -557,9 +583,10 @@ export async function placeBid(ctx: ActorContext, auctionId: string, input: BidI
 
 export async function withdrawBid(ctx: ActorContext, auctionId: string) {
   assertPermission(ctx, "mkt.bids.manage");
-  const now = new Date();
   return prisma.$transaction(async (tx) => {
     await lockAuction(tx, auctionId);
+    // Hora lida depois do lock: uma espera pelo lock não pode atravessar o fecho.
+    const now = new Date();
     const a = await tx.auction.findUnique({ where: { id: auctionId }, select: { status: true, closesAt: true } });
     if (!a) throw new NotFoundError();
     if (!isBiddingOpen(a, now)) throw new InvalidStateError("mkt.auction.closed");
