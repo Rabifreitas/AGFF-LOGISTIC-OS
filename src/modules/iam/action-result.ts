@@ -24,10 +24,13 @@ export function toActionState(e: unknown): ActionState {
   throw e;
 }
 
-export function formToObject(formData: FormData): Record<string, string> {
-  const out: Record<string, string> = {};
+/** Campos repetidos (ex.: caixas de selecção múltipla) tornam-se arrays. */
+export function formToObject(formData: FormData): Record<string, string | string[]> {
+  const out: Record<string, string | string[]> = {};
   formData.forEach((v, k) => {
-    if (typeof v === "string" && !k.startsWith("$ACTION")) out[k] = v;
+    if (typeof v !== "string" || k.startsWith("$ACTION")) return;
+    const prev = out[k];
+    out[k] = prev === undefined ? v : Array.isArray(prev) ? [...prev, v] : [prev, v];
   });
   return out;
 }

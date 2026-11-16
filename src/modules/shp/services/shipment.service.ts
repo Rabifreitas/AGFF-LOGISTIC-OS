@@ -2,9 +2,14 @@ import type { Prisma, ShipmentStatus } from "@prisma/client";
 import { InvalidStateError, NotFoundError } from "@/lib/errors";
 import { recordAudit } from "@/modules/audit/audit.service";
 import { assertPermission, type ActorContext } from "@/modules/iam/rbac";
-import { canBeBookedAsCarrier, hasValidVerification } from "@/modules/mkt/partner-status";
+import {
+  canBeBookedAsCarrier,
+  hasValidVerification,
+  isCarrierType,
+  partnerOperatesMode,
+} from "@/modules/mkt/partner-status";
 import { tenantDb } from "@/modules/tenancy/tenant-db";
-import type { ItemInput, ShipmentInput, StopInput } from "../schemas";
+import type { ItemInput, LegInput, ShipmentInput, StopInput } from "../schemas";
 import {
   formatShipmentReference,
   isShipmentEditable,
@@ -14,8 +19,6 @@ import {
 } from "../shipment-status";
 
 type Tx = Parameters<Parameters<ReturnType<typeof tenantDb>["$transaction"]>[0]>[0];
-
-const CARRIER_TYPES = ["TRANSPORTER", "FREIGHT_FORWARDER"];
 
 /** Garante que parceiros e centro de custo referenciados pertencem ao tenant actual. */
 async function assertRelationsInTenant(
@@ -30,7 +33,7 @@ async function assertRelationsInTenant(
   if (input.carrierPartnerId) {
     const p = await tx.partner.findUnique({ where: { id: input.carrierPartnerId } });
     if (!p) throw new NotFoundError("shp.carrierNotFound");
-    if (!CARRIER_TYPES.includes(p.type)) throw new InvalidStateError("shp.carrierType");
+    if (!isCarrierType(p.type)) throw new InvalidStateError("shp.carrierType");
   }
   if (input.costCenterId) {
     const cc = await tx.costCenter.findUnique({ where: { id: input.costCenterId } });
@@ -56,7 +59,15 @@ async function nextReference(tx: Tx, organizationId: string, now = new Date()) {
   return formatShipmentReference(year, seq);
 }
 
+/** Serializa mutações concorrentes da mesma expedição (rota, pernas, modo, transições). */
+async function lockShipment(tx: Tx, shipmentId: string) {
+  const found = await tx.shipment.findUnique({ where: { id: shipmentId }, select: { id: true } });
+  if (!found) throw new NotFoundError();
+  await tx.$executeRaw`SELECT 1 FROM "shipments" WHERE "id" = ${shipmentId} FOR NO KEY UPDATE`;
+}
+
 async function loadEditable(tx: Tx, shipmentId: string) {
+  await lockShipment(tx, shipmentId);
   const s = await tx.shipment.findUnique({ where: { id: shipmentId } });
   if (!s) throw new NotFoundError();
   if (!isShipmentEditable(s.status)) throw new InvalidStateError("shp.notEditable");
@@ -89,6 +100,7 @@ export async function getShipment(ctx: ActorContext, id: string) {
       customerPartner: true,
       costCenter: true,
       stops: { orderBy: { sequence: "asc" } },
+      legs: { orderBy: { sequence: "asc" }, include: { carrierPartner: { select: { id: true, name: true } } } },
       items: { orderBy: { id: "asc" } },
       trackingEvents: { orderBy: { occurredAt: "desc" } },
       incidents: { orderBy: { createdAt: "desc" } },
@@ -123,6 +135,10 @@ export async function updateShipment(ctx: ActorContext, id: string, input: Shipm
   return tenantDb(ctx.organizationId).$transaction(async (tx) => {
     const before = await loadEditable(tx, id);
     await assertRelationsInTenant(tx, input);
+    if (input.mode !== "MULTIMODAL") {
+      const mismatch = await tx.shipmentLeg.count({ where: { shipmentId: id, mode: { not: input.mode } } });
+      if (mismatch > 0) throw new InvalidStateError("shp.legModeMismatch");
+    }
     const after = await tx.shipment.update({ where: { id }, data: input });
     await recordAudit(tx, ctx, { action: "shipment.updated", entityType: "Shipment", entityId: id, before, after });
     return after;
@@ -131,12 +147,17 @@ export async function updateShipment(ctx: ActorContext, id: string, input: Shipm
 
 /** Aplica uma transição dentro de uma transacção existente (usado também pelo tracking). */
 export async function applyShipmentTransition(tx: Tx, ctx: ActorContext, id: string, transition: ShipmentTransition) {
+  await lockShipment(tx, id);
   const before = await tx.shipment.findUnique({
     where: { id },
     include: {
       stops: { orderBy: { sequence: "asc" }, select: { type: true } },
       items: { select: { id: true } },
       carrierPartner: { include: { verifications: { where: { status: "APPROVED" } } } },
+      legs: {
+        orderBy: { sequence: "asc" },
+        include: { carrierPartner: { include: { verifications: { where: { status: "APPROVED" } } } } },
+      },
     },
   });
   if (!before) throw new NotFoundError();
@@ -150,6 +171,18 @@ export async function applyShipmentTransition(tx: Tx, ctx: ActorContext, id: str
     (!canBeBookedAsCarrier(before.carrierPartner) || !hasValidVerification(before.carrierPartner.verifications))
   ) {
     throw new InvalidStateError("shp.carrierNotVerified");
+  }
+  if (transition === "book") {
+    if (before.carrierPartner && !partnerOperatesMode(before.carrierPartner, before.mode)) {
+      throw new InvalidStateError("shp.carrierModeMismatch");
+    }
+    for (const leg of before.legs) {
+      if (!leg.carrierPartner) continue;
+      if (!canBeBookedAsCarrier(leg.carrierPartner) || !hasValidVerification(leg.carrierPartner.verifications)) {
+        throw new InvalidStateError("shp.legCarrierNotVerified");
+      }
+      if (!partnerOperatesMode(leg.carrierPartner, leg.mode)) throw new InvalidStateError("shp.legCarrierModeMismatch");
+    }
   }
   // Guarda optimista: falha se outro pedido mudou o estado entretanto.
   const { count } = await tx.shipment.updateMany({ where: { id, status: before.status }, data: { status: to } });
@@ -260,6 +293,49 @@ export async function removeItem(ctx: ActorContext, itemId: string) {
       entityType: "ShipmentItem",
       entityId: itemId,
       before: item,
+    });
+  });
+}
+
+export async function addLeg(ctx: ActorContext, shipmentId: string, input: LegInput) {
+  assertPermission(ctx, "tms.shipments.manage");
+  return tenantDb(ctx.organizationId).$transaction(async (tx) => {
+    const shipment = await loadEditable(tx, shipmentId);
+    if (shipment.mode !== "MULTIMODAL" && input.mode !== shipment.mode) {
+      throw new InvalidStateError("shp.legModeMismatch");
+    }
+    if (input.carrierPartnerId) {
+      const p = await tx.partner.findUnique({ where: { id: input.carrierPartnerId } });
+      if (!p) throw new NotFoundError("shp.carrierNotFound");
+      if (!isCarrierType(p.type)) throw new InvalidStateError("shp.carrierType");
+      if (!partnerOperatesMode(p, input.mode)) throw new InvalidStateError("shp.legCarrierModeMismatch");
+    }
+    const last = await tx.shipmentLeg.findFirst({ where: { shipmentId }, orderBy: { sequence: "desc" } });
+    const created = await tx.shipmentLeg.create({
+      data: { ...input, shipmentId, sequence: (last?.sequence ?? 0) + 1, organizationId: ctx.organizationId },
+    });
+    await recordAudit(tx, ctx, {
+      action: "shipment.leg.added",
+      entityType: "ShipmentLeg",
+      entityId: created.id,
+      after: created,
+    });
+    return created;
+  });
+}
+
+export async function removeLeg(ctx: ActorContext, legId: string) {
+  assertPermission(ctx, "tms.shipments.manage");
+  return tenantDb(ctx.organizationId).$transaction(async (tx) => {
+    const leg = await tx.shipmentLeg.findUnique({ where: { id: legId } });
+    if (!leg) throw new NotFoundError();
+    await loadEditable(tx, leg.shipmentId);
+    await tx.shipmentLeg.delete({ where: { id: legId } });
+    await recordAudit(tx, ctx, {
+      action: "shipment.leg.removed",
+      entityType: "ShipmentLeg",
+      entityId: legId,
+      before: leg,
     });
   });
 }

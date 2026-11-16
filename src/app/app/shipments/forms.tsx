@@ -1,10 +1,23 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ActionForm, Field, SelectField } from "@/components/form";
+import { ActionForm, CheckboxGroup, Field, SelectField } from "@/components/form";
 import { Label } from "@/components/ui";
-import { addItemAction, addStopAction, createShipmentAction, updateShipmentAction } from "@/modules/shp/actions";
-import { INCOTERMS, STOP_TYPES, TRANSPORT_MODES } from "@/modules/shp/schemas";
+import {
+  addItemAction,
+  addLegAction,
+  addStopAction,
+  createShipmentAction,
+  updateShipmentAction,
+} from "@/modules/shp/actions";
+import {
+  CARGO_TYPES,
+  INCOTERMS,
+  LEG_MODES,
+  LOGISTICS_SERVICES,
+  STOP_TYPES,
+  TRANSPORT_MODES,
+} from "@/modules/shp/schemas";
 import { openIncidentAction, recordTrackingEventAction } from "@/modules/trk/actions";
 import { INCIDENT_SEVERITIES } from "@/modules/trk/schemas";
 import { TRACKING_CODES } from "@/modules/trk/tracking-codes";
@@ -22,6 +35,7 @@ export type ShipmentFormValues = {
   currency: string;
   declaredValue: string | null;
   notes: string | null;
+  services: string[];
 };
 
 export function ShipmentForm({
@@ -108,6 +122,15 @@ export function ShipmentForm({
           <div className="md:col-span-3">
             <Field name="notes" label={t("shp.notes")} state={s} defaultValue={shipment?.notes} />
           </div>
+          <div className="md:col-span-3">
+            <CheckboxGroup
+              name="services"
+              label={t("shp.servicesRequired")}
+              state={s}
+              defaultValues={shipment?.services}
+              options={LOGISTICS_SERVICES.map((v) => ({ value: v, label: t(`shp.services.${v}`) }))}
+            />
+          </div>
         </div>
       )}
     </ActionForm>
@@ -153,10 +176,68 @@ export function ItemForm({ shipmentId }: { shipmentId: string }) {
           <Field name="hsCode" label={t("shp.hsCode")} state={s} />
           <Field name="weightKg" label={t("shp.weightKg")} state={s} />
           <Field name="volumeM3" label={t("shp.volumeM3")} state={s} />
+          <SelectField
+            name="cargoType"
+            label={t("shp.cargoType")}
+            state={s}
+            defaultValue="GENERAL"
+            options={CARGO_TYPES.map((v) => ({ value: v, label: t(`shp.cargoTypes.${v}`) }))}
+          />
+          <Field name="containerNumber" label={t("shp.containerNumber")} state={s} />
+          <Field name="containerType" label={t("shp.containerType")} state={s} placeholder="40HC" />
+          <Field name="sealNumber" label={t("shp.sealNumber")} state={s} />
+          <Field name="unNumber" label={t("shp.unNumber")} state={s} placeholder="UN1203" />
+          <Field name="imoClass" label={t("shp.imoClass")} state={s} placeholder="3" />
+          <Field name="tempMinC" label={t("shp.tempMinC")} state={s} />
+          <Field name="tempMaxC" label={t("shp.tempMaxC")} state={s} />
           <div className="flex items-center gap-2 pt-6">
             <input id="dangerousGoods" name="dangerousGoods" type="checkbox" className="h-4 w-4" />
             <Label htmlFor="dangerousGoods">{t("shp.dangerousGoods")}</Label>
           </div>
+        </div>
+      )}
+    </ActionForm>
+  );
+}
+
+export function LegForm({
+  shipmentId,
+  shipmentMode,
+  carriers,
+}: {
+  shipmentId: string;
+  shipmentMode: string;
+  carriers: Option[];
+}) {
+  const t = useTranslations();
+  const modes = shipmentMode === "MULTIMODAL" ? LEG_MODES : LEG_MODES.filter((m) => m === shipmentMode);
+  return (
+    <ActionForm action={addLegAction} submitLabel={t("shp.addLeg")} resetOnSuccess>
+      {(s) => (
+        <div className="grid gap-4 md:grid-cols-3">
+          <input type="hidden" name="id" value={shipmentId} />
+          <SelectField
+            name="mode"
+            label={t("shp.mode")}
+            state={s}
+            options={modes.map((v) => ({ value: v, label: t(`shp.modes.${v}`) }))}
+          />
+          <SelectField
+            name="carrierPartnerId"
+            label={t("shp.carrier")}
+            state={s}
+            options={[{ value: "", label: t("common.none") }, ...carriers]}
+          />
+          <Field name="equipmentType" label={t("shp.equipmentType")} state={s} />
+          <Field name="origin" label={t("shp.origin")} state={s} required />
+          <Field name="destination" label={t("shp.destination")} state={s} required />
+          <Field name="transportDocNumber" label={t("shp.transportDocNumber")} state={s} />
+          <Field name="vehiclePlate" label={t("shp.vehiclePlate")} state={s} />
+          <Field name="vesselName" label={t("shp.vesselName")} state={s} />
+          <Field name="voyageNumber" label={t("shp.voyageNumber")} state={s} />
+          <Field name="flightNumber" label={t("shp.flightNumber")} state={s} />
+          <Field name="plannedDepartureAt" type="datetime-local" label={t("shp.plannedDepartureAt")} state={s} />
+          <Field name="plannedArrivalAt" type="datetime-local" label={t("shp.plannedArrivalAt")} state={s} />
         </div>
       )}
     </ActionForm>

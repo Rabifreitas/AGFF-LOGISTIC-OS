@@ -126,6 +126,8 @@ erDiagram
   partners ||--o{ partner_verifications : "verificação (KYC)"
   organizations ||--o{ shipments : cria
   shipments ||--o{ shipment_stops : percorre
+  shipments ||--o{ shipment_legs : "pernas (multimodal)"
+  partners |o--o{ shipment_legs : executa
   shipments ||--o{ shipment_items : transporta
   shipments |o--o{ quotations : recebe
   partners |o--o{ quotations : propõe
@@ -136,3 +138,12 @@ erDiagram
 ```
 
 Todas estas tabelas têm `organization_id` e já estão em `TENANT_SCOPED_MODELS`. `document_versions.storage_key` usa o prefixo `org/<organizationId>/documents/<documentId>/<uuid>` no MinIO (cada versão é um objecto novo; nunca há substituição) e guarda `checksum_sha256`, tamanho e MIME detectado no servidor.
+
+## Multimodal e serviços logísticos
+
+- `TransportMode`: `ROAD`, `RAIL`, `SEA`, `COASTAL` (cabotagem), `INLAND_WATERWAY` (fluvial/lacustre), `AIR`, `PIPELINE`, `MULTIMODAL`.
+- `LogisticsService` (17 serviços: transporte, trânsito, desalfandegamento, armazenagem, estiva, manuseamento portuário, parque de contentores, gruas/cargas pesadas, cadeia de frio, última milha, correio expresso, embalagem, seguro, inspecção, carga de projecto, mercadorias perigosas, agência de navegação).
+- `partners.modes[]` e `partners.services[]`: o que o parceiro opera e presta. Sem modos declarados, assume os do tipo (ex.: `SHIPPING_LINE` → `SEA`, `COASTAL`); `FREIGHT_FORWARDER` organiza qualquer modo.
+- `shipments.services[]`: serviços pedidos pela expedição.
+- `shipment_legs`: troços ordenados com modo, transportador, equipamento, matrícula, navio/viagem, voo e documento de transporte (B/L, AWB, CMR). Expedições não multimodais só aceitam pernas do mesmo modo; `MULTIMODAL` exige pelo menos dois modos diferentes para reservar.
+- `shipment_items`: `cargoType` (contentor, granéis, fraccionada, Ro-Ro, projecto, refrigerada, perigosa, animais vivos), contentor/selo, número ONU e classe IMO, intervalo de temperatura.

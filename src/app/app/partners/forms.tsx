@@ -1,9 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ActionForm, Field, SelectField } from "@/components/form";
+import { ActionForm, CheckboxGroup, Field, SelectField } from "@/components/form";
 import { addVerificationAction, createPartnerAction, updatePartnerAction } from "@/modules/mkt/actions";
 import { PARTNER_TYPES, VERIFICATION_KINDS } from "@/modules/mkt/schemas";
+import { LOGISTICS_SERVICES, TRANSPORT_MODES } from "@/modules/shp/schemas";
 
 type Partner = {
   id: string;
@@ -14,6 +15,8 @@ type Partner = {
   email: string | null;
   phone: string | null;
   notes: string | null;
+  modes: string[];
+  services: string[];
 };
 
 export function PartnerForm({ partner }: { partner?: Partner }) {
@@ -47,6 +50,24 @@ export function PartnerForm({ partner }: { partner?: Partner }) {
           <Field name="phone" label={t("common.phone")} state={s} defaultValue={partner?.phone} />
           <div className="md:col-span-3">
             <Field name="notes" label={t("partners.notes")} state={s} defaultValue={partner?.notes} />
+          </div>
+          <div className="md:col-span-3">
+            <CheckboxGroup
+              name="modes"
+              label={t("partners.modes")}
+              state={s}
+              defaultValues={partner?.modes}
+              options={TRANSPORT_MODES.map((v) => ({ value: v, label: t(`shp.modes.${v}`) }))}
+            />
+          </div>
+          <div className="md:col-span-3">
+            <CheckboxGroup
+              name="services"
+              label={t("partners.services")}
+              state={s}
+              defaultValues={partner?.services}
+              options={LOGISTICS_SERVICES.map((v) => ({ value: v, label: t(`shp.services.${v}`) }))}
+            />
           </div>
         </div>
       )}

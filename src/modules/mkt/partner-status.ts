@@ -30,6 +30,43 @@ export function hasValidVerification(verifications: { status: string; expiresAt:
   return verifications.some((v) => v.status === "APPROVED" && (!v.expiresAt || v.expiresAt > now));
 }
 
-export function canBeBookedAsCarrier(p: { status: PartnerStatus; type: string }) {
-  return p.status === "VERIFIED" && (p.type === "TRANSPORTER" || p.type === "FREIGHT_FORWARDER");
+/** Tipos de parceiro que podem executar transporte (transportador contratado ou de uma perna). */
+export const CARRIER_TYPES: readonly string[] = [
+  "TRANSPORTER",
+  "FREIGHT_FORWARDER",
+  "SHIPPING_LINE",
+  "AIRLINE",
+  "RAIL_OPERATOR",
+  "BARGE_OPERATOR",
+  "COURIER",
+  "HEAVY_LIFT",
+];
+
+/** Modos assumidos quando o parceiro ainda não declarou os seus modos. */
+const DEFAULT_MODES: Record<string, readonly string[]> = {
+  TRANSPORTER: ["ROAD"],
+  SHIPPING_LINE: ["SEA", "COASTAL"],
+  AIRLINE: ["AIR"],
+  RAIL_OPERATOR: ["RAIL"],
+  BARGE_OPERATOR: ["INLAND_WATERWAY", "COASTAL"],
+  COURIER: ["ROAD", "AIR"],
+  HEAVY_LIFT: ["ROAD"],
+};
+
+export function isCarrierType(type: string) {
+  return CARRIER_TYPES.includes(type);
+}
+
+/** Transitários organizam qualquer modo; os restantes operam os modos declarados (ou os do tipo). */
+export function partnerOperatesMode(p: { type: string; modes?: readonly string[] | null }, mode: string) {
+  if (p.type === "FREIGHT_FORWARDER") return true;
+  const modes = p.modes && p.modes.length > 0 ? p.modes : (DEFAULT_MODES[p.type] ?? []);
+  return modes.includes(mode);
+}
+
+export function canBeBookedAsCarrier(
+  p: { status: PartnerStatus; type: string; modes?: readonly string[] | null },
+  mode?: string,
+) {
+  return p.status === "VERIFIED" && isCarrierType(p.type) && (mode === undefined || partnerOperatesMode(p, mode));
 }
