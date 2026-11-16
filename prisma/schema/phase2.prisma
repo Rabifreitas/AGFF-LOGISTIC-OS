@@ -220,6 +220,7 @@ model Shipment {
   incidents         Incident[]
   documents         Document[]
   auctions          Auction[]
+  freightRequest    FreightRequest?
 
   @@unique([organizationId, reference])
   @@index([organizationId, status])

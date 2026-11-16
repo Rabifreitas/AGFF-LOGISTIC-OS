@@ -47,7 +47,7 @@ function assertDates(input: Pick<ShipmentInput, "plannedPickupAt" | "plannedDeli
   }
 }
 
-async function nextReference(tx: Tx, organizationId: string, now = new Date()) {
+export async function nextReference(tx: Tx, organizationId: string, now = new Date()) {
   const year = now.getUTCFullYear();
   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`shipment-ref:${organizationId}:${year}`}))`;
   const last = await tx.shipment.findFirst({
