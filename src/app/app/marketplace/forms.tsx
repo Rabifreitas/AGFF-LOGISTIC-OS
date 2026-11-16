@@ -32,6 +32,7 @@ export function BidForm({
           <Field
             name="amount"
             type="number"
+            step="0.01"
             label={`${t("mkt.amount")} (${currency})`}
             state={s}
             defaultValue={current?.amount}
