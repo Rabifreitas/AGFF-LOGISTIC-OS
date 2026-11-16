@@ -100,7 +100,12 @@ function SmallAction({
 export function AwardButton({ auctionId, bidId }: { auctionId: string; bidId: string }) {
   const t = useTranslations();
   return (
-    <SmallAction action={awardAuctionAction} fields={{ id: auctionId, bidId }} label={t("mkt.award")} variant="gold" />
+    <SmallAction
+      action={awardAuctionAction}
+      fields={{ id: auctionId, bidId }}
+      label={t("mkt.awardBid")}
+      variant="gold"
+    />
   );
 }
 

@@ -83,7 +83,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
       ) : (
         <Table
           head={[
-            t("mkt.provider"),
+            t("mkt.providerLabel"),
             t("mkt.amount"),
             t("mkt.mode"),
             t("mkt.transitDays"),

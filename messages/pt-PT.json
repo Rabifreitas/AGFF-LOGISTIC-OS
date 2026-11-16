@@ -882,6 +882,8 @@
       "notActive": "Esta proposta já não está activa.",
       "expired": "A validade desta proposta terminou.",
       "providerNotVerified": "O prestador já não está verificado."
-    }
+    },
+    "providerLabel": "Prestador",
+    "awardBid": "Adjudicar"
   }
 }

@@ -882,6 +882,8 @@
       "notActive": "This bid is no longer active.",
       "expired": "This bid's validity has ended.",
       "providerNotVerified": "The provider is no longer verified."
-    }
+    },
+    "providerLabel": "Provider",
+    "awardBid": "Award"
   }
 }
