@@ -216,12 +216,16 @@ export async function createAuction(ctx: ActorContext, input: AuctionInput) {
     await tx.$executeRaw`SELECT 1 FROM "shipments" WHERE "id" = ${found.id} FOR NO KEY UPDATE`;
     const s = await tx.shipment.findUnique({
       where: { id: found.id },
-      include: { stops: { orderBy: { sequence: "asc" } }, items: true },
+      include: { stops: { orderBy: { sequence: "asc" } }, items: true, legs: { select: { mode: true } } },
     });
     if (!s) throw new NotFoundError();
     if (s.status !== "REQUESTED") throw new InvalidStateError("mkt.auction.shipmentNotRequested");
     const active = await tx.auction.count({ where: { shipmentId: s.id, status: { in: ["OPEN", "CLOSED"] } } });
     if (active > 0) throw new ConflictError("mkt.auction.alreadyActive");
+    // O leilão bloqueia a edição: as pernas multimodais têm de existir antes de publicar.
+    if (s.mode === "MULTIMODAL" && new Set(s.legs.map((l) => l.mode)).size < 2) {
+      throw new InvalidStateError("shp.multimodalNeedsLegs");
+    }
     const snapshot = buildAuctionSnapshot(s);
     if (!snapshot) throw new InvalidStateError("shp.needsRouteAndCargo");
     const created = await tx.auction.create({

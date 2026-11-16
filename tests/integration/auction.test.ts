@@ -141,9 +141,14 @@ describe("Guardas de integridade", () => {
     ).rejects.toThrow("shp.lockedByAuction");
 
     await closeNow(a.id);
+    await addItem(Shipper.ctx, s.id, itemSchema.parse({ description: "Extra", quantity: "1", unit: "PLT" }));
     const again = await publish(Shipper.ctx, s.id);
     expect((await prisma.auction.findUnique({ where: { id: a.id } }))?.status).toBe("EXPIRED");
     expect(again.id).not.toBe(a.id);
+
+    const mm = await createShipment(Shipper.ctx, shipmentSchema.parse({ mode: "MULTIMODAL", currency: "USD" }));
+    await prisma.shipment.update({ where: { id: mm.id }, data: { status: "REQUESTED" } });
+    await expect(publish(Shipper.ctx, mm.id)).rejects.toThrow("shp.multimodalNeedsLegs");
 
     const p1 = await prisma.providerProfile.findUniqueOrThrow({ where: { organizationId: P1.organization.id } });
     await reviewProviderProfile(await superAdminContext(), p1.id, {
