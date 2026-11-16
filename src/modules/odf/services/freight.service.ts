@@ -62,7 +62,7 @@ export async function saveTariff(ctx: ActorContext, input: TariffInput) {
 
 async function activeTariff(category: VehicleCategory) {
   const t = await prisma.freightTariff.findUnique({ where: { category } });
-  if (!t || !t.active) throw new InvalidStateError("odf.noTariff");
+  if (!t || !t.active) throw new InvalidStateError("odf.errors.noTariff");
   return toTariffValues(t);
 }
 
@@ -93,7 +93,7 @@ async function nextFreightReference(tx: Tx, organizationId: string, now: Date) {
 export async function createFreightRequest(ctx: ActorContext, input: FreightRequestInput, now = new Date()) {
   assertPermission(ctx, "odf.requests.manage");
   if (input.scheduledFor && input.scheduledFor.getTime() < now.getTime() - 60_000) {
-    throw new InvalidStateError("odf.scheduledInPast");
+    throw new InvalidStateError("odf.errors.scheduledInPast");
   }
   const tariff = await activeTariff(input.category);
   const price = priceFor(tariff, input);
@@ -234,7 +234,7 @@ export async function cancelRequest(ctx: ActorContext, id: string) {
   assertPermission(ctx, "odf.requests.manage");
   return tenantDb(ctx.organizationId).$transaction(async (tx) => {
     const request = await loadOwnForUpdate(tx, id);
-    if (!canCancel(request.status)) throw new InvalidStateError("odf.cannotCancel");
+    if (!canCancel(request.status)) throw new InvalidStateError("odf.errors.cannotCancel");
     await tx.freightOffer.updateMany({
       where: { requestId: id, status: "PENDING" },
       data: { status: "EXPIRED", respondedAt: new Date() },
@@ -255,7 +255,7 @@ export async function retryRequest(ctx: ActorContext, id: string, now = new Date
   assertPermission(ctx, "odf.requests.manage");
   await tenantDb(ctx.organizationId).$transaction(async (tx) => {
     const request = await loadOwnForUpdate(tx, id);
-    if (request.status !== "NO_DRIVERS") throw new InvalidStateError("odf.cannotRetry");
+    if (request.status !== "NO_DRIVERS") throw new InvalidStateError("odf.errors.cannotRetry");
     await tx.freightRequest.update({ where: { id }, data: { status: "SEARCHING", searchStartedAt: now } });
     await recordAudit(tx, ctx, { action: "freight.retried", entityType: "FreightRequest", entityId: id });
   });
@@ -267,7 +267,7 @@ export async function confirmDelivery(ctx: ActorContext, id: string) {
   assertPermission(ctx, "odf.requests.manage");
   return tenantDb(ctx.organizationId).$transaction(async (tx) => {
     const request = await loadOwnForUpdate(tx, id);
-    if (request.status !== "IN_TRANSIT") throw new InvalidStateError("odf.invalidStep");
+    if (request.status !== "IN_TRANSIT") throw new InvalidStateError("odf.errors.invalidStep");
     await completeStep(tx, ctx, request, "deliver", null, "SHIPPER");
   });
 }
@@ -276,8 +276,8 @@ export async function rateRequest(ctx: ActorContext, id: string, input: RatingIn
   assertPermission(ctx, "odf.requests.manage");
   return tenantDb(ctx.organizationId).$transaction(async (tx) => {
     const request = await loadOwnForUpdate(tx, id);
-    if (request.status !== "DELIVERED") throw new InvalidStateError("odf.rateAfterDelivery");
-    if (request.rating !== null) throw new InvalidStateError("odf.alreadyRated");
+    if (request.status !== "DELIVERED") throw new InvalidStateError("odf.errors.rateAfterDelivery");
+    if (request.rating !== null) throw new InvalidStateError("odf.errors.alreadyRated");
     await tx.freightRequest.update({ where: { id }, data: { rating: input.rating, ratingComment: input.comment } });
     await recordAudit(tx, ctx, {
       action: "freight.rated",
@@ -498,7 +498,7 @@ export async function getDriverHome(ctx: ActorContext, now = new Date()) {
 
 export async function setDriverOnline(ctx: ActorContext, online: boolean, location?: LocationInput | null) {
   assertPermission(ctx, "odf.driver");
-  if (online && !(await assignedVehicle(ctx))) throw new InvalidStateError("odf.noVehicle");
+  if (online && !(await assignedVehicle(ctx))) throw new InvalidStateError("odf.errors.noVehicle");
   const now = new Date();
   const position = location ? { latitude: location.lat, longitude: location.lng, locatedAt: now } : {};
   await prisma.$transaction(async (tx) => {
@@ -524,7 +524,7 @@ export async function reportLocation(ctx: ActorContext, location: LocationInput)
     where: { userId: ctx.userId, organizationId: ctx.organizationId },
     data: { latitude: location.lat, longitude: location.lng, locatedAt: new Date() },
   });
-  if (count === 0) throw new InvalidStateError("odf.offline");
+  if (count === 0) throw new InvalidStateError("odf.errors.offline");
 }
 
 export async function respondToOffer(ctx: ActorContext, offerId: string, accept: boolean, now = new Date()) {
@@ -546,7 +546,7 @@ export async function respondToOffer(ctx: ActorContext, offerId: string, accept:
       where: { id: offerId, status: "PENDING" },
       data: { status: "DECLINED", respondedAt: now },
     });
-    if (count !== 1) throw new InvalidStateError("odf.offerNotPending");
+    if (count !== 1) throw new InvalidStateError("odf.errors.offerNotPending");
     await dispatchRequest(offer.request.id, now);
     return null;
   }
@@ -563,14 +563,14 @@ async function acceptOffer(ctx: ActorContext, offerId: string, shipperOrganizati
     if (!offerRow) throw new NotFoundError();
     const request = await loadOwnForUpdate(tx, offerRow.request_id);
     const offer = await tx.freightOffer.findUnique({ where: { id: offerId } });
-    if (!offer || offer.status !== "PENDING") throw new InvalidStateError("odf.offerNotPending");
-    if (offer.expiresAt <= now) throw new InvalidStateError("odf.offerExpired");
-    if (request.status !== "SEARCHING") throw new InvalidStateError("odf.offerNotPending");
+    if (!offer || offer.status !== "PENDING") throw new InvalidStateError("odf.errors.offerNotPending");
+    if (offer.expiresAt <= now) throw new InvalidStateError("odf.errors.offerExpired");
+    if (request.status !== "SEARCHING") throw new InvalidStateError("odf.errors.offerNotPending");
     const active = await tx.freightRequest.count({ where: { driverUserId: ctx.userId, status: { in: ACTIVE } } });
     const activeElsewhere = await prisma.freightRequest.count({
       where: { driverUserId: ctx.userId, status: { in: ACTIVE } },
     });
-    if (active + activeElsewhere > 0) throw new InvalidStateError("odf.driverBusy");
+    if (active + activeElsewhere > 0) throw new InvalidStateError("odf.errors.driverBusy");
 
     const [vehicle, provider] = await Promise.all([
       prisma.vehicle.findUnique({ where: { id: offer.vehicleId } }),
@@ -590,7 +590,7 @@ async function acceptOffer(ctx: ActorContext, offerId: string, shipperOrganizati
       }),
     ]);
     if (!vehicle || vehicle.status !== "ACTIVE" || vehicle.driverUserId !== ctx.userId) {
-      throw new InvalidStateError("odf.noVehicle");
+      throw new InvalidStateError("odf.errors.noVehicle");
     }
     const profile = provider?.providerProfile;
     if (!provider || provider.status !== "ACTIVE" || !profile || !isProviderActive(profile, now)) {
@@ -703,7 +703,7 @@ async function completeStep(
   source: "DRIVER_APP" | "SHIPPER",
 ) {
   const def = TRIP_STEPS[step];
-  if (request.status !== def.from || !request.shipmentId) throw new InvalidStateError("odf.invalidStep");
+  if (request.status !== def.from || !request.shipmentId) throw new InvalidStateError("odf.errors.invalidStep");
   const now = new Date();
   await tx.trackingEvent.create({
     data: {
@@ -753,8 +753,9 @@ export async function advanceTrip(
     const request = await loadOwnForUpdate(tx, requestId);
     if (request.driverUserId !== ctx.userId) throw new ForbiddenError();
     if (step === "deliver") {
-      if (request.status !== "IN_TRANSIT") throw new InvalidStateError("odf.invalidStep");
-      if (request.deliveryCodeAttempts >= MAX_DELIVERY_CODE_ATTEMPTS) throw new InvalidStateError("odf.codeLocked");
+      if (request.status !== "IN_TRANSIT") throw new InvalidStateError("odf.errors.invalidStep");
+      if (request.deliveryCodeAttempts >= MAX_DELIVERY_CODE_ATTEMPTS)
+        throw new InvalidStateError("odf.errors.codeLocked");
       if ((opts.deliveryCode ?? "").trim() !== request.deliveryCode) {
         await tx.freightRequest.update({
           where: { id: requestId },
@@ -766,7 +767,7 @@ export async function advanceTrip(
     await completeStep(tx, actor, request, step, opts.location ?? null, "DRIVER_APP");
     return "ok" as const;
   });
-  if (outcome === "badCode") throw new InvalidStateError("odf.badCode");
+  if (outcome === "badCode") throw new InvalidStateError("odf.errors.badCode");
   if (opts.location) await reportLocation(ctx, opts.location).catch(() => undefined);
 }
 
@@ -791,7 +792,7 @@ async function assertDriverMember(ctx: ActorContext, userId: string) {
   const m = await tenantDb(ctx.organizationId).membership.findFirst({
     where: { userId, status: "ACTIVE", role: { key: "DRIVER" } },
   });
-  if (!m) throw new InvalidStateError("odf.notADriver");
+  if (!m) throw new InvalidStateError("odf.errors.notADriver");
 }
 
 export async function saveVehicle(ctx: ActorContext, input: VehicleInput, id?: string) {
@@ -805,7 +806,7 @@ export async function saveVehicle(ctx: ActorContext, input: VehicleInput, id?: s
         where: { vehicleId: id, status: { in: ACTIVE } },
       });
       const busyElsewhere = await prisma.freightRequest.count({ where: { vehicleId: id, status: { in: ACTIVE } } });
-      if (busy + busyElsewhere > 0) throw new InvalidStateError("odf.vehicleOnTrip");
+      if (busy + busyElsewhere > 0) throw new InvalidStateError("odf.errors.vehicleOnTrip");
     }
     if (input.driverUserId) {
       // Um motorista conduz uma viatura de cada vez.
