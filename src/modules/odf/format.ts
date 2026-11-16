@@ -7,3 +7,8 @@ export function formatKm(value: number | string | { toString(): string }, locale
   const n = typeof value === "number" ? value : Number(value.toString());
   return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(n)} km`;
 }
+
+/** Rótulo de um ponto: chave de local conhecido (traduzida) ou texto livre. */
+export function placeLabel(t: (k: string) => string, label: string) {
+  return /^[A-Z_]+$/.test(label) ? t(`odf.places.${label}`) : label;
+}
