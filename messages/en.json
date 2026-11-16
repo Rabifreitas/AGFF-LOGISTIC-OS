@@ -885,6 +885,7 @@
     },
     "providerLabel": "Provider",
     "awardBid": "Award",
-    "auctionLabel": "Auction"
+    "auctionLabel": "Auction",
+    "bidsNotRevealed": "Bids were not revealed: the auction was cancelled before closing."
   }
 }

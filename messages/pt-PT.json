@@ -885,6 +885,7 @@
     },
     "providerLabel": "Prestador",
     "awardBid": "Adjudicar",
-    "auctionLabel": "Leilão"
+    "auctionLabel": "Leilão",
+    "bidsNotRevealed": "As propostas não foram reveladas: o leilão foi cancelado antes do fecho."
   }
 }

@@ -77,7 +77,11 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
       {bids.length === 0 ? (
         <Card>
           <p className="text-sm text-gray-600">
-            {a.status === "OPEN" ? t("mkt.bidsHiddenUntilClose") : t("mkt.noBids")}
+            {a.status === "OPEN"
+              ? t("mkt.bidsHiddenUntilClose")
+              : bidCount > 0
+                ? t("mkt.bidsNotRevealed")
+                : t("mkt.noBids")}
           </p>
         </Card>
       ) : (
