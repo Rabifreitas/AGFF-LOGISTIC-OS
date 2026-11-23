@@ -168,19 +168,15 @@ export function Td({ children, className }: { children?: ReactNode; className?: 
   return <td className={cn("px-4 py-2 align-top", className)}>{children}</td>;
 }
 
-export function Logo({ light = false }: { light?: boolean }) {
+export function Logo({ light = false, className }: { light?: boolean; className?: string }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-2 font-[family-name:var(--font-display)] tracking-tight",
-        light ? "text-white" : "text-navy-900",
-      )}
-    >
-      <Image src="/brand/mark.png" alt="" width={36} height={36} className="rounded-lg" priority />
-      <span className="flex items-baseline gap-1.5 text-lg leading-none font-extrabold italic">
-        MOBI <span className="text-gold-500">LOG</span>
-        <span className="border-gold-500 rounded-md border px-1 py-0.5 text-[10px] font-bold not-italic">OS</span>
-      </span>
-    </span>
+    <Image
+      src={light ? "/brand/logo-light.png" : "/brand/logo.png"}
+      alt="MOBI LOG OS"
+      width={738}
+      height={240}
+      className={cn("h-10 w-auto", className)}
+      priority
+    />
   );
 }

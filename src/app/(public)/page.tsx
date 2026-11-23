@@ -23,7 +23,7 @@ export default async function LandingPage() {
     <div className="bg-navy-950 min-h-screen text-white">
       <header className="from-navy-950 via-navy-900 to-navy-800 relative overflow-hidden bg-gradient-to-br">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-5">
-          <Logo light />
+          <Logo light className="h-12" />
           <nav className="flex items-center gap-5 text-sm text-gray-300">
             <a href="#solutions" className="hidden hover:text-white lg:inline">
               {t("navSolutions")}
