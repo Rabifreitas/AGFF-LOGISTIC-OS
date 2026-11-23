@@ -1,0 +1,55 @@
+import {
+  Bell,
+  Building2,
+  Coins,
+  FileText,
+  Gavel,
+  Handshake,
+  Home,
+  LayoutGrid,
+  MapPin,
+  Package,
+  Route,
+  ScrollText,
+  ShoppingCart,
+  Smartphone,
+  Store,
+  TriangleAlert,
+  Truck,
+  User,
+  Users,
+  Wallet,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+
+const ICONS: Record<string, LucideIcon> = {
+  home: Home,
+  dashboard: Home,
+  alerts: Bell,
+  notifications: Bell,
+  profile: User,
+  team: Users,
+  organization: Building2,
+  audit: ScrollText,
+  exchangeRates: Coins,
+  partners: Handshake,
+  auctions: Gavel,
+  marketplace: Store,
+  freight: Zap,
+  fleet: Truck,
+  driver: Smartphone,
+  shipments: Package,
+  operations: Package,
+  tracking: MapPin,
+  incidents: TriangleAlert,
+  documents: FileText,
+  transport: Route,
+  procurement: ShoppingCart,
+  finance: Wallet,
+};
+
+export function ModuleIcon({ name, className }: { name: string; className?: string }) {
+  const Icon = ICONS[name] ?? LayoutGrid;
+  return <Icon aria-hidden className={className ?? "h-6 w-6"} strokeWidth={1.75} />;
+}

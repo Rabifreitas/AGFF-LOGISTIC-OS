@@ -35,7 +35,9 @@ async function inviteLinkFor(email: string): Promise<string> {
 
 test("landing pública em pt-PT", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Toda a cadeia logística numa só plataforma" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "A Plataforma Inteligente para Mobilidade e Logística." }),
+  ).toBeVisible();
   await expect(page.getByRole("link", { name: "Registar empresa" }).first()).toBeVisible();
 });
 
@@ -91,7 +93,7 @@ test("empresa regista-se → admin aprova → convite → login do convidado", a
   // Botões de transição: cada clique envia a sua transição (regressão: Aprovar rejeitava)
   const carrier = `Trans E2E ${id}`;
   await page.goto("/app/partners");
-  await expect(page).toHaveTitle(/^Parceiros · AGFF Logistics OS$/);
+  await expect(page).toHaveTitle(/^Parceiros · MOBI LOG OS$/);
   await page.getByLabel("Nome", { exact: true }).fill(carrier);
   await page.getByRole("button", { name: "Novo parceiro" }).click();
   await page.getByRole("link", { name: carrier }).click();

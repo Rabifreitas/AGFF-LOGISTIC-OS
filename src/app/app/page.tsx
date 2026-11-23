@@ -9,6 +9,21 @@ import { MODULES } from "@/modules/registry";
 import { ACTIVE_SHIPMENT_STATUSES } from "@/modules/shp/shipment-status";
 import { tenantDb } from "@/modules/tenancy/tenant-db";
 import Link from "next/link";
+import { ModuleIcon } from "@/components/module-icon";
+
+const TILE_ORDER = [
+  "freight",
+  "driver",
+  "shipments",
+  "fleet",
+  "tracking",
+  "auctions",
+  "marketplace",
+  "documents",
+  "partners",
+  "incidents",
+];
+const tileRank = (key: string) => (TILE_ORDER.includes(key) ? TILE_ORDER.indexOf(key) : TILE_ORDER.length);
 
 export async function generateMetadata() {
   const t = await getTranslations("nav");
@@ -56,10 +71,31 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <PageHeader
-        title={t("dashboard.welcome", { name: ctx.name })}
-        description={t("dashboard.subtitle", { org: ctx.organizationName, role: t(`roles.${ctx.roleKey}`) })}
-      />
+      <div className="md:hidden">
+        <h1 className="text-navy-900 text-2xl font-bold">{t("dashboard.greeting", { name: ctx.name })}</h1>
+        <p className="mb-5 text-sm text-gray-600">{t("dashboard.greetingSub")}</p>
+        <div className="mb-6 grid grid-cols-3 gap-3">
+          {MODULES.filter((m) => m.status === "active" && m.href && (!m.permission || hasPermission(ctx, m.permission)))
+            .sort((a, b) => tileRank(a.key) - tileRank(b.key))
+            .slice(0, 9)
+            .map((m) => (
+              <Link
+                key={m.code}
+                href={m.href!}
+                className="bg-navy-900 hover:border-gold-500 flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 p-2 text-center text-xs font-medium text-white shadow-md"
+              >
+                <ModuleIcon name={m.key} className="text-gold-500 h-7 w-7" />
+                {t(`nav.${m.key}`)}
+              </Link>
+            ))}
+        </div>
+      </div>
+      <div className="hidden md:block">
+        <PageHeader
+          title={t("dashboard.welcome", { name: ctx.name })}
+          description={t("dashboard.subtitle", { org: ctx.organizationName, role: t(`roles.${ctx.roleKey}`) })}
+        />
+      </div>
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => {
           const card = (

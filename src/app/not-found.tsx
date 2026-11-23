@@ -5,7 +5,7 @@ export default function NotFound() {
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-50">
       <p className="text-navy-900 text-5xl font-semibold">404</p>
       <Link href="/" className="text-gold-600 hover:underline">
-        AGFF Logistics OS
+        MOBI LOG OS
       </Link>
     </div>
   );

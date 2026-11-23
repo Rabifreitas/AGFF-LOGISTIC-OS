@@ -1,6 +1,6 @@
 # Arquitectura
 
-AGFF Logistics OS é um **monólito modular** Next.js 15. Cada domínio vive em `src/modules/<módulo>` com serviços (regras de negócio, sem dependência da UI), schemas Zod e server actions finas. As páginas em `src/app` só chamam actions/serviços.
+MOBI LOG OS é um **monólito modular** Next.js 15. Cada domínio vive em `src/modules/<módulo>` com serviços (regras de negócio, sem dependência da UI), schemas Zod e server actions finas. As páginas em `src/app` só chamam actions/serviços.
 
 ## Módulos
 

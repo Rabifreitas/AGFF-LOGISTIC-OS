@@ -16,12 +16,12 @@ export function inviteEmail(p: {
   return pick(p.locale) === "en"
     ? {
         to: p.to,
-        subject: `Invitation to join ${p.organization} on AGFF Logistics OS`,
+        subject: `Invitation to join ${p.organization} on MOBI LOG OS`,
         text: `${p.inviter} invited you to join ${p.organization} as ${p.role}.\n\nAccept the invitation (valid for 7 days):\n${link}`,
       }
     : {
         to: p.to,
-        subject: `Convite para ${p.organization} no AGFF Logistics OS`,
+        subject: `Convite para ${p.organization} no MOBI LOG OS`,
         text: `${p.inviter} convidou-o para a empresa ${p.organization} com o perfil ${p.role}.\n\nAceite o convite (válido 7 dias):\n${link}`,
       };
 }
@@ -31,12 +31,12 @@ export function resetEmail(p: { to: string; name: string; token: string; locale?
   return pick(p.locale) === "en"
     ? {
         to: p.to,
-        subject: "Reset your AGFF Logistics OS password",
+        subject: "Reset your MOBI LOG OS password",
         text: `Hello ${p.name},\n\nReset your password (valid for 60 minutes):\n${link}\n\nIf you did not request this, ignore this email.`,
       }
     : {
         to: p.to,
-        subject: "Recuperação de password — AGFF Logistics OS",
+        subject: "Recuperação de password — MOBI LOG OS",
         text: `Olá ${p.name},\n\nDefina uma nova password (válido 60 minutos):\n${link}\n\nSe não pediu esta alteração, ignore este email.`,
       };
 }
@@ -56,11 +56,11 @@ export function organizationStatusEmail(p: {
     ? {
         to: p.to,
         subject: `${p.organization} was ${en[p.status] ?? p.status}`,
-        text: `Hello ${p.name},\n\nYour company ${p.organization} was ${en[p.status] ?? p.status} on AGFF Logistics OS.${reason}\n\n${appUrl()}/login`,
+        text: `Hello ${p.name},\n\nYour company ${p.organization} was ${en[p.status] ?? p.status} on MOBI LOG OS.${reason}\n\n${appUrl()}/login`,
       }
     : {
         to: p.to,
         subject: `Empresa ${p.organization} ${pt[p.status] ?? p.status}`,
-        text: `Olá ${p.name},\n\nA sua empresa ${p.organization} foi ${pt[p.status] ?? p.status} no AGFF Logistics OS.${reason}\n\n${appUrl()}/login`,
+        text: `Olá ${p.name},\n\nA sua empresa ${p.organization} foi ${pt[p.status] ?? p.status} no MOBI LOG OS.${reason}\n\n${appUrl()}/login`,
       };
 }

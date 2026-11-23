@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
@@ -171,15 +172,14 @@ export function Logo({ light = false }: { light?: boolean }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 font-semibold tracking-tight",
+        "inline-flex items-center gap-2 font-[family-name:var(--font-display)] tracking-tight",
         light ? "text-white" : "text-navy-900",
       )}
     >
-      <span className="bg-gold-500 text-navy-950 inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-bold">
-        A
-      </span>
-      <span>
-        AGFF <span className="text-gold-500">Logistics OS</span>
+      <Image src="/brand/mark.png" alt="" width={36} height={36} className="rounded-lg" priority />
+      <span className="flex items-baseline gap-1.5 text-lg leading-none font-extrabold italic">
+        MOBI <span className="text-gold-500">LOG</span>
+        <span className="border-gold-500 rounded-md border px-1 py-0.5 text-[10px] font-bold not-italic">OS</span>
       </span>
     </span>
   );
