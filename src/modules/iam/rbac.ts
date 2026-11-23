@@ -53,7 +53,10 @@ export function roleHasPermission(roleKey: RoleKey, permission: Permission): boo
  */
 export function assignableRoleKeys(ctx: PermissionHolder & { isPlatform: boolean }): RoleKey[] {
   const candidates = ctx.isPlatform ? PLATFORM_ROLE_KEYS : ORGANIZATION_ROLE_KEYS;
-  return candidates.filter((key) => ROLE_DEFINITIONS[key].permissions.every((p) => ctx.permissions.has(p)));
+  // Quem gere a frota pode convidar motoristas sem ser ele próprio motorista.
+  const holds = (p: string) =>
+    ctx.permissions.has(p as never) || (p === "odf.driver" && ctx.permissions.has("odf.fleet.manage" as never));
+  return candidates.filter((key) => ROLE_DEFINITIONS[key].permissions.every(holds));
 }
 
 export function assertCanAssignRole(ctx: PermissionHolder & { isPlatform: boolean }, roleKey: RoleKey): void {
