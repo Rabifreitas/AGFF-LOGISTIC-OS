@@ -1095,7 +1095,8 @@
       "badCode": "Wrong delivery code.",
       "codeLocked": "Too many attempts. The shipper must confirm receipt.",
       "notADriver": "That user doesn't have the Driver role in this company.",
-      "vehicleOnTrip": "The vehicle is on an active trip."
+      "vehicleOnTrip": "The vehicle is on an active trip.",
+      "shipmentOnTrip": "This shipment is on an active on-demand trip: it advances through the driver app or by cancelling the freight request."
     }
   }
 }

@@ -1095,7 +1095,8 @@
       "badCode": "Código de entrega errado.",
       "codeLocked": "Demasiadas tentativas. O expedidor deve confirmar a recepção.",
       "notADriver": "Esse utilizador não tem o papel Motorista nesta empresa.",
-      "vehicleOnTrip": "A viatura está numa corrida activa."
+      "vehicleOnTrip": "A viatura está numa corrida activa.",
+      "shipmentOnTrip": "Esta expedição está numa corrida de frete imediato em curso: avança pela app do motorista ou cancelando o frete."
     }
   }
 }
