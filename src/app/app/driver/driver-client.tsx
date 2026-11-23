@@ -89,7 +89,19 @@ export function LocationReporter() {
       () => undefined,
       { enableHighAccuracy: true, maximumAge: 15_000 },
     );
-    return () => navigator.geolocation.clearWatch(id);
+    // Parado, o watch deixa de emitir: renova a presença a cada minuto para não sair do despacho.
+    const beat = setInterval(() => {
+      if (Date.now() - last.current < 50_000) return;
+      void getPosition().then((pos) => {
+        if (!pos) return;
+        last.current = Date.now();
+        void reportLocationAction(pos.coords.latitude, pos.coords.longitude);
+      });
+    }, 60_000);
+    return () => {
+      navigator.geolocation.clearWatch(id);
+      clearInterval(beat);
+    };
   }, []);
   return null;
 }
