@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui";
 import { useSecondsLeft } from "@/components/odf/client";
 import type { ActionState } from "@/modules/iam/action-result";
@@ -17,13 +17,22 @@ function useAction(action: Action) {
   return { formAction, pending, error };
 }
 
-function getPosition(): Promise<GeolocationPosition | null> {
+const POSITION_FRESH_MS = 2 * 60_000;
+let lastKnown: { coords: { latitude: number; longitude: number }; at: number } | null = null;
+
+/** Última posição conhecida (do watch) ou uma leitura rápida; nunca bloqueia o motorista mais de 5 s. */
+function getPosition(): Promise<{ coords: { latitude: number; longitude: number } } | null> {
+  if (lastKnown && Date.now() - lastKnown.at < POSITION_FRESH_MS) return Promise.resolve(lastKnown);
   return new Promise((resolve) => {
     if (!navigator.geolocation) return resolve(null);
-    navigator.geolocation.getCurrentPosition(resolve, () => resolve(null), {
-      enableHighAccuracy: true,
-      timeout: 10_000,
-    });
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        lastKnown = { coords: { latitude: pos.coords.latitude, longitude: pos.coords.longitude }, at: Date.now() };
+        resolve(lastKnown);
+      },
+      () => resolve(null),
+      { maximumAge: 60_000, timeout: 5_000 },
+    );
   });
 }
 
@@ -42,7 +51,7 @@ export function OnlineToggle({ online, canGoOnline }: { online: boolean; canGoOn
       fd.set("lng", String(pos.coords.longitude));
     }
     setGpsError(false);
-    formAction(fd);
+    startTransition(() => formAction(fd));
   };
   return (
     <form action={submit}>
@@ -72,6 +81,7 @@ export function LocationReporter() {
     if (!navigator.geolocation) return;
     const id = navigator.geolocation.watchPosition(
       (pos) => {
+        lastKnown = { coords: { latitude: pos.coords.latitude, longitude: pos.coords.longitude }, at: Date.now() };
         if (Date.now() - last.current < 20_000) return;
         last.current = Date.now();
         void reportLocationAction(pos.coords.latitude, pos.coords.longitude);
@@ -201,7 +211,7 @@ export function TripStepButton({ id, step }: { id: string; step: "arrive" | "pic
       fd.set("lat", String(pos.coords.latitude));
       fd.set("lng", String(pos.coords.longitude));
     }
-    formAction(fd);
+    startTransition(() => formAction(fd));
   };
   return (
     <form action={submit} className="space-y-3">
