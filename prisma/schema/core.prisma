@@ -98,12 +98,19 @@ model Organization {
   providerProfile ProviderProfile?
   auctions        Auction[]
   auctionBids     AuctionBid[]
-  shipmentItems        ShipmentItem[]
-  quotations           Quotation[]
-  documents            Document[]
-  documentVersions     DocumentVersion[]
-  trackingEvents       TrackingEvent[]
-  incidents            Incident[]
+
+  // Fase 2D
+  vehicles         Vehicle[]
+  driverPresence   DriverPresence[]
+  freightRequests  FreightRequest[]  @relation("FreightShipper")
+  freightJobs      FreightRequest[]  @relation("FreightProvider")
+  freightOffers    FreightOffer[]
+  shipmentItems    ShipmentItem[]
+  quotations       Quotation[]
+  documents        Document[]
+  documentVersions DocumentVersion[]
+  trackingEvents   TrackingEvent[]
+  incidents        Incident[]
 
   @@index([status])
   @@map("organizations")
@@ -220,6 +227,10 @@ model User {
   accessLogs          AccessLog[]
   auditLogs           AuditLog[]
   notifications       Notification[]
+  vehicles            Vehicle[]            @relation("VehicleDriver")
+  driverPresence      DriverPresence?
+  freightTrips        FreightRequest[]     @relation("FreightDriver")
+  freightOffers       FreightOffer[]       @relation("FreightOfferDriver")
 
   @@map("users")
 }

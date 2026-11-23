@@ -1,0 +1,167 @@
+// Fase 2D — Frete Imediato (on-demand): preço tabelado, motorista mais próximo, app do motorista.
+
+enum VehicleCategory {
+  PICKUP_1_5T
+  LIGHT_TRUCK_5T
+  CONTAINER_TRUCK
+  TIPPER_BULK
+  REEFER_10T
+}
+
+enum VehicleStatus {
+  ACTIVE
+  MAINTENANCE
+  INACTIVE
+}
+
+enum FreightRequestStatus {
+  SEARCHING
+  ACCEPTED
+  AT_PICKUP
+  IN_TRANSIT
+  DELIVERED
+  NO_DRIVERS
+  CANCELLED
+}
+
+enum FreightOfferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+/// Viatura da frota de um prestador; só viaturas ACTIVE com motorista atribuído recebem pedidos.
+model Vehicle {
+  id             String           @id @default(cuid())
+  organizationId String           @map("organization_id")
+  plate          String
+  category       VehicleCategory
+  capacityKg     Decimal?         @map("capacity_kg") @db.Decimal(12, 2)
+  description    String?
+  status         VehicleStatus    @default(ACTIVE)
+  driverUserId   String?          @map("driver_user_id")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  driver         User?            @relation("VehicleDriver", fields: [driverUserId], references: [id], onDelete: SetNull)
+  offers         FreightOffer[]
+  requests       FreightRequest[]
+
+  @@unique([organizationId, plate])
+  @@index([organizationId])
+  @@map("vehicles")
+}
+
+/// Disponibilidade e última posição GPS reportada pelo motorista (uma linha por motorista).
+model DriverPresence {
+  userId         String       @id @map("user_id")
+  organizationId String       @map("organization_id")
+  online         Boolean      @default(false)
+  latitude       Decimal?     @db.Decimal(9, 6)
+  longitude      Decimal?     @db.Decimal(9, 6)
+  locatedAt      DateTime?    @map("located_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([online])
+  @@map("driver_presence")
+}
+
+/// Tabela de preços da plataforma por categoria de viatura (AOA).
+model FreightTariff {
+  id               String          @id @default(cuid())
+  category         VehicleCategory @unique
+  currency         String          @default("AOA") @db.Char(3)
+  baseFee          Decimal         @map("base_fee") @db.Decimal(20, 2)
+  perKm            Decimal         @map("per_km") @db.Decimal(20, 2)
+  minimumFee       Decimal         @map("minimum_fee") @db.Decimal(20, 2)
+  stevedoreFee     Decimal         @default(0) @map("stevedore_fee") @db.Decimal(20, 2)
+  waybillFee       Decimal         @default(0) @map("waybill_fee") @db.Decimal(20, 2)
+  insuranceRatePct Decimal         @default(0) @map("insurance_rate_pct") @db.Decimal(6, 3)
+  active           Boolean         @default(true)
+  updatedById      String?         @map("updated_by_id")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  @@map("freight_tariffs")
+}
+
+/// Pedido de frete imediato do expedidor (organizationId). O prestador só vê moradas/contacto depois de aceitar.
+model FreightRequest {
+  id                     String               @id @default(cuid())
+  organizationId         String               @map("organization_id")
+  reference              String
+  status                 FreightRequestStatus @default(SEARCHING)
+  category               VehicleCategory
+  pickupLabel            String               @map("pickup_label")
+  pickupAddress          String?              @map("pickup_address")
+  pickupLat              Decimal              @map("pickup_lat") @db.Decimal(9, 6)
+  pickupLng              Decimal              @map("pickup_lng") @db.Decimal(9, 6)
+  dropoffLabel           String               @map("dropoff_label")
+  dropoffAddress         String?              @map("dropoff_address")
+  dropoffLat             Decimal              @map("dropoff_lat") @db.Decimal(9, 6)
+  dropoffLng             Decimal              @map("dropoff_lng") @db.Decimal(9, 6)
+  distanceKm             Decimal              @map("distance_km") @db.Decimal(10, 2)
+  cargoDescription       String               @map("cargo_description")
+  weightKg               Decimal?             @map("weight_kg") @db.Decimal(12, 2)
+  containerType          String?              @map("container_type")
+  stevedores             Int                  @default(0)
+  insurance              Boolean              @default(false)
+  waybill                Boolean              @default(false)
+  declaredValue          Decimal?             @map("declared_value") @db.Decimal(20, 2)
+  currency               String               @default("AOA") @db.Char(3)
+  price                  Decimal              @db.Decimal(20, 2)
+  priceBreakdown         Json                 @map("price_breakdown")
+  scheduledFor           DateTime?            @map("scheduled_for")
+  searchStartedAt        DateTime             @default(now()) @map("search_started_at")
+  deliveryCode           String               @map("delivery_code")
+  deliveryCodeAttempts   Int                  @default(0) @map("delivery_code_attempts")
+  providerOrganizationId String?              @map("provider_organization_id")
+  driverUserId           String?              @map("driver_user_id")
+  vehicleId              String?              @map("vehicle_id")
+  shipmentId             String?              @unique @map("shipment_id")
+  rating                 Int?
+  ratingComment          String?              @map("rating_comment")
+  acceptedAt             DateTime?            @map("accepted_at")
+  deliveredAt            DateTime?            @map("delivered_at")
+  createdById            String?              @map("created_by_id")
+  createdAt              DateTime             @default(now()) @map("created_at")
+  updatedAt              DateTime             @updatedAt @map("updated_at")
+  organization           Organization         @relation("FreightShipper", fields: [organizationId], references: [id], onDelete: Cascade)
+  provider               Organization?        @relation("FreightProvider", fields: [providerOrganizationId], references: [id], onDelete: SetNull)
+  driver                 User?                @relation("FreightDriver", fields: [driverUserId], references: [id], onDelete: SetNull)
+  vehicle                Vehicle?             @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  shipment               Shipment?            @relation(fields: [shipmentId], references: [id], onDelete: SetNull)
+  offers                 FreightOffer[]
+
+  @@unique([organizationId, reference])
+  @@index([organizationId, status])
+  @@index([providerOrganizationId, status])
+  @@index([status, searchStartedAt])
+  @@map("freight_requests")
+}
+
+/// Oferta de um pedido a um motorista concreto; uma de cada vez, com prazo curto para aceitar.
+model FreightOffer {
+  id                 String             @id @default(cuid())
+  requestId          String             @map("request_id")
+  organizationId     String             @map("organization_id")
+  driverUserId       String             @map("driver_user_id")
+  vehicleId          String             @map("vehicle_id")
+  distanceToPickupKm Decimal            @map("distance_to_pickup_km") @db.Decimal(10, 2)
+  status             FreightOfferStatus @default(PENDING)
+  expiresAt          DateTime           @map("expires_at")
+  respondedAt        DateTime?          @map("responded_at")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  request            FreightRequest     @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  organization       Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  driver             User               @relation("FreightOfferDriver", fields: [driverUserId], references: [id], onDelete: Cascade)
+  vehicle            Vehicle            @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, driverUserId])
+  @@index([driverUserId, status])
+  @@index([status, expiresAt])
+  @@map("freight_offers")
+}

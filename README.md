@@ -67,4 +67,5 @@ Todas as mutações relevantes ficam no audit log (`/app/audit`, `/admin/audit`)
 - [docs/data-model.md](docs/data-model.md) — modelo de dados (ERD)
 - [docs/security.md](docs/security.md) — políticas de segurança e MFA (pendente)
 - [docs/integrations.md](docs/integrations.md) — integrações externas pendentes
+- [docs/demo.md](docs/demo.md) — guião da demonstração para investidores (dados de demo)
 - [roadmap.md](roadmap.md) — as 5 fases e o que está fora de âmbito

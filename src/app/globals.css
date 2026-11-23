@@ -14,3 +14,29 @@
 body {
   @apply bg-gray-50 text-gray-900 antialiased;
 }
+
+/* Frete imediato (direcção Stitch "Industrial Technocratic") */
+.odf {
+  --odf-ink: #0b192c;
+  --odf-gold: #c59b27;
+  --odf-gold-soft: #fece57;
+  --odf-ok: #059669;
+  font-family: "Plus Jakarta Sans", Inter, var(--font-sans);
+}
+.odf .odf-data {
+  font-family: Inter, var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+@keyframes odf-pulse {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+.odf-pulse {
+  animation: odf-pulse 2s ease-out infinite;
+}

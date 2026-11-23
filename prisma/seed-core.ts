@@ -57,8 +57,16 @@ export async function ensurePlatform(prisma: PrismaClient, admin: { email: strin
     },
   });
   const email = admin.email.trim().toLowerCase();
+  const existing = await prisma.user.findUnique({
+    where: { email },
+    include: { memberships: { where: { organizationId: platform.id }, select: { id: true } } },
+  });
+  // Nunca promover a Super Administrator uma conta criada por outra via (ex.: registo público).
+  if (existing && existing.memberships.length === 0) {
+    throw new Error(`A conta ${email} já existe fora da plataforma; não será promovida a Super Administrator.`);
+  }
   const user =
-    (await prisma.user.findUnique({ where: { email } })) ??
+    existing ??
     (await prisma.user.create({
       data: {
         email,

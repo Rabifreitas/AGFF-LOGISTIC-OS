@@ -5,6 +5,7 @@ import { recordAudit } from "@/modules/audit/audit.service";
 import { assertPermission, hasPermission, type ActorContext } from "@/modules/iam/rbac";
 import { applyShipmentTransition } from "@/modules/shp/services/shipment.service";
 import { tenantDb } from "@/modules/tenancy/tenant-db";
+import { ensureMarketplacePartner } from "./marketplace-partner";
 import {
   bidsVisibleToOwner,
   buildAuctionSnapshot,
@@ -380,37 +381,13 @@ export async function awardAuction(ctx: ActorContext, auctionId: string, bidId: 
       throw new InvalidStateError("mkt.bid.providerNotVerified");
     }
 
-    const existing = await tx.partner.findFirst({ where: { linkedOrganizationId: bidder.id } });
-    if (existing && (existing.status === "SUSPENDED" || existing.status === "REJECTED")) {
-      throw new InvalidStateError("mkt.award.partnerBlocked");
-    }
-    const partnerData = { modes: profile.modes, services: profile.services, status: "VERIFIED" as const };
-    const partner = existing
-      ? await tx.partner.update({ where: { id: existing.id }, data: partnerData })
-      : await tx.partner.create({
-          data: {
-            organizationId: ctx.organizationId,
-            linkedOrganizationId: bidder.id,
-            type: bidder.type === "FREIGHT_FORWARDER" ? "FREIGHT_FORWARDER" : "TRANSPORTER",
-            name: bidder.name,
-            nif: bidder.nif,
-            country: bidder.country,
-            email: bidder.email,
-            phone: bidder.phone,
-            ...partnerData,
-          },
-        });
-    await tx.partnerVerification.create({
-      data: {
-        organizationId: ctx.organizationId,
-        partnerId: partner.id,
-        kind: "MARKETPLACE",
-        status: "APPROVED",
-        reviewedById: ctx.userId,
-        reviewedAt: now,
-        expiresAt: profile.validUntil,
-        notes: auction.reference,
-      },
+    const partner = await ensureMarketplacePartner(tx, {
+      shipperOrganizationId: ctx.organizationId,
+      provider: bidder,
+      profile,
+      reviewedById: ctx.userId,
+      note: auction.reference,
+      now,
     });
 
     const shipment = await tx.shipment.findUnique({ where: { id: auction.shipmentId } });

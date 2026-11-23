@@ -1,7 +1,7 @@
 import { InvalidStateError, NotFoundError } from "@/lib/errors";
 import { recordAudit } from "@/modules/audit/audit.service";
 import { assertPermission, type ActorContext } from "@/modules/iam/rbac";
-import { applyShipmentTransition } from "@/modules/shp/services/shipment.service";
+import { applyShipmentTransition, assertNotOnFreightTrip } from "@/modules/shp/services/shipment.service";
 import { canTransitionShipment } from "@/modules/shp/shipment-status";
 import { tenantDb } from "@/modules/tenancy/tenant-db";
 import type { TrackingEventInput } from "../schemas";
@@ -38,6 +38,7 @@ export async function recordTrackingEvent(ctx: ActorContext, shipmentId: string,
       entityId: event.id,
       after: event,
     });
+    if (plan.transition) await assertNotOnFreightTrip(tx, shipmentId);
     const status = plan.transition
       ? await applyShipmentTransition(tx, ctx, shipmentId, plan.transition)
       : shipment.status;

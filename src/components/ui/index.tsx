@@ -120,12 +120,26 @@ export function statusTone(status: string): keyof typeof badgeTones {
       "OPEN",
       "INVESTIGATING",
       "SUBMITTED",
+      "SEARCHING",
     ].includes(status)
   )
     return "yellow";
-  if (["BOOKED", "IN_TRANSIT", "AT_CUSTOMS", "MEDIUM", "CLOSED"].includes(status)) return "navy";
+  if (["BOOKED", "IN_TRANSIT", "AT_CUSTOMS", "AT_PICKUP", "MEDIUM", "CLOSED"].includes(status)) return "navy";
   if (["HIGH"].includes(status)) return "gold";
-  if (["REJECTED", "SUSPENDED", "LOCKED", "DISABLED", "REVOKED", "EXPIRED", "CANCELLED", "CRITICAL"].includes(status))
+  if (
+    [
+      "REJECTED",
+      "SUSPENDED",
+      "LOCKED",
+      "DISABLED",
+      "REVOKED",
+      "EXPIRED",
+      "CANCELLED",
+      "CRITICAL",
+      "NO_DRIVERS",
+      "DECLINED",
+    ].includes(status)
+  )
     return "red";
   return "gray";
 }

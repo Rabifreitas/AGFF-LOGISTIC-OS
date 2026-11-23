@@ -16,6 +16,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: "/admin/providers", label: t("providers"), perm: "platform.providers.verify" as const },
     { href: "/admin/audit", label: t("audit"), perm: "platform.audit.read" as const },
     { href: "/admin/exchange-rates", label: t("exchangeRates"), perm: "platform.exchange_rates.manage" as const },
+    { href: "/admin/freight-tariffs", label: t("freightTariffs"), perm: "platform.freight_tariffs.manage" as const },
   ].filter((i) => hasPermission(ctx, i.perm));
   return (
     <AppShell ctx={ctx} nav={[...nav, { href: "/app", label: t("backToApp") }]} title={t("admin")}>

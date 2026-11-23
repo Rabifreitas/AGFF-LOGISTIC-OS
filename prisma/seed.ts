@@ -5,8 +5,11 @@ import { ensurePlatform, syncRbac } from "./seed-core";
 // Sem dados fictícios.
 const prisma = new PrismaClient();
 
+import { ensureDefaultTariffs } from "../src/modules/odf/default-tariffs";
+
 async function main() {
   await syncRbac(prisma);
+  await ensureDefaultTariffs(prisma);
   const email = process.env.SEED_SUPERADMIN_EMAIL;
   const password = process.env.SEED_SUPERADMIN_PASSWORD;
   if (!email || !password) {

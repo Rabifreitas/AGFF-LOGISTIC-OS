@@ -58,7 +58,7 @@ export default async function LandingPage() {
             {phases.map((n) => (
               <li
                 key={n}
-                className={`rounded-lg border p-4 ${n === 1 ? "border-gold-500 bg-white" : "border-gray-200 bg-white/60"}`}
+                className={`rounded-lg border p-4 ${n <= 2 ? "border-gold-500 bg-white" : "border-gray-200 bg-white/60"}`}
               >
                 <p className="text-gold-600 text-xs font-semibold uppercase">Fase {n}</p>
                 <p className="text-navy-900 mt-1 text-sm">{t(`phase${n}`)}</p>

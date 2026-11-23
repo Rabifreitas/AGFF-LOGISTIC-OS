@@ -2,6 +2,7 @@ import type { Prisma, ShipmentStatus } from "@prisma/client";
 import { InvalidStateError, NotFoundError } from "@/lib/errors";
 import { recordAudit } from "@/modules/audit/audit.service";
 import { assertPermission, type ActorContext } from "@/modules/iam/rbac";
+import { ACTIVE_TRIP_STATUSES } from "@/modules/odf/rules";
 import {
   canBeBookedAsCarrier,
   hasValidVerification,
@@ -47,7 +48,7 @@ function assertDates(input: Pick<ShipmentInput, "plannedPickupAt" | "plannedDeli
   }
 }
 
-async function nextReference(tx: Tx, organizationId: string, now = new Date()) {
+export async function nextReference(tx: Tx, organizationId: string, now = new Date()) {
   const year = now.getUTCFullYear();
   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`shipment-ref:${organizationId}:${year}`}))`;
   const last = await tx.shipment.findFirst({
@@ -160,6 +161,14 @@ export async function updateShipment(ctx: ActorContext, id: string, input: Shipm
   });
 }
 
+/** Uma expedição de frete imediato em curso só avança pela app do motorista (ou cancelando o frete). */
+export async function assertNotOnFreightTrip(tx: Tx, shipmentId: string) {
+  const active = await tx.freightRequest.count({
+    where: { shipmentId, status: { in: [...ACTIVE_TRIP_STATUSES] } },
+  });
+  if (active > 0) throw new InvalidStateError("odf.errors.shipmentOnTrip");
+}
+
 /** Aplica uma transição dentro de uma transacção existente (usado também pelo tracking). */
 export async function applyShipmentTransition(tx: Tx, ctx: ActorContext, id: string, transition: ShipmentTransition) {
   await lockShipment(tx, id);
@@ -214,7 +223,10 @@ export async function applyShipmentTransition(tx: Tx, ctx: ActorContext, id: str
 
 export async function transitionShipment(ctx: ActorContext, id: string, transition: ShipmentTransition) {
   assertPermission(ctx, "tms.shipments.manage");
-  return tenantDb(ctx.organizationId).$transaction((tx) => applyShipmentTransition(tx, ctx, id, transition));
+  return tenantDb(ctx.organizationId).$transaction(async (tx) => {
+    await assertNotOnFreightTrip(tx, id);
+    return applyShipmentTransition(tx, ctx, id, transition);
+  });
 }
 
 export async function addStop(ctx: ActorContext, shipmentId: string, input: StopInput) {

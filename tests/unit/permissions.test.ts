@@ -90,6 +90,10 @@ describe("anti-escalada de privilégios", () => {
     expect(() => assertCanAssignRole(admin, "SUPER_ADMIN")).toThrow(ForbiddenError);
   });
 
+  it("Transporter Administrator pode convidar motoristas", () => {
+    expect(assignableRoleKeys(holder("TRANSPORTER_ADMIN"))).toContain("DRIVER");
+  });
+
   it("Logistics Manager não pode atribuir Company Administrator", () => {
     expect(() => assertCanAssignRole(holder("LOGISTICS_MANAGER"), "COMPANY_ADMIN")).toThrow(ForbiddenError);
   });

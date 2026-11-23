@@ -30,6 +30,9 @@ export const TENANT_SCOPED_MODELS = new Set<string>([
   "ProviderProfile",
   "Auction",
   "AuctionBid",
+  // Fase 2D (FreightOffer/DriverPresence são lidos pelo motorista via cliente base com filtro explícito)
+  "Vehicle",
+  "FreightRequest",
 ]);
 
 const WHERE_OPERATIONS = new Set([
