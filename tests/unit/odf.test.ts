@@ -116,3 +116,16 @@ describe("validação do pedido", () => {
     ).toBe(false);
   });
 });
+
+describe("review fixes", () => {
+  it("lê o agendamento datetime-local como hora de Luanda", () => {
+    const r = freightRequestSchema.parse({
+      category: "PICKUP_1_5T",
+      pickupPlace: "LUANDA_PORT",
+      dropoffPlace: "VIANA",
+      cargoDescription: "Caixas",
+      scheduledFor: "2026-12-01T10:30",
+    });
+    expect(r.scheduledFor?.toISOString()).toBe("2026-12-01T09:30:00.000Z");
+  });
+});

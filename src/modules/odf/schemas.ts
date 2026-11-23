@@ -76,7 +76,8 @@ export const freightRequestSchema = z
     scheduledFor: z
       .string()
       .optional()
-      .transform((v) => (v ? new Date(v) : null))
+      // datetime-local chega sem fuso: é hora de Luanda (UTC+1, sem hora de Verão).
+      .transform((v) => (v ? new Date(/(Z|[+-]\d{2}:\d{2})$/.test(v) ? v : `${v}+01:00`) : null))
       .refine((d) => d === null || !Number.isNaN(d.getTime()), "validation.invalidDate"),
   })
   .transform((d, ctx) => {
