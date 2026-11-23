@@ -16,6 +16,7 @@ import {
   MAX_DELIVERY_CODE_ATTEMPTS,
   MAX_PICKUP_RADIUS_KM,
   OFFER_TTL_MS,
+  PLACE_KEYS,
   PRESENCE_STALE_MS,
   rankCandidates,
   SEARCH_WINDOW_MS,
@@ -23,6 +24,7 @@ import {
   TRIP_STEPS,
   trustScore,
   type Candidate,
+  type PlaceKey,
   type TripStep,
 } from "../rules";
 import type { FreightRequestInput, LocationInput, RatingInput, TariffInput, VehicleInput } from "../schemas";
@@ -193,8 +195,8 @@ export async function getOwnRequest(ctx: ActorContext, id: string) {
         })
       : Promise.resolve([]),
     request.driverUserId && ACTIVE.includes(request.status)
-      ? prisma.driverPresence.findUnique({
-          where: { userId: request.driverUserId },
+      ? prisma.driverPresence.findFirst({
+          where: { userId: request.driverUserId, organizationId: request.providerOrganizationId ?? undefined },
           select: { latitude: true, longitude: true, locatedAt: true },
         })
       : Promise.resolve(null),
@@ -298,7 +300,14 @@ type CandidateRow = Candidate & { category: VehicleCategory };
  */
 async function eligibleCandidates(
   db: BaseTx | typeof prisma,
-  opts: { excludeOrganizationId: string; category?: VehicleCategory; requestId?: string; now: Date },
+  opts: {
+    excludeOrganizationId: string;
+    category?: VehicleCategory;
+    requestId?: string;
+    searchStartedAt?: Date;
+    weightKg?: number | null;
+    now: Date;
+  },
 ) {
   const stale = new Date(opts.now.getTime() - PRESENCE_STALE_MS);
   const rows = await db.$queryRaw<
@@ -325,9 +334,10 @@ async function eligibleCandidates(
     WHERE p."online" AND p."latitude" IS NOT NULL AND p."located_at" > ${stale}
       AND o."id" <> ${opts.excludeOrganizationId}
       AND (${opts.category ?? null}::text IS NULL OR v."category"::text = ${opts.category ?? null}::text)
+      AND (${opts.weightKg ?? null}::numeric IS NULL OR v."capacity_kg" IS NULL OR v."capacity_kg" >= ${opts.weightKg ?? null}::numeric)
       AND NOT EXISTS (
         SELECT 1 FROM "freight_offers" fo WHERE fo."driver_user_id" = p."user_id"
-          AND (fo."request_id" = ${opts.requestId ?? ""} OR (fo."status" = 'PENDING'::"FreightOfferStatus" AND fo."expires_at" > ${opts.now})))
+          AND ((fo."request_id" = ${opts.requestId ?? ""} AND fo."created_at" >= ${opts.searchStartedAt ?? new Date(0)}) OR (fo."status" = 'PENDING'::"FreightOfferStatus" AND fo."expires_at" > ${opts.now})))
       AND NOT EXISTS (
         SELECT 1 FROM "freight_requests" fr WHERE fr."driver_user_id" = p."user_id"
           AND fr."status" IN ('ACCEPTED', 'AT_PICKUP', 'IN_TRANSIT'))`;
@@ -371,6 +381,8 @@ export async function dispatchRequest(requestId: string, now = new Date()) {
         excludeOrganizationId: request.organizationId,
         category: request.category,
         requestId,
+        searchStartedAt: request.searchStartedAt,
+        weightKg: request.weightKg === null ? null : Number(request.weightKg),
         now,
       }),
     );
@@ -427,6 +439,10 @@ const OFFER_REQUEST_SELECT = {
   category: true,
   pickupLabel: true,
   dropoffLabel: true,
+  pickupLat: true,
+  pickupLng: true,
+  dropoffLat: true,
+  dropoffLng: true,
   distanceKm: true,
   cargoDescription: true,
   weightKg: true,
@@ -436,6 +452,12 @@ const OFFER_REQUEST_SELECT = {
   priceBreakdown: true,
   scheduledFor: true,
 } satisfies Prisma.FreightRequestSelect;
+
+/** Antes de aceitar, o motorista vê só o local conhecido ou uma zona aproximada (~1 km), nunca a morada. */
+function publicLabel(label: string, lat: Prisma.Decimal, lng: Prisma.Decimal) {
+  if (PLACE_KEYS.includes(label as PlaceKey)) return label;
+  return `≈ ${Number(lat).toFixed(2)}, ${Number(lng).toFixed(2)}`;
+}
 
 export async function getDriverHome(ctx: ActorContext, now = new Date()) {
   assertPermission(ctx, "odf.driver");
@@ -489,7 +511,17 @@ export async function getDriverHome(ctx: ActorContext, now = new Date()) {
   return {
     vehicle,
     presence,
-    offer: offer ? { ...offer, netAmount: earn(offer.request.priceBreakdown) } : null,
+    offer: offer
+      ? {
+          ...offer,
+          request: {
+            ...offer.request,
+            pickupLabel: publicLabel(offer.request.pickupLabel, offer.request.pickupLat, offer.request.pickupLng),
+            dropoffLabel: publicLabel(offer.request.dropoffLabel, offer.request.dropoffLat, offer.request.dropoffLng),
+          },
+          netAmount: earn(offer.request.priceBreakdown),
+        }
+      : null,
     trip: trip ? { ...trip, netAmount: earn(trip.priceBreakdown) } : null,
     done: done.map((d) => ({ ...d, netAmount: earn(d.priceBreakdown) })),
     earningsTotal: done.reduce((s, d) => s + earn(d.priceBreakdown), 0),
@@ -807,6 +839,12 @@ export async function saveVehicle(ctx: ActorContext, input: VehicleInput, id?: s
       });
       const busyElsewhere = await prisma.freightRequest.count({ where: { vehicleId: id, status: { in: ACTIVE } } });
       if (busy + busyElsewhere > 0) throw new InvalidStateError("odf.errors.vehicleOnTrip");
+    }
+    if (input.driverUserId && input.driverUserId !== before?.driverUserId) {
+      const onTrip = await prisma.freightRequest.count({
+        where: { driverUserId: input.driverUserId, status: { in: ACTIVE } },
+      });
+      if (onTrip > 0) throw new InvalidStateError("odf.errors.vehicleOnTrip");
     }
     if (input.driverUserId) {
       // Um motorista conduz uma viatura de cada vez.
