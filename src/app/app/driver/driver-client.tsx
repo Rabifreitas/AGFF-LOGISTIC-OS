@@ -238,7 +238,7 @@ export function TripStepButton({ id, step }: { id: string; step: "arrive" | "pic
             autoComplete="one-time-code"
             maxLength={6}
             required
-            className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-3 text-center font-mono text-2xl tracking-[0.4em] text-[#0b192c]"
+            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-3 text-center font-mono text-2xl tracking-[0.4em] text-[#0b192c]"
           />
         </label>
       )}

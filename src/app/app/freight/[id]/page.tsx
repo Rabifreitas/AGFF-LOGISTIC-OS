@@ -50,7 +50,7 @@ export default async function FreightRequestPage({ params }: { params: Promise<{
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6">
           {r.status === "SEARCHING" && (
-            <Card className="bg-[#0b192c] text-white">
+            <Card className="!border-[#0b192c] !bg-[#0b192c] text-white">
               <Radar drivers={radar} label={t("odf.nearby")} pulsing />
               <p className="mt-2 text-center text-sm">{t("odf.searching")}</p>
               <p className="odf-data mt-1 text-center text-xs text-slate-400">
@@ -139,7 +139,7 @@ export default async function FreightRequestPage({ params }: { params: Promise<{
           )}
         </div>
         <aside className="space-y-4">
-          <Card className="bg-[#0b192c] text-white">
+          <Card className="!border-[#0b192c] !bg-[#0b192c] text-white">
             <p className="text-xs font-bold tracking-wider text-[#fece57] uppercase">{t("odf.price")}</p>
             <p className="odf-data text-3xl font-extrabold">{money(Number(r.price))}</p>
             <dl className="odf-data mt-3 space-y-1 text-sm text-slate-300">

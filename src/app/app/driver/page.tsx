@@ -1,6 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { AutoRefresh } from "@/components/odf/client";
-import { Badge, statusTone } from "@/components/ui";
 import { formatDateTime } from "@/lib/utils";
 import { requirePagePermission } from "@/modules/iam/session-context";
 import { formatMoney, placeLabel } from "@/modules/odf/format";
@@ -52,7 +51,9 @@ export default async function DriverPage() {
               <p className="text-xs font-bold tracking-wider text-[#fece57] uppercase">
                 {t("odf.driverApp.currentTrip")}
               </p>
-              <Badge tone={statusTone(home.trip.status)}>{t(`odf.status.${home.trip.status}`)}</Badge>
+              <span className="rounded-full bg-[#fece57] px-2.5 py-0.5 text-xs font-bold text-[#0b192c]">
+                {t(`odf.status.${home.trip.status}`)}
+              </span>
             </div>
             <p className="odf-data text-3xl font-extrabold">
               {formatMoney(home.trip.netAmount, home.trip.currency, locale)}

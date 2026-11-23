@@ -49,6 +49,10 @@ test("frete imediato: preço fixo → motorista mais próximo aceita → entrega
   await shipper.reload();
   await expect(shipper.getByText("Motorista a caminho").first()).toBeVisible();
   await expect(shipper.getByText("Manuel Kiala")).toBeVisible();
+  await expect(shipper.getByText("Preço fixo", { exact: true }).locator("..")).toHaveCSS(
+    "background-color",
+    "rgb(11, 25, 44)",
+  );
   const code = (await shipper.getByTestId("odf-delivery-code").innerText()).trim();
   expect(code).toMatch(/^\d{6}$/);
 
