@@ -60,7 +60,7 @@ export function OnlineToggle({ online, canGoOnline }: { online: boolean; canGoOn
         type="submit"
         disabled={pending || (!online && !canGoOnline)}
         className={`w-full rounded-2xl py-5 text-lg font-extrabold tracking-wide transition disabled:opacity-50 ${
-          online ? "bg-emerald-600 text-white" : "bg-[#fece57] text-[#0b192c]"
+          online ? "bg-emerald-600 text-white" : "bg-[#f2c35b] text-[#0b1d3a]"
         }`}
       >
         {online ? t("goOffline") : t("goOnline")}
@@ -131,13 +131,13 @@ export function OfferCard({ offer }: { offer: OfferView }) {
   const decline = useAction(respondOfferAction);
   const pct = Math.min(100, (secondsLeft / 30) * 100);
   return (
-    <section className="overflow-hidden rounded-2xl bg-white text-[#0b192c] shadow-xl" aria-live="polite">
+    <section className="overflow-hidden rounded-2xl bg-white text-[#0b1d3a] shadow-xl" aria-live="polite">
       <div className="h-1.5 bg-slate-200">
-        <div className="h-full bg-[#c59b27] transition-all" style={{ width: `${pct}%` }} />
+        <div className="h-full bg-[#d4a337] transition-all" style={{ width: `${pct}%` }} />
       </div>
       <div className="p-5">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-bold tracking-wider text-[#c59b27] uppercase">{t("driverApp.newOffer")}</p>
+          <p className="text-xs font-bold tracking-wider text-[#d4a337] uppercase">{t("driverApp.newOffer")}</p>
           <p className="odf-data font-mono text-sm font-bold" data-testid="odf-countdown">
             {t("driverApp.secondsLeft", { s: secondsLeft })}
           </p>
@@ -238,14 +238,14 @@ export function TripStepButton({ id, step }: { id: string; step: "arrive" | "pic
             autoComplete="one-time-code"
             maxLength={6}
             required
-            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-3 text-center font-mono text-2xl tracking-[0.4em] text-[#0b192c]"
+            className="mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-3 text-center font-mono text-2xl tracking-[0.4em] text-[#0b1d3a]"
           />
         </label>
       )}
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-2xl bg-[#fece57] py-5 text-lg font-extrabold text-[#0b192c] disabled:opacity-50"
+        className="w-full rounded-2xl bg-[#f2c35b] py-5 text-lg font-extrabold text-[#0b1d3a] disabled:opacity-50"
       >
         {t(step)}
       </button>

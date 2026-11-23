@@ -18,20 +18,20 @@ export function Radar({
       <defs>
         <radialGradient id="odf-radar-bg">
           <stop offset="0%" stopColor="#13294a" />
-          <stop offset="100%" stopColor="#0b192c" />
+          <stop offset="100%" stopColor="#0b1d3a" />
         </radialGradient>
       </defs>
       <circle r={R} fill="url(#odf-radar-bg)" />
       {[0.33, 0.66, 1].map((f) => (
-        <circle key={f} r={R * f} fill="none" stroke="#c59b27" strokeOpacity={0.25} strokeDasharray="3 4" />
+        <circle key={f} r={R * f} fill="none" stroke="#d4a337" strokeOpacity={0.25} strokeDasharray="3 4" />
       ))}
-      <line x1={-R} y1={0} x2={R} y2={0} stroke="#c59b27" strokeOpacity={0.15} />
-      <line x1={0} y1={-R} x2={0} y2={R} stroke="#c59b27" strokeOpacity={0.15} />
+      <line x1={-R} y1={0} x2={R} y2={0} stroke="#d4a337" strokeOpacity={0.15} />
+      <line x1={0} y1={-R} x2={0} y2={R} stroke="#d4a337" strokeOpacity={0.15} />
       {pulsing && (
         <circle
           r={R}
           fill="none"
-          stroke="#fece57"
+          stroke="#f2c35b"
           strokeWidth={2}
           className="odf-pulse"
           style={{ transformOrigin: "center" }}
@@ -46,7 +46,7 @@ export function Radar({
           </g>
         );
       })}
-      <circle r={7} fill="#fece57" stroke="#0b192c" strokeWidth={2} />
+      <circle r={7} fill="#f2c35b" stroke="#0b1d3a" strokeWidth={2} />
       <text y={R - 6} textAnchor="middle" fontSize={9} fill="#cbd5e1">
         {radiusKm} km
       </text>

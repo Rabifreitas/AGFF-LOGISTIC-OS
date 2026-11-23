@@ -1,4 +1,4 @@
-// AGFF Logistics OS — Prisma schema (multi-file).
+// MOBI LOG OS — Prisma schema (multi-file).
 // base.prisma: generator/datasource. core.prisma: Fase 1. phase2.prisma: Fase 2 (sem UI).
 
 generator client {

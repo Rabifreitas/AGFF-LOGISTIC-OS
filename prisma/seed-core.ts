@@ -47,8 +47,8 @@ export async function ensurePlatform(prisma: PrismaClient, admin: { email: strin
     where: { nif: PLATFORM_NIF },
     update: {},
     create: {
-      name: "AGFF Logistics OS",
-      legalName: "AGFF Logistics OS (Plataforma)",
+      name: "MOBI LOG OS",
+      legalName: "MOBI LOG OS (Plataforma)",
       nif: PLATFORM_NIF,
       type: "PLATFORM",
       status: "ACTIVE",

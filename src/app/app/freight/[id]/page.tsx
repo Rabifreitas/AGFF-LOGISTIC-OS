@@ -50,7 +50,7 @@ export default async function FreightRequestPage({ params }: { params: Promise<{
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6">
           {r.status === "SEARCHING" && (
-            <Card className="!border-[#0b192c] !bg-[#0b192c] text-white">
+            <Card className="!border-[#0b1d3a] !bg-[#0b1d3a] text-white">
               <Radar drivers={radar} label={t("odf.nearby")} pulsing />
               <p className="mt-2 text-center text-sm">{t("odf.searching")}</p>
               <p className="odf-data mt-1 text-center text-xs text-slate-400">
@@ -115,8 +115,8 @@ export default async function FreightRequestPage({ params }: { params: Promise<{
           )}
           {trackingEvents.length > 0 && (
             <Card>
-              <h2 className="mb-3 font-bold text-[#0b192c]">{t("odf.timeline")}</h2>
-              <ol className="space-y-2 border-l-2 border-[#c59b27] pl-4 text-sm">
+              <h2 className="mb-3 font-bold text-[#0b1d3a]">{t("odf.timeline")}</h2>
+              <ol className="space-y-2 border-l-2 border-[#d4a337] pl-4 text-sm">
                 {trackingEvents.map((e) => (
                   <li key={e.id}>
                     <span className="font-semibold">
@@ -139,8 +139,8 @@ export default async function FreightRequestPage({ params }: { params: Promise<{
           )}
         </div>
         <aside className="space-y-4">
-          <Card className="!border-[#0b192c] !bg-[#0b192c] text-white">
-            <p className="text-xs font-bold tracking-wider text-[#fece57] uppercase">{t("odf.price")}</p>
+          <Card className="!border-[#0b1d3a] !bg-[#0b1d3a] text-white">
+            <p className="text-xs font-bold tracking-wider text-[#f2c35b] uppercase">{t("odf.price")}</p>
             <p className="odf-data text-3xl font-extrabold">{money(Number(r.price))}</p>
             <dl className="odf-data mt-3 space-y-1 text-sm text-slate-300">
               <div className="flex justify-between">
@@ -175,7 +175,7 @@ export default async function FreightRequestPage({ params }: { params: Promise<{
             <p className="mt-3 text-[11px] text-slate-400">{t("odf.paymentPending")}</p>
           </Card>
           {manage && ["ACCEPTED", "AT_PICKUP", "IN_TRANSIT"].includes(r.status) && (
-            <Card className="border-2 border-[#c59b27]">
+            <Card className="border-2 border-[#d4a337]">
               <p className="text-xs font-bold tracking-wider text-slate-500 uppercase">{t("odf.deliveryCode")}</p>
               <p className="font-mono text-3xl font-extrabold tracking-[0.3em]" data-testid="odf-delivery-code">
                 {r.deliveryCode}

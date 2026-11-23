@@ -37,17 +37,17 @@ export default async function FleetPage() {
             </Link>
           </p>
         )}
-        <span className="rounded bg-[#0b192c] px-2 py-1 text-xs font-bold text-[#fece57]">
+        <span className="rounded bg-[#0b1d3a] px-2 py-1 text-xs font-bold text-[#f2c35b]">
           {t("odf.trustScore")} {trust?.score ?? "—"}
         </span>
       </div>
 
       <Card className="mb-6">
-        <h2 className="mb-3 font-bold text-[#0b192c]">{t("odf.fleet.addVehicle")}</h2>
+        <h2 className="mb-3 font-bold text-[#0b1d3a]">{t("odf.fleet.addVehicle")}</h2>
         <VehicleForm drivers={driverOptions} />
       </Card>
 
-      <h2 className="mb-3 font-bold text-[#0b192c]">{t("odf.fleet.vehicles")}</h2>
+      <h2 className="mb-3 font-bold text-[#0b1d3a]">{t("odf.fleet.vehicles")}</h2>
       {vehicles.length === 0 ? (
         <EmptyState title={t("odf.fleet.noVehicles")} description={t("odf.fleet.desc")} />
       ) : (
@@ -75,7 +75,7 @@ export default async function FleetPage() {
         </div>
       )}
 
-      <h2 className="mb-1 font-bold text-[#0b192c]">{t("odf.fleet.drivers")}</h2>
+      <h2 className="mb-1 font-bold text-[#0b1d3a]">{t("odf.fleet.drivers")}</h2>
       <p className="mb-3 text-sm text-gray-500">{t("odf.fleet.driversDesc")}</p>
       {drivers.length > 0 && (
         <div className="mb-8">
@@ -95,7 +95,7 @@ export default async function FleetPage() {
         </div>
       )}
 
-      <h2 className="mb-3 font-bold text-[#0b192c]">{t("odf.fleet.jobs")}</h2>
+      <h2 className="mb-3 font-bold text-[#0b1d3a]">{t("odf.fleet.jobs")}</h2>
       {jobs.length === 0 ? (
         <p className="text-sm text-gray-500">{t("odf.driverApp.noHistory")}</p>
       ) : (

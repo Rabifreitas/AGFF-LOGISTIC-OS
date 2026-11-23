@@ -22,17 +22,17 @@ export default async function FreightPage() {
   const tariffMap = Object.fromEntries(tariffs.filter((x) => x.active).map((x) => [x.category, toTariffValues(x)]));
   return (
     <div className="odf">
-      <p className="mb-3 rounded bg-[#0b192c] px-3 py-1 text-center text-[11px] font-bold tracking-widest text-[#fece57]">
+      <p className="mb-3 rounded bg-[#0b1d3a] px-3 py-1 text-center text-[11px] font-bold tracking-widest text-[#f2c35b]">
         {t("odf.demoBanner")}
       </p>
       <PageHeader title={t("odf.title")} description={t("odf.desc")} />
       {hasPermission(ctx, "odf.requests.manage") && (
         <Card className="mb-8">
-          <h2 className="mb-4 text-lg font-extrabold text-[#0b192c]">{t("odf.newRequest")}</h2>
+          <h2 className="mb-4 text-lg font-extrabold text-[#0b1d3a]">{t("odf.newRequest")}</h2>
           <FreightRequestForm tariffs={tariffMap} />
         </Card>
       )}
-      <h2 className="mb-3 text-lg font-extrabold text-[#0b192c]">{t("odf.requests")}</h2>
+      <h2 className="mb-3 text-lg font-extrabold text-[#0b1d3a]">{t("odf.requests")}</h2>
       {requests.length === 0 ? (
         <EmptyState title={t("odf.empty")} description={t("odf.emptyDesc")} />
       ) : (

@@ -23,7 +23,7 @@ export default async function DriverPage() {
   const online = home.presence?.online ?? false;
   const step = home.trip ? nextTripStep(home.trip.status) : null;
   return (
-    <div className="odf -m-4 min-h-[calc(100vh-4rem)] bg-[#0b192c] p-4 text-white sm:-m-6 sm:p-6">
+    <div className="odf -m-4 min-h-[calc(100vh-4rem)] bg-[#0b1d3a] p-4 text-white sm:-m-6 sm:p-6">
       <div className="mx-auto max-w-md space-y-5">
         {(online || home.trip) && <AutoRefresh seconds={3} />}
         {online && <LocationReporter />}
@@ -48,10 +48,10 @@ export default async function DriverPage() {
         {home.trip ? (
           <section className="space-y-4 rounded-2xl bg-[#13294a] p-5">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-bold tracking-wider text-[#fece57] uppercase">
+              <p className="text-xs font-bold tracking-wider text-[#f2c35b] uppercase">
                 {t("odf.driverApp.currentTrip")}
               </p>
-              <span className="rounded-full bg-[#fece57] px-2.5 py-0.5 text-xs font-bold text-[#0b192c]">
+              <span className="rounded-full bg-[#f2c35b] px-2.5 py-0.5 text-xs font-bold text-[#0b1d3a]">
                 {t(`odf.status.${home.trip.status}`)}
               </span>
             </div>
@@ -62,7 +62,7 @@ export default async function DriverPage() {
               <p className="text-xs text-slate-400">{t("odf.driverApp.shipper")}</p>
               <p className="font-semibold">{home.trip.organization.name}</p>
               {home.trip.organization.phone && (
-                <a href={`tel:${home.trip.organization.phone}`} className="text-[#fece57] underline">
+                <a href={`tel:${home.trip.organization.phone}`} className="text-[#f2c35b] underline">
                   {home.trip.organization.phone}
                 </a>
               )}
@@ -86,7 +86,7 @@ export default async function DriverPage() {
                     href={mapsUrl(lat, lng)}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs text-[#fece57] underline"
+                    className="text-xs text-[#f2c35b] underline"
                   >
                     {t("odf.driverApp.navigate")}
                   </a>
@@ -133,7 +133,7 @@ export default async function DriverPage() {
         <section className="rounded-2xl bg-[#13294a] p-5">
           <div className="flex items-baseline justify-between">
             <h2 className="font-bold">{t("odf.driverApp.earnings")}</h2>
-            <p className="odf-data text-xl font-extrabold text-[#fece57]">
+            <p className="odf-data text-xl font-extrabold text-[#f2c35b]">
               {formatMoney(home.earningsTotal, "AOA", locale)}
             </p>
           </div>
@@ -155,7 +155,7 @@ export default async function DriverPage() {
                   </span>
                   <span className="odf-data text-right font-semibold">
                     {formatMoney(d.netAmount, d.currency, locale)}
-                    {d.rating ? <span className="block text-xs text-[#fece57]">{"★".repeat(d.rating)}</span> : null}
+                    {d.rating ? <span className="block text-xs text-[#f2c35b]">{"★".repeat(d.rating)}</span> : null}
                   </span>
                 </li>
               ))}

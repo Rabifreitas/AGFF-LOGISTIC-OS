@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
@@ -167,20 +168,15 @@ export function Td({ children, className }: { children?: ReactNode; className?: 
   return <td className={cn("px-4 py-2 align-top", className)}>{children}</td>;
 }
 
-export function Logo({ light = false }: { light?: boolean }) {
+export function Logo({ light = false, className }: { light?: boolean; className?: string }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-2 font-semibold tracking-tight",
-        light ? "text-white" : "text-navy-900",
-      )}
-    >
-      <span className="bg-gold-500 text-navy-950 inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-bold">
-        A
-      </span>
-      <span>
-        AGFF <span className="text-gold-500">Logistics OS</span>
-      </span>
-    </span>
+    <Image
+      src={light ? "/brand/logo-light.png" : "/brand/logo.png"}
+      alt="MOBI LOG OS"
+      width={738}
+      height={240}
+      className={cn("h-10 w-auto", className)}
+      priority
+    />
   );
 }

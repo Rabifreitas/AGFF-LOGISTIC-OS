@@ -12,7 +12,7 @@ import { PLACE_KEYS, PLACES, VEHICLE_CATEGORIES, type PlaceKey } from "@/modules
 
 const CONTAINERS = ["20DV", "40DV", "40HC", "20RF", "40RF", "20OT", "40FR"];
 const input =
-  "block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-[#c59b27] focus:outline-none";
+  "block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-[#d4a337] focus:outline-none";
 
 type Point = { place: string; lat: string; lng: string };
 
@@ -170,7 +170,7 @@ export function FreightRequestForm({ tariffs }: { tariffs: Partial<Record<string
                   key={c}
                   className={`cursor-pointer rounded-lg border-2 p-3 text-sm transition ${
                     selected
-                      ? "border-[#c59b27] bg-[#0b192c] text-white"
+                      ? "border-[#d4a337] bg-[#0b1d3a] text-white"
                       : "border-slate-200 bg-white hover:border-slate-400"
                   } ${tariff ? "" : "opacity-50"}`}
                 >
@@ -267,8 +267,8 @@ export function FreightRequestForm({ tariffs }: { tariffs: Partial<Record<string
         </fieldset>
       </div>
 
-      <aside className="h-fit rounded-xl bg-[#0b192c] p-5 text-white lg:sticky lg:top-4">
-        <p className="text-xs font-bold tracking-wider text-[#fece57] uppercase">{t("odf.price")}</p>
+      <aside className="h-fit rounded-xl bg-[#0b1d3a] p-5 text-white lg:sticky lg:top-4">
+        <p className="text-xs font-bold tracking-wider text-[#f2c35b] uppercase">{t("odf.price")}</p>
         <p className="odf-data mt-1 text-3xl font-extrabold" data-testid="odf-total">
           {quote ? money(quote.total) : "—"}
         </p>
