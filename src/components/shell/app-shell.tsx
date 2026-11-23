@@ -25,6 +25,9 @@ export async function AppShell({
   const t = await getTranslations();
   const [memberships, unread] = await Promise.all([listUserMemberships(ctx.userId), countUnread(ctx)]);
   const activeOrgs = memberships.filter((m) => m.status === "ACTIVE");
+  const operationsHref = ["shipments", "driver", "freight", "marketplace"]
+    .map((key) => nav.find((item) => item.icon === key)?.href)
+    .find(Boolean);
   return (
     <div className="flex min-h-screen">
       <aside className="bg-navy-900 hidden w-64 shrink-0 flex-col text-gray-200 md:flex">
@@ -125,11 +128,11 @@ export async function AppShell({
         <main className="flex-1 px-4 py-6 pb-28 md:px-6 md:py-8">{children}</main>
         <nav
           aria-label={t("nav.home")}
-          className="bg-navy-900 fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-white/10 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden"
+          className="bg-navy-900 fixed inset-x-0 bottom-0 z-40 grid auto-cols-fr grid-flow-col border-t border-white/10 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden"
         >
           {[
             { href: "/app", label: t("nav.home"), icon: "home" },
-            { href: "/app/shipments", label: t("nav.operations"), icon: "operations" },
+            ...(operationsHref ? [{ href: operationsHref, label: t("nav.operations"), icon: "operations" }] : []),
             { href: "/app/notifications", label: t("nav.alerts"), icon: "alerts" },
             { href: "/account", label: t("nav.profile"), icon: "profile" },
           ].map((b) => (
