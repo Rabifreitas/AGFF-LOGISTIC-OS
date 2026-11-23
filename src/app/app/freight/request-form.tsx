@@ -127,7 +127,7 @@ export function FreightRequestForm({ tariffs }: { tariffs: Partial<Record<string
       stevedores,
       waybill,
       insurance,
-      declaredValue: declared ? Number(declared.replace(",", ".")) : null,
+      declaredValue: declared ? Number(declared.replace(/\s/g, "").replace(",", ".")) : null,
     });
   }, [pickup, dropoff, category, stevedores, waybill, insurance, declared, tariffs]);
 
