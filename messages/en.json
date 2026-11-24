@@ -1133,6 +1133,103 @@
       "notADriver": "That user doesn't have the Driver role in this company.",
       "vehicleOnTrip": "The vehicle is on an active trip.",
       "shipmentOnTrip": "This shipment is on an active on-demand trip: it advances through the driver app or by cancelling the freight request."
+    },
+    "searchAddress": "Search address (OpenStreetMap)",
+    "search": "Search",
+    "searchEmpty": "No results. Pick a place, use GPS or tap the map.",
+    "searchOff": "Address search is not configured. Pick a place or tap the map.",
+    "mapPick": "Tapping the map sets:",
+    "priceRouted": "Road distance calculated with OpenStreetMap.",
+    "map": "Map",
+    "push": {
+      "title": "Job offer alerts on this phone",
+      "enable": "Turn on alerts",
+      "disable": "Turn off alerts",
+      "install": "To get alerts with the app closed, install it: browser menu → \"Add to Home screen\".",
+      "installIos": "On iPhone (iOS 16.4+): Share → \"Add to Home Screen\", open the app from the icon and turn on alerts.",
+      "state": {
+        "loading": "Checking…",
+        "unsupported": "This browser does not support push alerts.",
+        "off": "Off on this device.",
+        "on": "On: you get every offer even with the app closed.",
+        "denied": "Blocked in browser settings. Allow notifications for this site.",
+        "error": "Could not turn on alerts. Try again.",
+        "disabled": "Push alerts are not configured on the server yet (pilot)."
+      }
+    }
+  },
+  "pilot": {
+    "title": "Closed pilot in Luanda.",
+    "notice": "Payments are made by invoice, outside the app. Prices and distances are pilot reference values."
+  },
+  "legal": {
+    "draft": "Draft for the closed pilot — to be reviewed by a lawyer (including Angola Law 22/11 on Personal Data Protection) before public launch.",
+    "updated": "Pilot version · November 2026",
+    "terms": {
+      "title": "Terms of Use",
+      "sections": [
+        {
+          "h": "1. Who we are",
+          "p": "MOBI LOG OS is a logistics platform operated by AGFF in Luanda, Angola. During the closed pilot, access is by invitation only and AGFF approves every company and driver."
+        },
+        {
+          "h": "2. The service",
+          "p": "The platform connects shippers with carriers and logistics providers through auctions and fixed-price on-demand freight. AGFF is not a carrier: transport is performed by, and is the responsibility of, the provider who accepts the job."
+        },
+        {
+          "h": "3. Payments during the pilot",
+          "p": "During the pilot no payment is processed in the app. Amounts shown are for invoicing between the parties, outside the platform. Prices, distances and tariffs are pilot reference values and may change."
+        },
+        {
+          "h": "4. User obligations",
+          "p": "Provide accurate data, keep credentials secret, comply with transport law and applicable AGT, MINTRANS and insurer rules, and do not use the platform for prohibited cargo."
+        },
+        {
+          "h": "5. Drivers and location",
+          "p": "Drivers share their location only while online or on a trip, to receive nearby offers and let the shipper follow the delivery."
+        },
+        {
+          "h": "6. Liability",
+          "p": "The platform is provided \"as is\" during the pilot. AGFF is not liable for cargo loss, delays or damage caused by the parties, subject to applicable Angolan law."
+        },
+        {
+          "h": "7. Suspension",
+          "p": "AGFF may suspend accounts for fraud, misuse or breach of these terms."
+        },
+        {
+          "h": "8. Law",
+          "p": "The law of the Republic of Angola applies. Contact: the AGFF Platform Operations team."
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "sections": [
+        {
+          "h": "1. Controller",
+          "p": "AGFF, operator of MOBI LOG OS, is the controller of the personal data collected on the platform."
+        },
+        {
+          "h": "2. Data collected",
+          "p": "Name, email, phone, company and role; uploaded documents; requests, shipments and tracking events; driver GPS location while online or on a trip; access and audit logs; device notification subscriptions."
+        },
+        {
+          "h": "3. Purposes",
+          "p": "Providing the service (cargo matching, tracking, documents), security and fraud prevention, legal compliance and improving the platform."
+        },
+        {
+          "h": "4. Sharing",
+          "p": "Drivers see the shipper's address and contact only after accepting a trip. Data is stored with hosting providers in the European Union (Vercel and Neon, Frankfurt). We do not sell personal data."
+        },
+        {
+          "h": "5. Retention",
+          "p": "Data is kept while the account is active and for the period required by law for tax and transport records."
+        },
+        {
+          "h": "6. Your rights",
+          "p": "You may request access, correction or deletion of your data under Angola Law 22/11 by contacting AGFF."
+        }
+      ]
     }
   }
 }

@@ -1,4 +1,5 @@
 import { randomInt } from "node:crypto";
+import { sendPushToUser } from "@/modules/push/push.service";
 import type { FreightRequestStatus, Prisma, VehicleCategory } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { ForbiddenError, InvalidStateError, NotFoundError } from "@/lib/errors";
@@ -8,7 +9,8 @@ import { isProviderActive } from "@/modules/mkt/auction-rules";
 import { ensureMarketplacePartner } from "@/modules/mkt/services/marketplace-partner";
 import { applyShipmentTransition, nextReference } from "@/modules/shp/services/shipment.service";
 import { tenantDb } from "@/modules/tenancy/tenant-db";
-import { bearingDeg, estimatedRoadKm } from "../geo";
+import { bearingDeg } from "../geo";
+import { roadDistanceKm } from "../routing";
 import { providerAmount, quoteFreight, toTariffValues, type PriceBreakdown } from "../pricing";
 import {
   ACTIVE_TRIP_STATUSES,
@@ -68,9 +70,10 @@ async function activeTariff(category: VehicleCategory) {
   return toTariffValues(t);
 }
 
-export function priceFor(tariff: ReturnType<typeof toTariffValues>, input: FreightRequestInput) {
+export async function priceFor(tariff: ReturnType<typeof toTariffValues>, input: FreightRequestInput) {
+  const distance = await roadDistanceKm(input.pickup, input.dropoff);
   return quoteFreight(tariff, {
-    distanceKm: estimatedRoadKm(input.pickup, input.dropoff),
+    distanceKm: distance.km,
     stevedores: input.stevedores,
     waybill: input.waybill,
     insurance: input.insurance,
@@ -98,7 +101,7 @@ export async function createFreightRequest(ctx: ActorContext, input: FreightRequ
     throw new InvalidStateError("odf.errors.scheduledInPast");
   }
   const tariff = await activeTariff(input.category);
-  const price = priceFor(tariff, input);
+  const price = await priceFor(tariff, input);
   const request = await tenantDb(ctx.organizationId).$transaction(async (tx) => {
     const reference = await nextFreightReference(tx, ctx.organizationId, now);
     const created = await tx.freightRequest.create({
@@ -361,7 +364,8 @@ async function driverBusy(tx: BaseTx, userId: string, now: Date) {
  * elegível mais próximo ainda não contactado; sem candidatos após SEARCH_WINDOW_MS → NO_DRIVERS.
  */
 export async function dispatchRequest(requestId: string, now = new Date()) {
-  return prisma.$transaction(async (tx) => {
+  const offered: { driverUserId: string; category: VehicleCategory; distanceKm: number }[] = [];
+  const result = await prisma.$transaction(async (tx) => {
     const [locked] = await tx.$queryRaw<{ id: string }[]>`
       SELECT "id" FROM "freight_requests" WHERE "id" = ${requestId} FOR UPDATE SKIP LOCKED`;
     if (!locked) return "busy" as const;
@@ -399,6 +403,7 @@ export async function dispatchRequest(requestId: string, now = new Date()) {
           expiresAt: new Date(now.getTime() + OFFER_TTL_MS),
         },
       });
+      offered.push({ driverUserId: c.driverUserId, category: request.category, distanceKm: c.distanceKm });
       return "offered" as const;
     }
     if (now.getTime() - request.searchStartedAt.getTime() >= SEARCH_WINDOW_MS) {
@@ -407,6 +412,18 @@ export async function dispatchRequest(requestId: string, now = new Date()) {
     }
     return "searching" as const;
   });
+  for (const o of offered) await notifyOffer(o);
+  return result;
+}
+
+/** Alerta push ao motorista (sem moradas: só categoria e distância até à recolha). */
+async function notifyOffer(o: { driverUserId: string; category: VehicleCategory; distanceKm: number }) {
+  await sendPushToUser(o.driverUserId, {
+    title: "MOBI LOG OS — Nova oferta de frete",
+    body: `${o.category.replaceAll("_", " ")} · ${o.distanceKm.toFixed(1)} km até à recolha · 30 s para aceitar`,
+    url: "/app/driver",
+    tag: "freight-offer",
+  }).catch(() => 0);
 }
 
 /** Corre o dispatch de todos os pedidos em procura. Chamado nas leituras e pelo cron. */

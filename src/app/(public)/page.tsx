@@ -16,6 +16,7 @@ const MODULE_BAR = [
 
 export default async function LandingPage() {
   const t = await getTranslations("landing");
+  const tl = await getTranslations("legal");
   const features = [1, 2, 3, 4] as const;
   const sectors = [0, 1, 2, 3, 4] as const;
   const phases = [1, 2, 3, 4, 5] as const;
@@ -156,7 +157,15 @@ export default async function LandingPage() {
       <footer className="bg-navy-950">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-6 text-sm text-gray-400">
           <Logo light />
-          <span>{t("footer")}</span>
+          <span className="flex flex-wrap gap-4">
+            <span>{t("footer")}</span>
+            <Link href="/legal/terms" className="hover:text-white">
+              {tl("terms.title")}
+            </Link>
+            <Link href="/legal/privacy" className="hover:text-white">
+              {tl("privacy.title")}
+            </Link>
+          </span>
         </div>
       </footer>
     </div>

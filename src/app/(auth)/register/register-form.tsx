@@ -54,7 +54,16 @@ export function RegisterForm() {
             <p className="text-xs text-gray-500">{t("register.passwordHint")}</p>
             <label className="flex items-start gap-2 text-sm text-gray-700">
               <input type="checkbox" name="acceptTerms" className="mt-1" />
-              {t("register.acceptTerms")}
+              <span>
+                {t("register.acceptTerms")}{" "}
+                <a href="/legal/terms" target="_blank" className="underline">
+                  {t("legal.terms.title")}
+                </a>
+                {" · "}
+                <a href="/legal/privacy" target="_blank" className="underline">
+                  {t("legal.privacy.title")}
+                </a>
+              </span>
             </label>
             {state.fieldErrors?.acceptTerms && <p className="text-xs text-red-600">{t("validation.acceptTerms")}</p>}
           </fieldset>

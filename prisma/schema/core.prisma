@@ -231,6 +231,7 @@ model User {
   driverPresence      DriverPresence?
   freightTrips        FreightRequest[]     @relation("FreightDriver")
   freightOffers       FreightOffer[]       @relation("FreightOfferDriver")
+  pushSubscriptions   PushSubscription[]
 
   @@map("users")
 }

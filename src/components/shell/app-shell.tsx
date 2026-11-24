@@ -125,7 +125,20 @@ export async function AppShell({
             </Link>
           ))}
         </nav>
-        <main className="flex-1 px-4 py-6 pb-28 md:px-6 md:py-8">{children}</main>
+        <main className="flex-1 px-4 py-6 pb-28 md:px-6 md:py-8">
+          {process.env.PILOT_MODE === "1" && (
+            <p
+              role="note"
+              className="border-gold-500/40 bg-gold-500/10 text-navy-950 mb-4 rounded-md border px-3 py-2 text-xs"
+            >
+              <strong>{t("pilot.title")}</strong> {t("pilot.notice")}{" "}
+              <Link href="/legal/terms" className="underline">
+                {t("legal.terms.title")}
+              </Link>
+            </p>
+          )}
+          {children}
+        </main>
         <nav
           aria-label={t("nav.home")}
           className="bg-navy-900 fixed inset-x-0 bottom-0 z-40 grid auto-cols-fr grid-flow-col border-t border-white/10 px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden"

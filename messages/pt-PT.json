@@ -1133,6 +1133,103 @@
       "notADriver": "Esse utilizador não tem o papel Motorista nesta empresa.",
       "vehicleOnTrip": "A viatura está numa corrida activa.",
       "shipmentOnTrip": "Esta expedição está numa corrida de frete imediato em curso: avança pela app do motorista ou cancelando o frete."
+    },
+    "searchAddress": "Pesquisar morada (OpenStreetMap)",
+    "search": "Pesquisar",
+    "searchEmpty": "Sem resultados. Escolha um local, use o GPS ou toque no mapa.",
+    "searchOff": "Pesquisa de moradas não configurada. Escolha um local ou toque no mapa.",
+    "mapPick": "Tocar no mapa define:",
+    "priceRouted": "Distância por estrada calculada com OpenStreetMap.",
+    "map": "Mapa",
+    "push": {
+      "title": "Alertas de ofertas no telemóvel",
+      "enable": "Activar alertas",
+      "disable": "Desactivar alertas",
+      "install": "Para receber alertas com a app fechada, instale-a: menu do navegador → \"Adicionar ao ecrã principal\".",
+      "installIos": "No iPhone (iOS 16.4+): Partilhar → \"Adicionar ao ecrã principal\", abra a app a partir do ícone e active os alertas.",
+      "state": {
+        "loading": "A verificar…",
+        "unsupported": "Este navegador não suporta alertas push.",
+        "off": "Desligados neste dispositivo.",
+        "on": "Ligados: recebe cada oferta mesmo com a app fechada.",
+        "denied": "Bloqueados nas definições do navegador. Permita notificações para este site.",
+        "error": "Não foi possível activar. Tente novamente.",
+        "disabled": "Alertas push ainda não configurados no servidor (piloto)."
+      }
+    }
+  },
+  "pilot": {
+    "title": "Piloto fechado em Luanda.",
+    "notice": "Os pagamentos são feitos por factura, fora da aplicação. Preços e distâncias são referências do piloto."
+  },
+  "legal": {
+    "draft": "Rascunho para o piloto fechado — a rever por advogado (incl. Lei n.º 22/11 de Protecção de Dados Pessoais) antes do lançamento público.",
+    "updated": "Versão de piloto · Novembro de 2026",
+    "terms": {
+      "title": "Termos de Utilização",
+      "sections": [
+        {
+          "h": "1. Quem somos",
+          "p": "A MOBI LOG OS é uma plataforma de logística operada pela AGFF, em Luanda, Angola. Durante o piloto fechado, o acesso é apenas por convite e cada empresa e motorista é aprovado pela AGFF."
+        },
+        {
+          "h": "2. O serviço",
+          "p": "A plataforma liga expedidores a transportadores e prestadores logísticos através de leilões e de frete imediato a preço tabelado. A AGFF não é transportadora: o transporte é executado e da responsabilidade do prestador que aceita o serviço."
+        },
+        {
+          "h": "3. Pagamentos no piloto",
+          "p": "Durante o piloto, nenhum pagamento é processado na aplicação. Os valores apresentados servem para facturação entre as partes, fora da plataforma. Preços, distâncias e tarifas são referências do piloto e podem ser ajustados."
+        },
+        {
+          "h": "4. Obrigações dos utilizadores",
+          "p": "Fornecer dados verdadeiros, manter as credenciais em segredo, cumprir a legislação de transporte e as normas da AGT, MINTRANS e seguradoras aplicáveis, e não usar a plataforma para cargas proibidas."
+        },
+        {
+          "h": "5. Motoristas e localização",
+          "p": "O motorista partilha a sua localização apenas quando está online ou em viagem, para receber ofertas próximas e para o expedidor acompanhar a entrega."
+        },
+        {
+          "h": "6. Responsabilidade",
+          "p": "A plataforma é fornecida \"tal como está\" durante o piloto. A AGFF não responde por perdas de carga, atrasos ou danos causados pelas partes, sem prejuízo da lei angolana aplicável."
+        },
+        {
+          "h": "7. Suspensão",
+          "p": "A AGFF pode suspender contas em caso de fraude, uso indevido ou incumprimento destes termos."
+        },
+        {
+          "h": "8. Lei e foro",
+          "p": "Aplica-se a lei da República de Angola. Contacto: a equipa AGFF Platform Operations."
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Política de Privacidade",
+      "sections": [
+        {
+          "h": "1. Responsável",
+          "p": "A AGFF, operadora da MOBI LOG OS, é a responsável pelo tratamento dos dados pessoais recolhidos na plataforma."
+        },
+        {
+          "h": "2. Dados recolhidos",
+          "p": "Nome, email, telefone, empresa e função; documentos carregados; pedidos, expedições e eventos de tracking; localização GPS do motorista quando online ou em viagem; registos de acesso e auditoria; subscrições de notificações do dispositivo."
+        },
+        {
+          "h": "3. Finalidades",
+          "p": "Prestar o serviço (correspondência de cargas, tracking, documentos), segurança e prevenção de fraude, cumprimento legal e melhoria da plataforma."
+        },
+        {
+          "h": "4. Partilha",
+          "p": "O motorista só vê a morada e o contacto do expedidor depois de aceitar a viagem. Os dados são guardados em prestadores de alojamento na União Europeia (Vercel e Neon, Frankfurt). Não vendemos dados pessoais."
+        },
+        {
+          "h": "5. Conservação",
+          "p": "Os dados são conservados enquanto a conta estiver activa e pelo período exigido por lei para registos fiscais e de transporte."
+        },
+        {
+          "h": "6. Direitos",
+          "p": "Pode pedir acesso, rectificação ou eliminação dos seus dados, nos termos da Lei n.º 22/11 de Angola, contactando a AGFF."
+        }
+      ]
     }
   }
 }
