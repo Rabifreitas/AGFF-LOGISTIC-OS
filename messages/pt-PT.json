@@ -793,7 +793,9 @@
       "LICENSE": "Licença / alvará",
       "CONTRACT": "Contrato",
       "OTHER": "Outro"
-    }
+    },
+    "uploading": "A enviar o ficheiro…",
+    "uploadFailed": "Não foi possível enviar o ficheiro. Tente novamente."
   },
   "mkt": {
     "reference": "Referência",

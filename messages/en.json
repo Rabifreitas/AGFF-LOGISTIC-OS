@@ -793,7 +793,9 @@
       "LICENSE": "Licence / permit",
       "CONTRACT": "Contract",
       "OTHER": "Other"
-    }
+    },
+    "uploading": "Uploading file…",
+    "uploadFailed": "The file could not be uploaded. Please try again."
   },
   "mkt": {
     "reference": "Reference",

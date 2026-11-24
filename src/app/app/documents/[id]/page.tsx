@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { directUploadPrefix } from "@/lib/storage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TransitionButtons } from "@/components/transition-buttons";
@@ -97,7 +98,7 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
             {editable ? (
               <div className="mt-4 space-y-2">
                 {d.status !== "DRAFT" && <p className="text-sm text-gray-600">{t("dms.newVersionResets")}</p>}
-                <VersionUploadForm documentId={d.id} />
+                <VersionUploadForm documentId={d.id} uploadPrefix={directUploadPrefix(ctx.organizationId)} />
               </div>
             ) : (
               d.status === "PENDING_REVIEW" && <p className="mt-4 text-sm text-gray-600">{t("dms.lockedHint")}</p>
