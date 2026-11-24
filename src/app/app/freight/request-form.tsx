@@ -197,7 +197,7 @@ export function FreightRequestForm({ tariffs }: { tariffs: Partial<Record<string
     ...(b ? [{ ...b, kind: "dropoff" as const, label: t("odf.dropoff") }] : []),
   ];
   const pickOnMap = (p: { lat: number; lng: number }) => {
-    const next = { place: "CUSTOM", lat: p.lat.toFixed(6), lng: p.lng.toFixed(6) };
+    const next = { place: "CUSTOM", lat: p.lat.toFixed(6), lng: p.lng.toFixed(6), address: "" };
     if (mapTarget === "pickup") setPickup((v) => ({ ...v, ...next }));
     else setDropoff((v) => ({ ...v, ...next }));
   };
@@ -412,7 +412,12 @@ export function FreightRequestForm({ tariffs }: { tariffs: Partial<Record<string
         <p className="mt-2 text-[11px] leading-snug text-slate-400">
           <strong className="text-slate-200">{t("odf.payment")}:</strong> {t("odf.paymentPending")}
         </p>
-        <Button type="submit" variant="gold" disabled={pending || !quote} className="mt-4 w-full">
+        <Button
+          type="submit"
+          variant="gold"
+          disabled={pending || !quote || road?.key !== routeKey}
+          className="mt-4 w-full"
+        >
           {t("odf.request")}
         </Button>
       </aside>
