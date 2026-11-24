@@ -32,5 +32,6 @@ Nunca correr `npm run seed:demo` em produção (recusado salvo `DEMO_ALLOW_PRODU
 
 - Nominatim público: máx. 1 pedido/s, sem autocomplete; moradas em Angola são fracas — o utilizador pode tocar no mapa.
 - OSRM de demonstração (`router.project-osrm.org`) não tem SLA; para clientes reais usar um servidor próprio.
+- Alertas push só chegam enquanto a presença do motorista está fresca (10 min): a app web não envia GPS em segundo plano. A app nativa (Expo, Android) resolve isto.
 - iPhone: alertas só com a app adicionada ao ecrã principal (iOS 16.4+).
 - Termos e Privacidade em `/legal/terms` e `/legal/privacy` são rascunhos a rever por advogado.
