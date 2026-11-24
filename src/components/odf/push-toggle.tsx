@@ -12,6 +12,14 @@ function keyBytes(base64: string) {
   return Uint8Array.from(raw, (c) => c.charCodeAt(0));
 }
 
+function save(sub: PushSubscription) {
+  const json = sub.toJSON();
+  return savePushSubscriptionAction(
+    { endpoint: json.endpoint, p256dh: json.keys?.p256dh, auth: json.keys?.auth },
+    navigator.userAgent,
+  );
+}
+
 /** Activa alertas push de ofertas neste dispositivo (no iPhone só depois de adicionar ao ecrã principal). */
 export function PushToggle({ vapidKey }: { vapidKey: string | null }) {
   const t = useTranslations("odf.push");
@@ -26,7 +34,12 @@ export function PushToggle({ vapidKey }: { vapidKey: string | null }) {
     navigator.serviceWorker
       .register("/sw.js")
       .then((reg) => reg.pushManager.getSubscription())
-      .then((sub) => setState(sub ? "on" : "off"))
+      .then(async (sub) => {
+        if (!sub) return setState("off");
+        // Liga a subscrição deste aparelho ao motorista com sessão iniciada (telemóvel partilhado).
+        const res = await save(sub);
+        setState(res.ok ? "on" : "error");
+      })
       .catch(() => setState("error"));
   }, [vapidKey]);
 
@@ -37,11 +50,7 @@ export function PushToggle({ vapidKey }: { vapidKey: string | null }) {
       if (permission !== "granted") return setState("denied");
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(vapidKey) });
-      const json = sub.toJSON();
-      const res = await savePushSubscriptionAction(
-        { endpoint: json.endpoint, p256dh: json.keys?.p256dh, auth: json.keys?.auth },
-        navigator.userAgent,
-      );
+      const res = await save(sub);
       setState(res.ok ? "on" : "error");
     } catch {
       setState("error");

@@ -4,6 +4,26 @@ import { prisma } from "@/lib/db";
 export type PushPayload = { title: string; body: string; url: string; tag?: string };
 export type PushSubscriptionInput = { endpoint: string; p256dh: string; auth: string; userAgent?: string | null };
 
+/** Só serviços push dos browsers: evita que o servidor faça pedidos a destinos arbitrários. */
+const PUSH_HOSTS = [
+  /^fcm\.googleapis\.com$/,
+  /^android\.googleapis\.com$/,
+  /^updates\.push\.services\.mozilla\.com$/,
+  /^[a-z0-9.-]+\.push\.services\.mozilla\.com$/,
+  /^web\.push\.apple\.com$/,
+  /^[a-z0-9.-]+\.push\.apple\.com$/,
+  /^[a-z0-9.-]+\.notify\.windows\.com$/,
+];
+
+export function isAllowedPushEndpoint(endpoint: string): boolean {
+  try {
+    const u = new URL(endpoint);
+    return u.protocol === "https:" && !u.port && PUSH_HOSTS.some((h) => h.test(u.hostname));
+  } catch {
+    return false;
+  }
+}
+
 let configured: boolean | null = null;
 
 /** VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY vazios = push desactivado (placeholders do piloto). */
@@ -29,6 +49,10 @@ export async function saveSubscription(userId: string, s: PushSubscriptionInput)
   });
 }
 
+export async function removeAllSubscriptions(userId: string) {
+  await prisma.pushSubscription.deleteMany({ where: { userId } });
+}
+
 export async function removeSubscription(userId: string, endpoint: string) {
   await prisma.pushSubscription.deleteMany({ where: { userId, endpoint } });
 }
@@ -40,6 +64,7 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
   let sent = 0;
   await Promise.all(
     subs.map(async (s) => {
+      if (!isAllowedPushEndpoint(s.endpoint)) return;
       try {
         await webpush.sendNotification(
           { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },

@@ -3,10 +3,10 @@
 import { z } from "zod";
 import type { ActionState } from "@/modules/iam/action-result";
 import { requireActionActor } from "@/modules/iam/form-action";
-import { removeSubscription, saveSubscription } from "./push.service";
+import { isAllowedPushEndpoint, removeSubscription, saveSubscription } from "./push.service";
 
 const subscriptionSchema = z.object({
-  endpoint: z.string().url().max(1000).startsWith("https://"),
+  endpoint: z.string().max(1000).refine(isAllowedPushEndpoint),
   p256dh: z.string().min(1).max(200),
   auth: z.string().min(1).max(100),
 });
