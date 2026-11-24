@@ -2,7 +2,7 @@
 
 import { upload } from "@vercel/blob/client";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActionForm, Field, SelectField } from "@/components/form";
 import { Input, Label } from "@/components/ui";
 import { createDocumentAction, updateDocumentAction, uploadVersionAction } from "@/modules/dms/actions";
@@ -27,8 +27,16 @@ function FileField({
   const errors = state.fieldErrors?.file;
   const [staged, setStaged] = useState<{ key: string; name: string } | null>(null);
   const [status, setStatus] = useState<UploadStatus>("idle");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const latest = useRef(0);
+  useEffect(() => {
+    const msg = status === "uploading" ? t("dms.uploading") : status === "error" ? t("dms.uploadFailed") : "";
+    inputRef.current?.setCustomValidity(msg);
+  }, [status, t]);
   const onFile = async (file: File | undefined) => {
+    const run = ++latest.current;
     setStaged(null);
+    setStatus("idle");
     if (!uploadPrefix || !file) return;
     setStatus("uploading");
     try {
@@ -37,10 +45,11 @@ function FileField({
         access: "private",
         handleUploadUrl: "/api/documents/upload",
       });
+      if (run !== latest.current) return;
       setStaged({ key: blob.pathname, name: file.name });
       setStatus("done");
     } catch {
-      setStatus("error");
+      if (run === latest.current) setStatus("error");
     }
   };
   return (
@@ -48,6 +57,7 @@ function FileField({
       <Label htmlFor="file">{t("dms.file")}</Label>
       <Input
         id="file"
+        ref={inputRef}
         name={uploadPrefix ? undefined : "file"}
         type="file"
         accept={ACCEPT}
