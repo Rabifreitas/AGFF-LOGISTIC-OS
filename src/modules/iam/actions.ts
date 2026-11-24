@@ -4,8 +4,8 @@ import { AuthError } from "next-auth";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { auth, signIn, signOut } from "@/auth";
-import { removeAllSubscriptions } from "@/modules/push/push.service";
+import { signIn, signOut } from "@/auth";
+import { PUSH_DEVICE_COOKIE, removeSubscriptionById } from "@/modules/push/push.service";
 import { sendMail } from "@/lib/mail";
 import { inviteEmail, resetEmail } from "@/lib/mail-templates";
 import { getRequestMeta } from "@/lib/request-meta";
@@ -73,8 +73,12 @@ export async function registerAction(_: ActionState, formData: FormData): Promis
 }
 
 export async function logoutAction() {
-  const userId = (await auth())?.user?.id;
-  if (userId) await removeAllSubscriptions(userId).catch(() => undefined);
+  const jar = await cookies();
+  const device = jar.get(PUSH_DEVICE_COOKIE)?.value;
+  if (device) {
+    await removeSubscriptionById(device).catch(() => undefined);
+    jar.delete(PUSH_DEVICE_COOKIE);
+  }
   await signOut({ redirectTo: "/login" });
 }
 

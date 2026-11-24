@@ -24,6 +24,9 @@ export function isAllowedPushEndpoint(endpoint: string): boolean {
   }
 }
 
+/** Cookie httpOnly com o id da subscrição deste aparelho: o logout só desliga os alertas deste aparelho. */
+export const PUSH_DEVICE_COOKIE = "mobilog_push_device";
+
 let configured: boolean | null = null;
 
 /** VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY vazios = push desactivado (placeholders do piloto). */
@@ -49,8 +52,8 @@ export async function saveSubscription(userId: string, s: PushSubscriptionInput)
   });
 }
 
-export async function removeAllSubscriptions(userId: string) {
-  await prisma.pushSubscription.deleteMany({ where: { userId } });
+export async function removeSubscriptionById(id: string) {
+  await prisma.pushSubscription.deleteMany({ where: { id } });
 }
 
 export async function removeSubscription(userId: string, endpoint: string) {
