@@ -73,7 +73,22 @@ function FileField({
       )}
       <p className="mt-1 text-xs text-gray-500">{t("dms.fileHint")}</p>
       {status === "uploading" && <p className="mt-1 text-xs text-gray-600">{t("dms.uploading")}</p>}
-      {status === "error" && <p className="mt-1 text-xs text-red-600">{t("dms.uploadFailed")}</p>}
+      {status === "error" && (
+        <p className="mt-1 text-xs text-red-600">
+          {t("dms.uploadFailed")}{" "}
+          <button
+            type="button"
+            className="font-semibold underline"
+            onClick={() => {
+              latest.current++;
+              if (inputRef.current) inputRef.current.value = "";
+              setStatus("idle");
+            }}
+          >
+            {t("dms.removeFile")}
+          </button>
+        </p>
+      )}
       {errors?.map((e) => (
         <p key={e} className="mt-1 text-xs text-red-600">
           {t.has(e) ? t(e) : e}

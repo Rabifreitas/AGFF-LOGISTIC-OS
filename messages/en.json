@@ -795,7 +795,8 @@
       "OTHER": "Other"
     },
     "uploading": "Uploading file…",
-    "uploadFailed": "The file could not be uploaded. Please try again."
+    "uploadFailed": "The file could not be uploaded. Please try again.",
+    "removeFile": "Remove file"
   },
   "mkt": {
     "reference": "Reference",

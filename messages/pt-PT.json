@@ -795,7 +795,8 @@
       "OTHER": "Outro"
     },
     "uploading": "A enviar o ficheiro…",
-    "uploadFailed": "Não foi possível enviar o ficheiro. Tente novamente."
+    "uploadFailed": "Não foi possível enviar o ficheiro. Tente novamente.",
+    "removeFile": "Remover ficheiro"
   },
   "mkt": {
     "reference": "Referência",
