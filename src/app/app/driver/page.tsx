@@ -1,4 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { PushToggle } from "@/components/odf/push-toggle";
+import { vapidPublicKey } from "@/modules/push/push.service";
+import { RouteMap } from "@/components/map/route-map";
 import { AutoRefresh } from "@/components/odf/client";
 import { formatDateTime } from "@/lib/utils";
 import { requirePagePermission } from "@/modules/iam/session-context";
@@ -67,6 +70,23 @@ export default async function DriverPage() {
                 </a>
               )}
             </div>
+            <RouteMap
+              className="h-48 w-full rounded-lg"
+              points={[
+                {
+                  lat: Number(home.trip.pickupLat),
+                  lng: Number(home.trip.pickupLng),
+                  kind: "pickup",
+                  label: t("odf.pickup"),
+                },
+                {
+                  lat: Number(home.trip.dropoffLat),
+                  lng: Number(home.trip.dropoffLng),
+                  kind: "dropoff",
+                  label: t("odf.dropoff"),
+                },
+              ]}
+            />
             <ol className="space-y-3 border-l-2 border-dashed border-slate-600 pl-4 text-sm">
               {[
                 ["pickup", home.trip.pickupLabel, home.trip.pickupAddress, home.trip.pickupLat, home.trip.pickupLng],
@@ -122,6 +142,7 @@ export default async function DriverPage() {
         ) : (
           <>
             <OnlineToggle online={online} canGoOnline={!!home.vehicle} />
+            <PushToggle vapidKey={vapidPublicKey()} />
             {online && (
               <p className="text-center text-sm text-slate-300" aria-live="polite">
                 {t("odf.driverApp.waiting")}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
+import { RouteMap, type MapPoint } from "@/components/map/route-map";
 import { Button } from "@/components/ui";
 import type { ActionState } from "@/modules/iam/action-result";
 import { createFreightRequestAction } from "@/modules/odf/actions";
@@ -14,7 +15,8 @@ const CONTAINERS = ["20DV", "40DV", "40HC", "20RF", "40RF", "20OT", "40FR"];
 const input =
   "block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-[#d4a337] focus:outline-none";
 
-type Point = { place: string; lat: string; lng: string };
+type Point = { place: string; lat: string; lng: string; address: string };
+type Hit = { label: string; lat: number; lng: number };
 
 function resolve(p: Point) {
   if (PLACE_KEYS.includes(p.place as PlaceKey)) return PLACES[p.place as PlaceKey];
@@ -39,7 +41,28 @@ function PointPicker({
   error?: string;
 }) {
   const t = useTranslations("odf");
+  const locale = useLocale();
   const [gps, setGps] = useState<"idle" | "locating" | "denied">("idle");
+  const [query, setQuery] = useState("");
+  const [hits, setHits] = useState<Hit[] | null>(null);
+  const [search, setSearch] = useState<"idle" | "loading" | "empty" | "off">("idle");
+  const runSearch = async () => {
+    if (query.trim().length < 3) return;
+    setSearch("loading");
+    try {
+      const res = await fetch(`/api/geo/search?q=${encodeURIComponent(query)}&locale=${locale}`);
+      const body = (await res.json()) as { results: Hit[] | null };
+      if (body.results === null) return setSearch("off");
+      setHits(body.results);
+      setSearch(body.results.length ? "idle" : "empty");
+    } catch {
+      setSearch("empty");
+    }
+  };
+  const pick = (h: Hit) => {
+    setHits(null);
+    onChange({ place: "CUSTOM", lat: h.lat.toFixed(6), lng: h.lng.toFixed(6), address: h.label });
+  };
   const choose = (place: string) => {
     onChange({ ...value, place });
     if (place === "GPS" && navigator.geolocation) {
@@ -47,7 +70,7 @@ function PointPicker({
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setGps("idle");
-          onChange({ place, lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) });
+          onChange({ ...value, place, lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) });
         },
         () => setGps("denied"),
         { enableHighAccuracy: true, timeout: 10_000 },
@@ -57,6 +80,37 @@ function PointPicker({
   return (
     <fieldset className="space-y-2">
       <legend className="text-xs font-bold tracking-wider text-slate-500 uppercase">{label}</legend>
+      <div className="flex gap-2">
+        <input
+          aria-label={`${label} — ${t("searchAddress")}`}
+          placeholder={t("searchAddress")}
+          className={input}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              void runSearch();
+            }
+          }}
+        />
+        <Button type="button" variant="secondary" onClick={runSearch} disabled={search === "loading"}>
+          {t("search")}
+        </Button>
+      </div>
+      {hits && hits.length > 0 && (
+        <ul className="max-h-48 overflow-auto rounded-md border border-slate-200 bg-white text-sm shadow-sm">
+          {hits.map((h) => (
+            <li key={`${h.lat},${h.lng}`}>
+              <button type="button" className="w-full px-3 py-2 text-left hover:bg-slate-50" onClick={() => pick(h)}>
+                {h.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {search === "empty" && <p className="text-xs text-slate-500">{t("searchEmpty")}</p>}
+      {search === "off" && <p className="text-xs text-slate-500">{t("searchOff")}</p>}
       <select
         name={`${prefix}Place`}
         aria-label={`${label} — ${t("place")}`}
@@ -97,7 +151,14 @@ function PointPicker({
       )}
       {gps === "locating" && <p className="text-xs text-slate-500">{t("gpsLocating")}</p>}
       {gps === "denied" && <p className="text-xs text-red-700">{t("gpsDenied")}</p>}
-      <input name={`${prefix}Address`} aria-label={t("address")} placeholder={t("address")} className={input} />
+      <input
+        name={`${prefix}Address`}
+        aria-label={t("address")}
+        placeholder={t("address")}
+        className={input}
+        value={value.address}
+        onChange={(e) => onChange({ ...value, address: e.target.value })}
+      />
       {error && <p className="text-xs text-red-700">{error}</p>}
     </fieldset>
   );
@@ -107,29 +168,53 @@ export function FreightRequestForm({ tariffs }: { tariffs: Partial<Record<string
   const t = useTranslations();
   const locale = useLocale();
   const [state, formAction, pending] = useActionState<ActionState, FormData>(createFreightRequestAction, {});
-  const [pickup, setPickup] = useState<Point>({ place: "LUANDA_PORT", lat: "", lng: "" });
-  const [dropoff, setDropoff] = useState<Point>({ place: "VIANA", lat: "", lng: "" });
+  const [pickup, setPickup] = useState<Point>({ place: "LUANDA_PORT", lat: "", lng: "", address: "" });
+  const [dropoff, setDropoff] = useState<Point>({ place: "VIANA", lat: "", lng: "", address: "" });
   const [category, setCategory] = useState<string>("CONTAINER_TRUCK");
   const [stevedores, setStevedores] = useState(0);
   const [waybill, setWaybill] = useState(true);
   const [insurance, setInsurance] = useState(false);
   const [declared, setDeclared] = useState("");
+  const [mapTarget, setMapTarget] = useState<"pickup" | "dropoff">("dropoff");
+  const a = resolve(pickup);
+  const b = resolve(dropoff);
+  const routeKey = a && b ? `${a.lat},${a.lng};${b.lat},${b.lng}` : "";
+  const [road, setRoad] = useState<{ key: string; km: number; source: "route" | "estimate" } | null>(null);
+  useEffect(() => {
+    if (!routeKey) return;
+    const [from, to] = routeKey.split(";");
+    const ctrl = new AbortController();
+    fetch(`/api/geo/route?from=${from}&to=${to}`, { signal: ctrl.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { km: number; source: "route" | "estimate" } | null) => d && setRoad({ key: routeKey, ...d }))
+      .catch(() => undefined);
+    return () => ctrl.abort();
+  }, [routeKey]);
+  const distance =
+    a && b ? (road?.key === routeKey ? road : { km: estimatedRoadKm(a, b), source: "estimate" as const }) : null;
+  const mapPoints: MapPoint[] = [
+    ...(a ? [{ ...a, kind: "pickup" as const, label: t("odf.pickup") }] : []),
+    ...(b ? [{ ...b, kind: "dropoff" as const, label: t("odf.dropoff") }] : []),
+  ];
+  const pickOnMap = (p: { lat: number; lng: number }) => {
+    const next = { place: "CUSTOM", lat: p.lat.toFixed(6), lng: p.lng.toFixed(6), address: "" };
+    if (mapTarget === "pickup") setPickup((v) => ({ ...v, ...next }));
+    else setDropoff((v) => ({ ...v, ...next }));
+  };
   const msg = (k?: string) => (k ? (t.has(k) ? t(k) : k) : undefined);
   const fe = state.fieldErrors ?? {};
 
   const quote = useMemo(() => {
-    const a = resolve(pickup);
-    const b = resolve(dropoff);
     const tariff = tariffs[category];
-    if (!a || !b || !tariff) return null;
+    if (!distance || !tariff) return null;
     return quoteFreight(tariff, {
-      distanceKm: estimatedRoadKm(a, b),
+      distanceKm: distance.km,
       stevedores,
       waybill,
       insurance,
       declaredValue: declared ? Number(declared.replace(/\s/g, "").replace(",", ".")) : null,
     });
-  }, [pickup, dropoff, category, stevedores, waybill, insurance, declared, tariffs]);
+  }, [distance?.km, category, stevedores, waybill, insurance, declared, tariffs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const money = (v: number) => formatMoney(v, "AOA", locale);
   return (
@@ -157,6 +242,25 @@ export function FreightRequestForm({ tariffs }: { tariffs: Partial<Record<string
             allowGps={false}
             error={msg(fe.dropoffPlace?.[0])}
           />
+        </div>
+        <div>
+          <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-slate-600">
+            <span>{t("odf.mapPick")}</span>
+            {(["pickup", "dropoff"] as const).map((k) => (
+              <button
+                key={k}
+                type="button"
+                aria-pressed={mapTarget === k}
+                onClick={() => setMapTarget(k)}
+                className={`rounded-full border px-3 py-1 font-semibold ${
+                  mapTarget === k ? "border-[#0b1d3a] bg-[#0b1d3a] text-white" : "border-slate-300 bg-white"
+                }`}
+              >
+                {t(`odf.${k}`)}
+              </button>
+            ))}
+          </div>
+          <RouteMap points={mapPoints} onPick={pickOnMap} />
         </div>
 
         <fieldset>
@@ -302,11 +406,18 @@ export function FreightRequestForm({ tariffs }: { tariffs: Partial<Record<string
             )}
           </dl>
         )}
-        <p className="mt-3 text-[11px] leading-snug text-slate-400">{t("odf.priceEstimated")}</p>
+        <p className="mt-3 text-[11px] leading-snug text-slate-400">
+          {t(distance?.source === "route" ? "odf.priceRouted" : "odf.priceEstimated")}
+        </p>
         <p className="mt-2 text-[11px] leading-snug text-slate-400">
           <strong className="text-slate-200">{t("odf.payment")}:</strong> {t("odf.paymentPending")}
         </p>
-        <Button type="submit" variant="gold" disabled={pending || !quote} className="mt-4 w-full">
+        <Button
+          type="submit"
+          variant="gold"
+          disabled={pending || !quote || road?.key !== routeKey}
+          className="mt-4 w-full"
+        >
           {t("odf.request")}
         </Button>
       </aside>

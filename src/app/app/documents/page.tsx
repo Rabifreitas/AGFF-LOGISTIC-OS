@@ -1,4 +1,5 @@
 import type { DocumentStatus } from "@prisma/client";
+import { directUploadPrefix } from "@/lib/storage";
 import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Badge, Card, EmptyState, PageHeader, Table, Td, statusTone } from "@/components/ui";
@@ -42,7 +43,7 @@ export default async function DocumentsPage({
       {canManage && (
         <Card className="mb-6">
           <h2 className="text-navy-900 mb-4 font-semibold">{t("dms.new")}</h2>
-          <DocumentForm />
+          <DocumentForm uploadPrefix={directUploadPrefix(ctx.organizationId)} />
         </Card>
       )}
       <nav className="mb-4 flex flex-wrap gap-2 text-sm" aria-label={t("common.status")}>

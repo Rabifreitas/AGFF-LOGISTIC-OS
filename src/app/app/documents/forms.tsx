@@ -1,6 +1,8 @@
 "use client";
 
+import { upload } from "@vercel/blob/client";
 import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState } from "react";
 import { ActionForm, Field, SelectField } from "@/components/form";
 import { Input, Label } from "@/components/ui";
 import { createDocumentAction, updateDocumentAction, uploadVersionAction } from "@/modules/dms/actions";
@@ -9,14 +11,84 @@ import type { ActionState } from "@/modules/iam/action-result";
 
 const ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.docx,.xlsx";
 
-function FileField({ state, required }: { state: ActionState; required?: boolean }) {
+type UploadStatus = "idle" | "uploading" | "done" | "error";
+
+/** Com `uploadPrefix`, o ficheiro vai directamente do browser para o armazenamento privado e o formulário só envia a chave. */
+function FileField({
+  state,
+  required,
+  uploadPrefix,
+}: {
+  state: ActionState;
+  required?: boolean;
+  uploadPrefix?: string | null;
+}) {
   const t = useTranslations();
   const errors = state.fieldErrors?.file;
+  const [staged, setStaged] = useState<{ key: string; name: string } | null>(null);
+  const [status, setStatus] = useState<UploadStatus>("idle");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const latest = useRef(0);
+  useEffect(() => {
+    const msg = status === "uploading" ? t("dms.uploading") : status === "error" ? t("dms.uploadFailed") : "";
+    inputRef.current?.setCustomValidity(msg);
+  }, [status, t]);
+  const onFile = async (file: File | undefined) => {
+    const run = ++latest.current;
+    setStaged(null);
+    setStatus("idle");
+    if (!uploadPrefix || !file) return;
+    setStatus("uploading");
+    try {
+      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-120) || "document";
+      const blob = await upload(`${uploadPrefix}/${safe}`, file, {
+        access: "private",
+        handleUploadUrl: "/api/documents/upload",
+      });
+      if (run !== latest.current) return;
+      setStaged({ key: blob.pathname, name: file.name });
+      setStatus("done");
+    } catch {
+      if (run === latest.current) setStatus("error");
+    }
+  };
   return (
     <div>
       <Label htmlFor="file">{t("dms.file")}</Label>
-      <Input id="file" name="file" type="file" accept={ACCEPT} required={required} aria-invalid={!!errors} />
+      <Input
+        id="file"
+        ref={inputRef}
+        name={uploadPrefix ? undefined : "file"}
+        type="file"
+        accept={ACCEPT}
+        required={required}
+        aria-invalid={!!errors}
+        onChange={(e) => onFile(e.target.files?.[0])}
+      />
+      {staged && (
+        <>
+          <input type="hidden" name="uploadKey" value={staged.key} />
+          <input type="hidden" name="uploadName" value={staged.name} />
+        </>
+      )}
       <p className="mt-1 text-xs text-gray-500">{t("dms.fileHint")}</p>
+      {status === "uploading" && <p className="mt-1 text-xs text-gray-600">{t("dms.uploading")}</p>}
+      {status === "error" && (
+        <p className="mt-1 text-xs text-red-600">
+          {t("dms.uploadFailed")}{" "}
+          <button
+            type="button"
+            className="font-semibold underline"
+            onClick={() => {
+              latest.current++;
+              if (inputRef.current) inputRef.current.value = "";
+              setStatus("idle");
+            }}
+          >
+            {t("dms.removeFile")}
+          </button>
+        </p>
+      )}
       {errors?.map((e) => (
         <p key={e} className="mt-1 text-xs text-red-600">
           {t.has(e) ? t(e) : e}
@@ -30,7 +102,17 @@ type Doc = { id: string; type: string; title: string; expiresAt: Date | null };
 
 const dateInput = (d: Date | null | undefined) => (d ? new Date(d).toISOString().slice(0, 10) : null);
 
-export function DocumentForm({ document, shipmentId, back }: { document?: Doc; shipmentId?: string; back?: string }) {
+export function DocumentForm({
+  document,
+  shipmentId,
+  back,
+  uploadPrefix,
+}: {
+  document?: Doc;
+  shipmentId?: string;
+  back?: string;
+  uploadPrefix?: string | null;
+}) {
   const t = useTranslations();
   return (
     <ActionForm
@@ -60,7 +142,7 @@ export function DocumentForm({ document, shipmentId, back }: { document?: Doc; s
           />
           {!document && (
             <div className="md:col-span-3">
-              <FileField state={s} />
+              <FileField state={s} uploadPrefix={uploadPrefix} />
             </div>
           )}
         </div>
@@ -69,14 +151,14 @@ export function DocumentForm({ document, shipmentId, back }: { document?: Doc; s
   );
 }
 
-export function VersionUploadForm({ documentId }: { documentId: string }) {
+export function VersionUploadForm({ documentId, uploadPrefix }: { documentId: string; uploadPrefix?: string | null }) {
   const t = useTranslations();
   return (
     <ActionForm action={uploadVersionAction} submitLabel={t("dms.uploadVersion")} resetOnSuccess variant="gold">
       {(s) => (
         <>
           <input type="hidden" name="id" value={documentId} />
-          <FileField state={s} required />
+          <FileField state={s} required uploadPrefix={uploadPrefix} />
         </>
       )}
     </ActionForm>

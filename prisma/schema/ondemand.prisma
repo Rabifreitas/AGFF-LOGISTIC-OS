@@ -165,3 +165,19 @@ model FreightOffer {
   @@index([status, expiresAt])
   @@map("freight_offers")
 }
+
+/// Subscrição Web Push de um dispositivo (alertas de ofertas ao motorista com a app fechada).
+model PushSubscription {
+  id         String    @id @default(cuid())
+  userId     String    @map("user_id")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint   String    @unique
+  p256dh     String
+  auth       String
+  userAgent  String?   @map("user_agent")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  lastUsedAt DateTime? @map("last_used_at")
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}

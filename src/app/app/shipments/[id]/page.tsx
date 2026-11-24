@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { directUploadPrefix } from "@/lib/storage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TransitionButtons } from "@/components/transition-buttons";
@@ -371,7 +372,9 @@ export default async function ShipmentPage({ params }: { params: Promise<{ id: s
                   ))}
                 </ul>
               )}
-              {canManageDocuments && <DocumentForm shipmentId={s.id} back={back} />}
+              {canManageDocuments && (
+                <DocumentForm shipmentId={s.id} back={back} uploadPrefix={directUploadPrefix(ctx.organizationId)} />
+              )}
             </Card>
           )}
 

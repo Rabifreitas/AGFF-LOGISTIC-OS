@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { RouteMap } from "@/components/map/route-map";
 import Link from "next/link";
 import { ActionButton, AutoRefresh } from "@/components/odf/client";
 import { Radar } from "@/components/odf/radar";
@@ -49,6 +50,23 @@ export default async function FreightRequestPage({ params }: { params: Promise<{
       </div>
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6">
+          <RouteMap
+            className="h-64 w-full rounded-xl"
+            points={[
+              { lat: Number(r.pickupLat), lng: Number(r.pickupLng), kind: "pickup", label: t("odf.pickup") },
+              { lat: Number(r.dropoffLat), lng: Number(r.dropoffLng), kind: "dropoff", label: t("odf.dropoff") },
+              ...(live && position?.latitude
+                ? [
+                    {
+                      lat: Number(position.latitude),
+                      lng: Number(position.longitude),
+                      kind: "driver" as const,
+                      label: t("odf.driver"),
+                    },
+                  ]
+                : []),
+            ]}
+          />
           {r.status === "SEARCHING" && (
             <Card className="!border-[#0b1d3a] !bg-[#0b1d3a] text-white">
               <Radar drivers={radar} label={t("odf.nearby")} pulsing />
